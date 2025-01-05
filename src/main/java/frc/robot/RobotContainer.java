@@ -5,73 +5,65 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.WheelRadiusCharacterization;
-import frc.robot.commands.WheelRadiusCharacterization.Direction;
-import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.util.Dashboard.DashboardHelpers;
-import frc.robot.util.Dashboard.GetValue;
-
-import static frc.robot.Constants.*;
+import frc.robot.commands.swervedrive.AbsoluteDriveAdv;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import swervelib.SwerveInputStream;
 
 public class RobotContainer {
-  final CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
-  private final CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
-  @GetValue
-  public double mult = 0.5;
-  final SwerveSubsystem drivebase;
-  public RobotContainer() {
-    DashboardHelpers.addUpdateClass(this);
-    drivebase = new SwerveSubsystem();
 
-    configureBindings();
-    Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-controller1.getLeftY() * mult, 0),
-        () -> MathUtil.applyDeadband(-controller1.getLeftX() * mult, 0),
-        () -> MathUtil.applyDeadband(-controller1.getRightX(), 0.25),
-        () -> MathUtil.applyDeadband(-controller1.getRightY(), .025));
-
-    Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-controller1.getLeftY() * mult, LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(-controller1.getLeftX() * mult, LEFT_X_DEADBAND),
-        () -> -controller1.getRightX());
-    Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
-        () -> MathUtil.applyDeadband(controller1.getLeftY() * 0.01, LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(controller1.getLeftX() * 0.01, LEFT_X_DEADBAND),
-        () -> controller1.getRawAxis(2));
-    Command pushRobot = drivebase.driveCommand(()-> 0, ()->0, ()-> 0);
-    // drivebase.setDefaultCommand(driveCommand);
-
-
-    // drivebase.setDefaultCommand(
-    //     !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
-    drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
-    // drivebase.setMotorBrake(false);
-  }
+  private CommandXboxController p1Controller = new CommandXboxController(0);
+  private SwerveSubsystem drivebase = new SwerveSubsystem();
+  // Applies deadbands and inverts controls because joysticks
+  // are back-right positive while robot
+  // controls are front-left positive
+  // left stick controls translation
+  // right stick controls the rotational velocity 
+  // buttons are quick rotation positions to different ways to face
+  // WARNING: default buttons are on the same buttons as the ones defined in configureBindings
+  AbsoluteDriveAdv closedAbsoluteDriveAdv = new AbsoluteDriveAdv(drivebase, () -> -MathUtil.applyDeadband(p1Controller.getLeftY(),
+    Constants.LEFT_Y_DEADBAND), () -> -MathUtil.applyDeadband(p1Controller.getLeftX(), Constants.LEFT_X_DEADBAND),
+    () -> -MathUtil.applyDeadband(p1Controller.getRightX(), Constants.RIGHT_X_DEADBAND),
+    p1Controller.getHID()::getYButtonPressed, p1Controller.getHID()::getAButtonPressed,
+    p1Controller.getHID()::getXButtonPressed, p1Controller.getHID()::getBButtonPressed);
 
   /**
-     * Use this method to define your trigger->command mappings. Triggers can be created via the
-     * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-     * predicate, or via the named factories in {@link
-     * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-     * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-     * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-     * joysticks}.
-     */
-  private void configureBindings() {
-    controller1.a().toggleOnTrue(new WheelRadiusCharacterization(drivebase, Direction.COUNTER_CLOCKWISE));
-    controller1.povUp().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(1)));
-    controller1.povRight().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(1)));
-    controller1.povDown().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(180), Rotation2d.fromDegrees(1)));
-    controller1.povLeft().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(270), Rotation2d.fromDegrees(1)));
+   * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
+   */
+  SwerveInputStream driveAngularVelocity = 
+    SwerveInputStream.of(drivebase.getSwerveDrive(), () -> p1Controller.getLeftY() * -1, () -> p1Controller.getLeftX() * -1)
+      .withControllerRotationAxis(p1Controller::getRightX).deadband(Constants.LEFT_X_DEADBAND)
+      .scaleTranslation(0.8).allianceRelativeControl(true);
 
-    controller1.start().onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
+  /**
+   * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
+   */
+  SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(p1Controller::getRightX,
+    p1Controller::getRightY).headingWhile(true);
+
+
+  // Applies deadbands and inverts controls because joysticks
+  // are back-right positive while robot
+  // controls are front-left positive
+  // left stick controls translation
+  // right stick controls the desired angle NOT angular rotation
+  Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
+
+  // Applies deadbands and inverts controls because joysticks
+  // are back-right positive while robot
+  // controls are front-left positive
+  // left stick controls translation
+  // right stick controls the angular velocity of the robot
+  Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+
+  Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
+
+  public RobotContainer(){
+    drivebase.setDefaultCommand(closedAbsoluteDriveAdv);
   }
 
-  public Command getAutonomousCommand() {
+  public Command getAutonomousCommand(){
     return drivebase.getAutoCommand();
   }
 }
