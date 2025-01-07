@@ -1,11 +1,10 @@
 package frc.robot.util;
 
+import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 
 import static frc.robot.Constants.NEO_CURRENT_LIMIT_AMPS;
@@ -22,9 +21,10 @@ public class MotorUtil {
 
     /**
      * Create a new CANSparkMax Neo motor
-     * @param motorId the CAN id of the motor
+     *
+     * @param motorId   the CAN id of the motor
      * @param motorType the type of the motor (Brushed or Brushless)
-     * @param idleMode the idle mode of the motor (Brake or Coast)
+     * @param idleMode  the idle mode of the motor (Brake or Coast)
      * @return the motor with the paramenters specified
      */
     public static SparkMax initSparkMax(int motorId, MotorType motorType, IdleMode idleMode) {
@@ -32,11 +32,12 @@ public class MotorUtil {
     }
 
     /**
-     * Clamp the percent output to be between -1 and 1  
+     * Clamp the percent output to be between -1 and 1
+     *
      * @return the clamped result
      */
-    public static double clampPercent(double percent){
+    public static double clampPercent(double percent) {
         return MathUtil.clamp(percent, -1, 1);
     }
-    
+
 }

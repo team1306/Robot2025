@@ -20,9 +20,10 @@ public class DashboardHelpers {
     private static final Set<PutMethod> putMethodsToUpdate = new HashSet<>();
 
     /**
-     * Adds a class to check for any {@link GetValue} or {@link PutValue} annotations. 
+     * Adds a class to check for any {@link GetValue} or {@link PutValue} annotations.
      * This will update the fields with {@link GetValue} from the value on SmartDashboard.
      * This will put the value of any fields or call any methods with {@link PutValue} to SmartDashboard
+     *
      * @param instance the instance of the class to check
      */
     public static void addUpdateClass(Object instance) {
@@ -30,7 +31,7 @@ public class DashboardHelpers {
                 .filter(field -> field.isAnnotationPresent(GetValue.class)).forEach(field -> {
                     field.setAccessible(true);
                     String key = field.getAnnotation(GetValue.class).key();
-                    if(key.isBlank())
+                    if (key.isBlank())
                         key = field.getName();
                     key = instance.getClass().getSimpleName() + "/" + key;
                     Object value = getFieldValue(instance, field);
@@ -44,7 +45,7 @@ public class DashboardHelpers {
                 .forEach(field -> {
                     field.setAccessible(true);
                     String key = field.getAnnotation(PutValue.class).key();
-                    if(key.isBlank())
+                    if (key.isBlank())
                         key = field.getName();
                     key = instance.getClass().getSimpleName() + "/" + key;
                     putFieldsToUpdate.add(new PutField(instance, field, key));
@@ -55,7 +56,7 @@ public class DashboardHelpers {
                 .forEach(method -> {
                     method.setAccessible(true);
                     String key = method.getAnnotation(PutValue.class).key();
-                    if(key.isBlank())
+                    if (key.isBlank())
                         key = method.getName();
                     key = instance.getClass().getSimpleName() + "/" + key;
                     putMethodsToUpdate.add(new PutMethod(instance, method, key));
@@ -64,7 +65,7 @@ public class DashboardHelpers {
     }
 
     /**
-     * Updates all the fields and methods in the registered classes by either putting or getting a specific value. 
+     * Updates all the fields and methods in the registered classes by either putting or getting a specific value.
      * This method should be called only once in {@link Robot#robotPeriodic()}
      */
     public static void update() {
@@ -75,8 +76,9 @@ public class DashboardHelpers {
 
     /**
      * Gets the current value of a field
+     *
      * @param instance the instance of the class with the field in it
-     * @param field the field to get from
+     * @param field    the field to get from
      * @return the value of the field
      */
     @SneakyThrows(IllegalAccessException.class)
@@ -86,8 +88,9 @@ public class DashboardHelpers {
 
     /**
      * Gets the value of a method
+     *
      * @param instance the instance of the class with the method in it
-     * @param method the method to get the value from
+     * @param method   the method to get the value from
      * @return the value of the method
      */
     @SneakyThrows({IllegalAccessException.class, InvocationTargetException.class})
@@ -99,7 +102,7 @@ public class DashboardHelpers {
     private static void handleGetTypes(GetField getField) {
         Field field = getField.field;
         Class<?> type = field.getType();
-        
+
         if (type.equals(double.class)) {
             field.set(getField.instance, SmartDashboard.getNumber(getField.key, (double) getField.defaultValue));
         } else if (type.equals(String.class)) {
@@ -111,7 +114,7 @@ public class DashboardHelpers {
             throw new RuntimeException("Unsupported getValue type: " + type);
         }
     }
-    
+
     @SneakyThrows(IllegalAccessException.class)
     private static void internalPutValue(PutField putField) {
         putValue(putField.key, putField.field.get(putField.instance));
@@ -123,7 +126,8 @@ public class DashboardHelpers {
 
     /**
      * Handles the putting of an {@link Object} to SmartDashboard without explicitly writing the type
-     * @param key the key to put to SmartDashboard
+     *
+     * @param key   the key to put to SmartDashboard
      * @param value the value to put to SmartDashboard. This must be one of the valid types ({@link Double}, {@link String}, {@link Boolean})
      */
     public static void putValue(String key, Object value) {
@@ -137,9 +141,14 @@ public class DashboardHelpers {
             throw new RuntimeException("Unsupported putValue type: " + (value == null ? "void is not a valid type" : value.getClass()));
         }
     }
-    
-    private record GetField(Object instance, Field field, String key, Object defaultValue) {}
-    private record PutField(Object instance, Field field, String key) {}
-    private record PutMethod(Object instance, Method method, String key) {}
+
+    private record GetField(Object instance, Field field, String key, Object defaultValue) {
+    }
+
+    private record PutField(Object instance, Field field, String key) {
+    }
+
+    private record PutMethod(Object instance, Method method, String key) {
+    }
 
 }

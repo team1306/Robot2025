@@ -10,70 +10,75 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.util.Dashboard.DashboardHelpers;
 
 public class Robot extends TimedRobot {
-  private Command autonomousCommand;
-  private RobotContainer robotContainer;
-  
-  @Override
-  public void robotInit() {
-    robotContainer = new RobotContainer();
-  }
+    private Command autonomousCommand;
+    private RobotContainer robotContainer;
 
-  @Override
-  public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
-    DashboardHelpers.update();
-  }
-
-  @Override
-  public void disabledInit() {
-  }
-
-  @Override
-  public void disabledPeriodic() {
-  }
-
-  @Override
-  public void disabledExit() {}
-
-  @Override
-  public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
-
-    if (autonomousCommand != null) {
-      autonomousCommand.schedule();
+    @Override
+    public void robotInit() {
+        robotContainer = new RobotContainer();
     }
-  }
 
-  @Override
-  public void autonomousPeriodic() {}
-
-  @Override
-  public void autonomousExit() {}
-
-  @Override
-  public void teleopInit() {
-    if (autonomousCommand != null) {
-      autonomousCommand.cancel();
+    @Override
+    public void robotPeriodic() {
+        CommandScheduler.getInstance().run();
+        DashboardHelpers.update();
     }
-  }
 
-  @Override
-  public void teleopPeriodic() {
-        
-  }
+    @Override
+    public void disabledInit() {
+    }
 
-  @Override
-  public void teleopExit() {}
+    @Override
+    public void disabledPeriodic() {
+    }
 
-  @Override
-  public void testInit() {
+    @Override
+    public void disabledExit() {
+    }
 
-  }
+    @Override
+    public void autonomousInit() {
+        autonomousCommand = robotContainer.getAutonomousCommand();
 
-  @Override
-  public void testPeriodic() {}
+        if (autonomousCommand != null) {
+            autonomousCommand.schedule();
+        }
+    }
 
-  @Override
-  public void testExit() {
-  }
+    @Override
+    public void autonomousPeriodic() {
+    }
+
+    @Override
+    public void autonomousExit() {
+    }
+
+    @Override
+    public void teleopInit() {
+        if (autonomousCommand != null) {
+            autonomousCommand.cancel();
+        }
+    }
+
+    @Override
+    public void teleopPeriodic() {
+
+    }
+
+    @Override
+    public void teleopExit() {
+    }
+
+    @Override
+    public void testInit() {
+
+    }
+
+    @Override
+    public void testPeriodic() {
+    }
+
+    @Override
+    public void testExit() {
+    }
 }

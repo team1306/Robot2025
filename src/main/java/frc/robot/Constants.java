@@ -14,16 +14,7 @@ public final class Constants {
     public static final int           NEO_COUNTS_PER_REVOLUTION      = 42;
     public static final int           NEO_CURRENT_LIMIT_AMPS         = 60; // motor would reach safety limit after ~70s of stalling at 60A
     public static final double        NEO_MAX_VOLTAGE                = 12;
- 
-    public static final int           FRONT_LEFT_DRIVE_MOTOR_ID      = 1;
-    public static final int           FRONT_RIGHT_DRIVE_MOTOR_ID     = 2;
-    public static final int           BACK_LEFT_DRIVE_MOTOR_ID       = 3;
-    public static final int           BACK_RIGHT_DRIVE_MOTOR_ID      = 4;
-    public static final int           FRONT_LEFT_DRIVE_STEER_ID      = 1;
-    public static final int           FRONT_RIGHT_DRIVE_STEER_ID     = 2;
-    public static final int           BACK_LEFT_DRIVE_STEER_ID       = 3;
-    public static final int           BACK_RIGHT_DRIVE_STEER_ID      = 4;
- 
+    //IDs 1 - 8 are taken by swerve (at the moment)
     public static final double        LOOP_TIME_MS                   = 20;
     public static final double        LOOP_TIME_SECONDS              = LOOP_TIME_MS / 1000D;
 

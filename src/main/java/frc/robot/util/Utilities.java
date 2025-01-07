@@ -5,33 +5,34 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Utilities {
-    private Utilities() {} // block instantiation
+    private Utilities() {
+    } // block instantiation
 
     /**
      * Returns whether the Driverstation is on the red alliance
+     *
      * @return true if on the red alliance, false if on the blue alliance or the alliance is not present
      */
-    public static boolean isRedAlliance(){
+    public static boolean isRedAlliance() {
         var alliance = DriverStation.getAlliance();
         return alliance.isEmpty() || (alliance.get() == DriverStation.Alliance.Red);
     }
 
-    public static boolean isValidDouble(double value){
+    public static boolean isValidDouble(double value) {
         return !Double.isNaN(value) && !Double.isInfinite(value);
     }
-    
+
     /**
      * Run consumer if object is not null, else do nothing
-     * @param <T> type of object
-     * @param object input object
+     *
+     * @param <T>            type of object
+     * @param object         input object
      * @param objectConsumer consumer to apply to object
      * @return returns optional input object
      */
@@ -53,7 +54,7 @@ public class Utilities {
     public static Translation2d squareTranslation(Translation2d translation) {
         return new Translation2d(Math.pow(translation.getX(), 2) * Math.signum(translation.getX()), Math.pow(translation.getY(), 2) * Math.signum(translation.getY()));
     }
-    
+
     public static Translation2d cubeTranslation(Translation2d translation) {
         return new Translation2d(Math.pow(translation.getX(), 3), Math.pow(translation.getY(), 3));
     }
@@ -65,9 +66,7 @@ public class Utilities {
     @SafeVarargs
     public static <T> ArrayList<T> arrayListFromParams(T... items) {
         final ArrayList<T> arrayList = new ArrayList<>();
-        for (T item : items) {
-            arrayList.add(item);
-        }
+        Collections.addAll(arrayList, items);
         return arrayList;
     }
 
@@ -92,37 +91,5 @@ public class Utilities {
     @SafeVarargs
     public static <T, R> ArrayList<R> map(Function<T, R> function, T... items) {
         return map(function, Arrays.asList(items));
-    }
-
-    public static class WrappedDouble {
-        public double val;
-
-        public WrappedDouble(double val) {
-            this.val = val;
-        }
-        
-        public WrappedDouble() {
-            this(0D);
-        }
-    }
-
-    public static class WrappedBoolean {
-        public boolean val;
-
-        public WrappedBoolean(boolean val) {
-            this.val = val;
-        }
-    }
-
-    public static class WrappedInteger {
-        public int val;
-
-        public WrappedInteger(int val) {
-            this.val = val;
-        }
-        
-        public WrappedInteger() {
-            this(0);
-        }
     }
 }
