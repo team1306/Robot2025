@@ -34,11 +34,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.util.Utilities;
+import frc.robot.util.Dashboard.DashboardHelpers;
+import frc.robot.util.Dashboard.GetValue;
+
 import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
+import swervelib.SwerveModule;
 import swervelib.math.SwerveMath;
+import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -60,6 +65,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
 
     public SwerveSubsystem() {
+        DashboardHelpers.addUpdateClass(this);
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         try {
             File directory = new File(Filesystem.getDeployDirectory(), "swerve");
@@ -93,9 +99,18 @@ public class SwerveSubsystem extends SubsystemBase {
         driveFieldOriented(speeds);
     }
 
+    @GetValue
+    private double driveP = 4, driveI, driveD, driveF;
+    public boolean pushPID = true;
+
     @Override
     public void periodic() {
-
+        if(pushPID){
+            for (SwerveModule module : swerveDrive.getModules()){
+                module.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF));
+            }
+            pushPID = false;
+        }
     }
 
     @Override

@@ -5,36 +5,39 @@
 package frc.robot;
 
 import choreo.auto.AutoFactory;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.util.Dashboard.DashboardHelpers;
+import frc.robot.util.Dashboard.GetValue;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
 
     private final AutoFactory autoFactory;
-    private final CommandXboxController p1Controller = new CommandXboxController(0);
-    private final SwerveSubsystem drivebase = new SwerveSubsystem();
+    private final CommandXboxController controller1 = new CommandXboxController(0);
+    public final SwerveSubsystem drivebase = new SwerveSubsystem();
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
      */
     private final SwerveInputStream driveAngularVelocity =
-            SwerveInputStream.of(drivebase.getSwerveDrive(), () -> p1Controller.getLeftY() * -1, () -> p1Controller.getLeftX() * -1)
-                    .withControllerRotationAxis(p1Controller::getRightX).deadband(Constants.LEFT_X_DEADBAND)
-                    .scaleTranslation(0.8).allianceRelativeControl(true);
+            SwerveInputStream.of(drivebase.getSwerveDrive(), () -> controller1.getLeftY() * -1, () -> controller1.getLeftX() * -1)
+                    .withControllerRotationAxis(controller1::getRightX).deadband(Constants.LEFT_X_DEADBAND)
+                    .scaleTranslation(0.1).allianceRelativeControl(true);
 
     /**
      * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
      */
-    private final SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(p1Controller::getRightX,
-            p1Controller::getRightY).headingWhile(true);
+    private final SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(controller1::getRightX,
+            controller1::getRightY).headingWhile(true);
 
     private final Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
     private final Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
     private final Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
     public RobotContainer() {
-        drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+        drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
         autoFactory = new AutoFactory(
                 drivebase::getPose, // A function that returns the current robot pose
                 drivebase::resetOdometry, // A function that resets the current robot pose to the provided Pose2d
