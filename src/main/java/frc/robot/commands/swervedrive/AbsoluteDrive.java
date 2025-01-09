@@ -69,11 +69,8 @@ public class AbsoluteDrive extends Command
   @Override
   public void execute()
   {
-
     // Get the desired chassis speeds based on a 2 joystick module.
-    ChassisSpeeds desiredSpeeds = swerve.getTargetSpeeds(vX.getAsDouble(), vY.getAsDouble(),
-                                                         headingHorizontal.getAsDouble(),
-                                                         headingVertical.getAsDouble());
+    ChassisSpeeds desiredSpeeds = swerve.getTargetSpeeds(0, 0, headingHorizontal.getAsDouble(), headingVertical.getAsDouble());
 
     // Prevent Movement After Auto
     if (initRotation)
@@ -91,15 +88,14 @@ public class AbsoluteDrive extends Command
     }
 
     // Limit velocity to prevent tippy
-    Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
-    translation = SwerveMath.limitVelocity(translation, swerve.getFieldVelocity(), swerve.getPose(),
-                                           Constants.LOOP_TIME, Constants.ROBOT_MASS, List.of(),
-                                           swerve.getSwerveDriveConfiguration());
-    SmartDashboard.putNumber("LimitedTranslation", translation.getX());
-    SmartDashboard.putString("Translation", translation.toString());
+    // Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
+    // translation = SwerveMath.limitVelocity(translation, swerve.getFieldVelocity(), swerve.getPose(),
+    //                                        Constants.LOOP_TIME, Constants.ROBOT_MASS, List.of(),
+    //                                        swerve.getSwerveDriveConfiguration());
+    
 
     // Make the robot move
-    swerve.drive(translation, desiredSpeeds.omegaRadiansPerSecond, true);
+    swerve.drive(desiredSpeeds);
 
   }
 

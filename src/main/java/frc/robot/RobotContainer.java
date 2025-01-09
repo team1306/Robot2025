@@ -5,12 +5,10 @@
 package frc.robot;
 
 import choreo.auto.AutoFactory;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.swervedrive.AbsoluteDrive;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import frc.robot.util.Dashboard.DashboardHelpers;
-import frc.robot.util.Dashboard.GetValue;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
@@ -24,7 +22,7 @@ public class RobotContainer {
     private final SwerveInputStream driveAngularVelocity =
             SwerveInputStream.of(drivebase.getSwerveDrive(), () -> controller1.getLeftY() * -1, () -> controller1.getLeftX() * -1)
                     .withControllerRotationAxis(controller1::getRightX).deadband(Constants.LEFT_X_DEADBAND)
-                    .scaleTranslation(0.1).allianceRelativeControl(true);
+                    .scaleTranslation(1).allianceRelativeControl(true);
 
     /**
      * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
@@ -37,7 +35,9 @@ public class RobotContainer {
     private final Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
     public RobotContainer() {
-        drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
+        drivebase.setDefaultCommand(drivebase.driveCommand(() -> controller1.getLeftY() * -1, () -> controller1.getLeftX() * -1, controller1::getRightX,
+        controller1::getRightY));
+        
         autoFactory = new AutoFactory(
                 drivebase::getPose, // A function that returns the current robot pose
                 drivebase::resetOdometry, // A function that resets the current robot pose to the provided Pose2d

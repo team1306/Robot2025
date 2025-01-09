@@ -77,10 +77,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
         swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
         swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
-        swerveDrive.setAngularVelocityCompensation(true, true, 0.1); //Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
+        swerveDrive.setAngularVelocityCompensation(false, false, 0.1); //Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
-        swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
-
+        // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
+    
         headingController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
@@ -100,7 +100,10 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     @GetValue
-    private double driveP = 4, driveI, driveD, driveF;
+    private double driveP = 0, driveI = 0, driveD = 0, driveF = 0;
+    // @GetValue
+    // private double angleP = 0, angleI = 0, angleD = 0, angleF = 0;
+
     public boolean pushPID = true;
 
     @Override
@@ -108,7 +111,9 @@ public class SwerveSubsystem extends SubsystemBase {
         if(pushPID){
             for (SwerveModule module : swerveDrive.getModules()){
                 module.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF));
+                // module.setAnglePIDF(new PIDFConfig(angleP, angleI, angleD, angleF));
             }
+            
             pushPID = false;
         }
     }
