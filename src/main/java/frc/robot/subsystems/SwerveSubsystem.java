@@ -18,6 +18,7 @@ import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -28,6 +29,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -82,7 +84,11 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
         // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
     
-        headingController.enableContinuousInput(-Math.PI, Math.PI);
+        //continuous input likely causes it to switch directions rapidly 
+        // headingController.enableContinuousInput(-Math.PI, Math.PI);
+
+        //limit the amount of instantaneous movement
+        swerveDrive.swerveController.angleLimiter = new SlewRateLimiter(6);
     }
 
     public void followTrajectory(SwerveSample sample) {
@@ -101,11 +107,11 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     @GetValue
-    private double driveP = 0, driveI = 0, driveD = 0, driveF = 0;
+    private double driveP = 1, driveI = 0, driveD = 0, driveF = 0;
     // @GetValue
     // private double angleP = 0, angleI = 0, angleD = 0, angleF = 0;
     @GetValue
-    private double headingP = 0, headingI = 0, headingD = 0;
+    private double headingP = 0.2, headingI = 0, headingD = 0;
 
 
     public boolean pushPID = true;
@@ -117,9 +123,8 @@ public class SwerveSubsystem extends SubsystemBase {
                 module.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF));
                 // module.setAnglePIDF(new PIDFConfig(angleP, angleI, angleD, angleF));
             }
-            System.out.println("Push pid");
-            swerveDrive.swerveController.thetaController.setPID(headingP, headingI, headingD);
             pushPID = false;
+            swerveDrive.swerveController.thetaController.setPID(headingP, headingI, headingD);
         }
     }
 
@@ -343,6 +348,9 @@ public class SwerveSubsystem extends SubsystemBase {
             final double forwardComponent = smartPow(translationX.getAsDouble(), 2) * swerveDrive.getMaximumChassisVelocity();
             final double sidewaysComponent = smartPow(translationY.getAsDouble(), 2) * swerveDrive.getMaximumChassisVelocity();
 
+            SmartDashboard.putNumber("Controller Heading", Rotation2d.fromRadians(Math.atan2(headingX.getAsDouble(), headingY.getAsDouble())).getDegrees());
+            SmartDashboard.putNumber("PID output", swerveDrive.swerveController.headingCalculate(getHeading().getRadians(), Math.atan2(headingX.getAsDouble(), headingY.getAsDouble())));
+       
             // Make the robot move
             driveFieldOriented(
                     swerveDrive.swerveController.getTargetSpeeds(
