@@ -10,8 +10,8 @@ import edu.wpi.first.math.MathUtil;
 import static frc.robot.Constants.NEO_CURRENT_LIMIT_AMPS;
 
 public class MotorUtil {
-    public static SparkMax initSparkMax(int motorId, MotorType motorType, IdleMode idleMode, int currentLimitAmps) {
-        SparkMax motor = new SparkMax(motorId, motorType);
+    public static SparkMax initSparkMax(int motorId, IdleMode idleMode, int currentLimitAmps) {
+        SparkMax motor = new SparkMax(motorId, MotorType.kBrushless);
         SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(idleMode);
         config.smartCurrentLimit(currentLimitAmps);
@@ -27,8 +27,8 @@ public class MotorUtil {
      * @param idleMode  the idle mode of the motor (Brake or Coast)
      * @return the motor with the paramenters specified
      */
-    public static SparkMax initSparkMax(int motorId, MotorType motorType, IdleMode idleMode) {
-        return initSparkMax(motorId, motorType, idleMode, NEO_CURRENT_LIMIT_AMPS);
+    public static SparkMax initSparkMax(int motorId, IdleMode idleMode) {
+        return initSparkMax(motorId, idleMode, NEO_CURRENT_LIMIT_AMPS);
     }
 
     /**

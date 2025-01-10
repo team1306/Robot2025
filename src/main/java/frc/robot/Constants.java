@@ -11,6 +11,8 @@ import swervelib.math.Matter;
 public final class Constants {
     private Constants(){} // block instantiation
 
+    public static final int WRIST_MOTOR_ID = -1;
+
     public static final int           NEO_COUNTS_PER_REVOLUTION      = 42;
     public static final int           NEO_CURRENT_LIMIT_AMPS         = 60; // motor would reach safety limit after ~70s of stalling at 60A
     public static final double        NEO_MAX_VOLTAGE                = 12;
@@ -31,4 +33,5 @@ public final class Constants {
 
     public static final double ROBOT_MASS = 31.2; // kg
     public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
+    
 }
