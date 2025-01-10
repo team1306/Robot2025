@@ -10,6 +10,7 @@ import swervelib.math.Matter;
  */
 public final class Constants {
     private Constants(){} // block instantiation
+    public static final int           INTAKE_ID                      = 1234;
 
     public static final int WRIST_MOTOR_ID = -1;
 
