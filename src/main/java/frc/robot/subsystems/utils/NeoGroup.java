@@ -5,11 +5,9 @@ import java.util.List;
 
 import com.revrobotics.spark.SparkMax;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.Utilities;
 
-@Deprecated
-public class NeoGroupSubsystem extends SubsystemBase{
+public class NeoGroup{
     public static class NeoData {
         public final SparkMax motor;
         public final boolean direction;
@@ -19,10 +17,10 @@ public class NeoGroupSubsystem extends SubsystemBase{
            this(motor, direction, 1);
         }
 
-        public NeoData(SparkMax motor, boolean direction, double speed){
+        public NeoData(SparkMax motor, boolean direction, double relativeSpeed){
             this.motor = motor;
             this.direction = direction;
-            this.speed = speed;
+            this.speed = relativeSpeed;
         }
 
         public double getSpeed(){
@@ -35,24 +33,17 @@ public class NeoGroupSubsystem extends SubsystemBase{
     }
 
     public final List<NeoData> neoGroup;
-    public double relativeSpeed = 0;
 
     @SafeVarargs
-    public NeoGroupSubsystem(NeoData... neoData) {
+    public NeoGroup(NeoData... neoData) {
         this.neoGroup = Utilities.arrayListFromParams(neoData);
     }
 
-    public NeoGroupSubsystem(){
+    public NeoGroup(){
         neoGroup = new ArrayList<>();
     }
 
-    public void addNeo(NeoData neoData){
-        neoGroup.add(neoData);
-    }
-
-    @Override
-    public void periodic(){
-        if(neoGroup.size() < 1) throw new IllegalArgumentException("At least 1 neo needs to be registered");
-        neoGroup.forEach(neo -> neo.motor.set(neo.getSpeed() * relativeSpeed));
+    public void setSpeed(double speed){
+        neoGroup.forEach(neo -> neo.motor.set(neo.getSpeed() * speed));
     }
 }

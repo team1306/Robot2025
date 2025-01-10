@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.swervedrive;
+package frc.robot.subsystems;
 
 import choreo.trajectory.SwerveSample;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -57,6 +57,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static frc.robot.util.Utilities.*;
 
 public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrive swerveDrive;
@@ -103,6 +104,9 @@ public class SwerveSubsystem extends SubsystemBase {
     private double driveP = 0, driveI = 0, driveD = 0, driveF = 0;
     // @GetValue
     // private double angleP = 0, angleI = 0, angleD = 0, angleF = 0;
+    @GetValue
+    private double headingP = 0, headingI = 0, headingD = 0;
+
 
     public boolean pushPID = true;
 
@@ -113,7 +117,8 @@ public class SwerveSubsystem extends SubsystemBase {
                 module.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF));
                 // module.setAnglePIDF(new PIDFConfig(angleP, angleI, angleD, angleF));
             }
-            
+            System.out.println("Push pid");
+            swerveDrive.swerveController.thetaController.setPID(headingP, headingI, headingD);
             pushPID = false;
         }
     }
@@ -335,13 +340,13 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier headingX, DoubleSupplier headingY) {
         // swerveDrive.setHeadingCorrection(true); // Normally you would want heading correction for this kind of control.
         return run(() -> {
-            Translation2d scaledInputs =
-                    SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(), translationY.getAsDouble()), 0.8);
+            final double forwardComponent = smartPow(translationX.getAsDouble(), 2) * swerveDrive.getMaximumChassisVelocity();
+            final double sidewaysComponent = smartPow(translationY.getAsDouble(), 2) * swerveDrive.getMaximumChassisVelocity();
 
             // Make the robot move
             driveFieldOriented(
                     swerveDrive.swerveController.getTargetSpeeds(
-                            scaledInputs.getX(), scaledInputs.getY(), headingX.getAsDouble(), headingY.getAsDouble(),
+                            forwardComponent, sidewaysComponent, headingX.getAsDouble(), headingY.getAsDouble(),
                             swerveDrive.getOdometryHeading().getRadians(), swerveDrive.getMaximumChassisVelocity()));
         });
     }
