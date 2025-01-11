@@ -35,4 +35,7 @@ public final class Constants {
     public static final double ROBOT_MASS = 31.2; // kg
     public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
     
+    public static final int           WRIST_ABSOLUTE_ENCODER         = 0;
+    public static final int           ELEVATOR_RELATIVE_ENCODER_A    = 1;
+    public static final int           ELEVATOR_RELATIVE_ENCODER_B    = 2;
 }
