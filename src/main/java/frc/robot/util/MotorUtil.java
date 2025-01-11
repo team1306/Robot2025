@@ -2,6 +2,8 @@ package frc.robot.util;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -29,6 +31,13 @@ public class MotorUtil {
      */
     public static SparkMax initSparkMax(int motorId, IdleMode idleMode) {
         return initSparkMax(motorId, idleMode, NEO_CURRENT_LIMIT_AMPS);
+    }
+
+    public static TalonFX initTalonFX(int motorId, NeutralModeValue idleMode){
+        TalonFX motor = new TalonFX(motorId);
+        motor.setNeutralMode(idleMode);
+        
+        return motor;
     }
 
     /**
