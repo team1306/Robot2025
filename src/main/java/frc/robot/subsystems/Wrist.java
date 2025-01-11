@@ -1,39 +1,65 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.AbsoluteEncoder;
-
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import lombok.Getter;
-import lombok.Setter;
 
-public class Wrist extends SubsystemBase {
+import frc.robot.util.MotorUtil;
+import frc.robot.util.Dashboard.GetValue;
 
-    private final double PID_P = 1, PID_I = 0, PID_D = 0; //needs tuning
+import static frc.robot.Constants.*;
 
-    private TalonFX motor = new TalonFX(Constants.WRIST_MOTOR_ID);
-    private DutyCycleEncoder encoder = new DutyCycleEncoder(0);
+public class Wrist extends SubsystemBase  {
 
-    private PIDController controller = new PIDController(PID_P, PID_I, PID_D);
+    private final TalonFX leftArmMotor, rightArmMotor;
+    private final DutyCycleEncoder absoluteThroughBoreEncoder;
 
-    @Getter @Setter
-    private Rotation2d angleSetpoint;
-    // control falcon 500
-    // know theres a gear ratio
-    // have pid constants
-    // has rev absolute analog encoder to know position
-    // be able to set angle in degrees or radians
+
+    private final PIDController pidController;
+
+    @GetValue public static double kP = 0, kI = 0.0, kD = 0.00; 
+    private static final double MAX_RPS = 360;
+    private double maxPower = 1;
+
+    public static final double OFFSET = -1, DELTA_AT_SETPOINT = .2;
+    
+    private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
+
+
     public Wrist() {
+        super("arm");
+        leftArmMotor = MotorUtil.initTalonFX(WRIST_LEFT_MOTOR_ID, NeutralModeValue.Brake);
+        rightArmMotor = MotorUtil.initTalonFX(WRIST_RIGHT_MOTOR_ID, NeutralModeValue.Brake);
+        
+        absoluteThroughBoreEncoder = new DutyCycleEncoder(WRIST_ABSOLUTE_ENCODER);
 
+        pidController = new PIDController(kP, kI, kD, LOOP_TIME_SECONDS);
+        pidController.setTolerance(DELTA_AT_SETPOINT);
+
+        setTargetAngle(getCurrentAngle());
+    }
+
+    public Rotation2d getCurrentAngle() {
+        return Rotation2d.fromRotations((absoluteThroughBoreEncoder.get())).minus(Rotation2d.fromDegrees(OFFSET));
+    }
+
+    public Rotation2d getTargetAngle() {
+        return targetAngle;
+    }
+
+    public void setTargetAngle(Rotation2d angle) {
+        targetAngle = angle;
+    }
+
+    public boolean atSetpoint() {
+        return pidController.atSetpoint();
     }
 
     @Override
     public void periodic() {
-        motor.set(controller.calculate(angleSetpoint.getRadians()));
+    
     }
 }
