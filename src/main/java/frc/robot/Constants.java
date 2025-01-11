@@ -11,8 +11,11 @@ import swervelib.math.Matter;
 public final class Constants {
     private Constants(){} // block instantiation
     public static final int           INTAKE_ID                      = 1234;
-
-    public static final int WRIST_MOTOR_ID = -1;
+    public static final int           ARM_LEFT_MOTOR_ID              = 12334;
+    public static final int           ARM_RIGHT_MOTOR_ID             = 123345;
+    public static final int           WRIST_LEFT_MOTOR_ID            = 12334;
+    public static final int           WRIST_RIGHT_MOTOR_ID           = 123345;
+    public static final int           WRIST_MOTOR_ID                 = -1;
 
     public static final int           NEO_COUNTS_PER_REVOLUTION      = 42;
     public static final int           NEO_CURRENT_LIMIT_AMPS         = 60; // motor would reach safety limit after ~70s of stalling at 60A
