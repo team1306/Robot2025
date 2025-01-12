@@ -4,7 +4,20 @@
 
 package frc.robot.subsystems;
 
-import choreo.trajectory.SwerveSample;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static frc.robot.util.Utilities.smartPow;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
+import org.json.simple.parser.ParseException;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -16,6 +29,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
+import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -26,6 +41,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
@@ -38,8 +54,6 @@ import frc.robot.Constants;
 import frc.robot.util.Utilities;
 import frc.robot.util.Dashboard.DashboardHelpers;
 import frc.robot.util.Dashboard.GetValue;
-
-import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -50,16 +64,6 @@ import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static frc.robot.util.Utilities.*;
 
 public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrive swerveDrive;
@@ -78,17 +82,18 @@ public class SwerveSubsystem extends SubsystemBase {
             throw new RuntimeException(e);
         }
 
-        swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
+        swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
         swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         swerveDrive.setAngularVelocityCompensation(false, false, 0.1); //Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
         // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
-    
-        //continuous input likely causes it to switch directions rapidly 
-        // headingController.enableContinuousInput(-Math.PI, Math.PI);
+        swerveDrive.setAutoCenteringModules(false);
 
+        headingController.enableContinuousInput(-Math.PI, Math.PI);
+        //swerveDrive.swerveController.thetaController.setTolerance(0);
         //limit the amount of instantaneous movement
-        swerveDrive.swerveController.angleLimiter = new SlewRateLimiter(6);
+        // swerveDrive.swerveController.angleLimiter = new SlewRateLimiter(3);
+        // swerveDrive.setMaximumAllowableSpeeds(swerveDrive.getMaximumChassisVelocity(), 5);
     }
 
     public void followTrajectory(SwerveSample sample) {
@@ -101,18 +106,17 @@ public class SwerveSubsystem extends SubsystemBase {
                 sample.vy + translationController.calculate(pose.getY(), sample.y),
                 sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
-
+        System.out.println(sample.x);
         // Apply the generated speeds
         driveFieldOriented(speeds);
     }
 
     @GetValue
-    private double driveP = 1, driveI = 0, driveD = 0, driveF = 0;
+    private double driveP = 10, driveI = 0, driveD = 0, driveF = 0;
     // @GetValue
     // private double angleP = 0, angleI = 0, angleD = 0, angleF = 0;
     @GetValue
-    private double headingP = 0.2, headingI = 0, headingD = 0;
-
+    private double headingP = 0.1, headingI = 0, headingD = 0;
 
     public boolean pushPID = true;
 
@@ -124,8 +128,9 @@ public class SwerveSubsystem extends SubsystemBase {
                 // module.setAnglePIDF(new PIDFConfig(angleP, angleI, angleD, angleF));
             }
             pushPID = false;
-            swerveDrive.swerveController.thetaController.setPID(headingP, headingI, headingD);
         }
+        //swerveDrive.swerveController.thetaController.setPID(headingP, headingI, headingD);
+        SmartDashboard.putNumber("heading d from yagsl", swerveDrive.swerveController.thetaController.getD());
     }
 
     @Override
@@ -345,16 +350,20 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier headingX, DoubleSupplier headingY) {
         // swerveDrive.setHeadingCorrection(true); // Normally you would want heading correction for this kind of control.
         return run(() -> {
-            final double forwardComponent = smartPow(translationX.getAsDouble(), 2) * swerveDrive.getMaximumChassisVelocity();
-            final double sidewaysComponent = smartPow(translationY.getAsDouble(), 2) * swerveDrive.getMaximumChassisVelocity();
+            // final double forwardComponent = smartPow(translationX.getAsDouble(), 2) * swerveDrive.getMaximumChassisVelocity();
+            // final double sidewaysComponent = smartPow(translationY.getAsDouble(), 2) * swerveDrive.getMaximumChassisVelocity();
+
+            Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
+                                                                                 translationY.getAsDouble()), 0.8);
 
             SmartDashboard.putNumber("Controller Heading", Rotation2d.fromRadians(Math.atan2(headingX.getAsDouble(), headingY.getAsDouble())).getDegrees());
-            SmartDashboard.putNumber("PID output", swerveDrive.swerveController.headingCalculate(getHeading().getRadians(), Math.atan2(headingX.getAsDouble(), headingY.getAsDouble())));
-       
+            SmartDashboard.putNumber("PID Error", swerveDrive.swerveController.thetaController.getError());
+
+            
             // Make the robot move
             driveFieldOriented(
                     swerveDrive.swerveController.getTargetSpeeds(
-                            forwardComponent, sidewaysComponent, headingX.getAsDouble(), headingY.getAsDouble(),
+                        scaledInputs.getX(), scaledInputs.getY(), headingX.getAsDouble(), headingY.getAsDouble(),
                             swerveDrive.getOdometryHeading().getRadians(), swerveDrive.getMaximumChassisVelocity()));
         });
     }

@@ -4,7 +4,10 @@
 
 package frc.robot;
 
+import choreo.Choreo;
 import choreo.auto.AutoFactory;
+import choreo.trajectory.Trajectory;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -34,8 +37,14 @@ public class RobotContainer {
     private final Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
     public RobotContainer() {
-        drivebase.setDefaultCommand(drivebase.driveCommand(() -> controller1.getLeftY(), () -> controller1.getLeftX(), controller1::getRightX,
-        controller1::getRightY));
+        Command driveFieldOrientedDirectAngleTest = drivebase.driveCommand(
+        () -> MathUtil.applyDeadband(-controller1.getLeftY(), 0),
+        () -> MathUtil.applyDeadband(-controller1.getLeftX(), 0),
+        () -> -controller1.getRightX(),
+        () -> -controller1.getRightY());
+        drivebase.setDefaultCommand(driveFieldOrientedDirectAngleTest);
+        // drivebase.setDefaultCommand(drivebase.driveCommand(() -> controller1.getLeftY(), () -> controller1.getLeftX(), controller1::getRightX,
+        // controller1::getRightY));
 
         autoFactory = new AutoFactory(
                 drivebase::getPose, // A function that returns the current robot pose
@@ -47,6 +56,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoFactory.trajectoryCmd("TestPath");
+        var trajectory = Choreo.loadTrajectory("TestPath").get();
+        return autoFactory.trajectoryCmd(trajectory);
     }
 }
