@@ -62,8 +62,10 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrive swerveDrive;
 
-    private final PIDController translationController = new PIDController(10.0, 0.0, 0.0);
-    private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
+    private final PIDController xController = new PIDController(1, 0.0, 0);
+    private final PIDController yController = new PIDController(1, 0.0, 0);
+
+    private final PIDController headingController = new PIDController(1, 0.0, 0.0);
 
     public SwerveSubsystem() {
         DashboardHelpers.addUpdateClass(this);
@@ -95,11 +97,18 @@ public class SwerveSubsystem extends SubsystemBase {
 
         // Generate the next speeds for the robot
         ChassisSpeeds speeds = new ChassisSpeeds(
-                sample.vx + translationController.calculate(pose.getX(), sample.x),
-                sample.vy + translationController.calculate(pose.getY(), sample.y),
+                sample.vx + xController.calculate(pose.getX(), sample.x),
+                sample.vy + yController.calculate(pose.getY(), sample.y),
                 sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
-        System.out.println(speeds);
+
+        ChassisSpeeds sampleSpeeds = new ChassisSpeeds(
+                sample.vx,
+                sample.vy,
+                sample.omega
+        );
+        System.out.println(sampleSpeeds +"\n" + "\n" + speeds + "\n");
+        
         // Apply the generated speeds
         driveFieldOriented(speeds);
     }
@@ -159,7 +168,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     },
                     new PPHolonomicDriveController(
                             // Translation PID constants
-                            new PIDConstants(translationController.getP(), translationController.getI(), translationController.getD()),
+                            new PIDConstants(xController.getP(), xController.getI(), xController.getD()),
                             // Rotation PID constants
                             new PIDConstants(headingController.getP(), headingController.getI(), headingController.getD())
                     ),
