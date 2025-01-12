@@ -22,6 +22,6 @@ public class ManualWristControl extends Command {
     public void execute() {
         final double SPEED = 0.01; //some random speed factor
 
-        wrist.setTargetRotation(wrist.getTargetRotation().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * SPEED)));
+        wrist.setTargetAngle(wrist.getTargetAngle().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * SPEED)));
     }
 }
