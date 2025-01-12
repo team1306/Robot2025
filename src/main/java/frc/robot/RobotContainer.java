@@ -9,6 +9,7 @@ import choreo.auto.AutoFactory;
 import choreo.trajectory.Trajectory;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
@@ -42,21 +43,26 @@ public class RobotContainer {
         () -> MathUtil.applyDeadband(-controller1.getLeftX(), 0),
         () -> -controller1.getRightX(),
         () -> -controller1.getRightY());
+        
         drivebase.setDefaultCommand(driveFieldOrientedDirectAngleTest);
-        // drivebase.setDefaultCommand(drivebase.driveCommand(() -> controller1.getLeftY(), () -> controller1.getLeftX(), controller1::getRightX,
-        // controller1::getRightY));
 
         autoFactory = new AutoFactory(
                 drivebase::getPose, // A function that returns the current robot pose
                 drivebase::resetOdometry, // A function that resets the current robot pose to the provided Pose2d
                 drivebase::followTrajectory, // The drive subsystem trajectory follower 
-                true, // If alliance flipping should be enabled 
-                drivebase // The drive subsystem
+                false, // If alliance flipping should be enabled 
+                drivebase, // The drive subsystem
+                (sample, isStart) -> {System.out.println(sample.getTotalTime());}
         );
+        trajectory = Choreo.loadTrajectory("TestPath").get();
+
+        Command odometryAutoCommand = new InstantCommand(() -> drivebase.resetOdometry(trajectory.getInitialSample(false).get().getPose()));
+        odometryAutoCommand.ignoringDisable(true).schedule();
     }
 
+    private final Trajectory<?> trajectory;
+
     public Command getAutonomousCommand() {
-        var trajectory = Choreo.loadTrajectory("TestPath").get();
-        return autoFactory.trajectoryCmd(trajectory);
+        return autoFactory.trajectoryCmd(trajectory).andThen(new InstantCommand(() -> System.out.println("\nFinished\n")));
     }
 }
