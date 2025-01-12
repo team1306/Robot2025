@@ -8,8 +8,9 @@ import frc.robot.subsystems.Arm;
 
 public class ManualArmControl extends Command {
     
-    private Arm arm;
-    private DoubleSupplier doubleSupplier;
+    private final Arm arm;
+    private final DoubleSupplier doubleSupplier;
+    private final double SPEED = 0.01;
     
     public ManualArmControl(Arm arm, DoubleSupplier doubleSupplier) {
         this.arm = arm;
@@ -20,8 +21,6 @@ public class ManualArmControl extends Command {
 
     @Override
     public void execute() {
-        final double SPEED = 0.01; //some random speed factor
-
         arm.setTargetAngle(arm.getTargetAngle().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * SPEED)));
     }
 }

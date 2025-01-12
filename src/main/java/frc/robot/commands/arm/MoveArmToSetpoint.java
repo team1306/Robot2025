@@ -4,13 +4,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
 
-public class MoveArmToSetpointCommand extends Command {
+public class MoveArmToSetpoint extends Command {
     
-    private Arm arm;
+    private final Arm arm;
     private final Rotation2d targetRotation;
 
-
-    public MoveArmToSetpointCommand(Arm arm, ArmSetpoints armSetpoint) {
+    public MoveArmToSetpoint(Arm arm, ArmSetpoints armSetpoint) {
         this.arm = arm;
         this.targetRotation = armSetpoint.rotation;
 

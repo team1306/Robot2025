@@ -9,7 +9,8 @@ import frc.robot.subsystems.Wrist;
 public class ManualWristControl extends Command {
     
     private Wrist wrist;
-    private DoubleSupplier doubleSupplier; //this is the controller input
+    private DoubleSupplier doubleSupplier;
+    private final double SPEED = 0.01;
 
     public ManualWristControl(Wrist wrist, DoubleSupplier doubleSupplier) {
         this.wrist = wrist;
@@ -20,8 +21,6 @@ public class ManualWristControl extends Command {
 
     @Override
     public void execute() {
-        final double SPEED = 0.01; //some random speed factor
-
-        wrist.setTargetRotation(wrist.getTargetRotation().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * SPEED)));
+        wrist.setTargetAngle(wrist.getTargetAngle().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * SPEED)));
     }
 }
