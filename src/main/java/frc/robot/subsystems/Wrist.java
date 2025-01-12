@@ -6,59 +6,55 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import frc.robot.subsystems.utils.TalonFXGroup;
+import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Dashboard.GetValue;
+import lombok.Getter;
+import lombok.Setter;
 
 import static frc.robot.Constants.*;
 
 public class Wrist extends SubsystemBase  {
 
     private final TalonFX motor;
+    private final TalonFXGroup motorGroup;
+
     private final DutyCycleEncoder encoder;
+    private final PIDController pidController;
 
+    @GetValue 
+    public double kP = 0, kI = 0.0, kD = 0.00; 
 
-    private final PIDController pid;
+    private final Rotation2d OFFSET = Rotation2d.kZero;
+    private final Rotation2d TOLERANCE = Rotation2d.kZero;
 
-    @GetValue public static double kP = 0, kI = 0.0, kD = 0.00; 
-
-    public static final Rotation2d OFFSET = Rotation2d.kZero, PID_TOLERANCE = Rotation2d.fromDegrees(.2);
-    
+    @Getter @Setter
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
 
-
     public Wrist() {
-        super("arm");
         motor = MotorUtil.initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake);
-        
+        motorGroup = new TalonFXGroup(new TalonData(motor));
         encoder = new DutyCycleEncoder(WRIST_ABSOLUTE_ENCODER);
 
-        pid = new PIDController(kP, kI, kD, LOOP_TIME_SECONDS);
-        pid.setTolerance(PID_TOLERANCE.getRadians());
+        pidController = new PIDController(kP, kI, kD);
+        pidController.setTolerance(TOLERANCE.getRadians());
 
-        setTargetRotation(getCurrentRotation());
+        setTargetAngle(getCurrentAngle());
     }
 
     @Override
     public void periodic() {
-        double motorPower = pid.calculate(getCurrentRotation().getRadians(), targetAngle.getRadians());
+        double pidOutput = pidController.calculate(getCurrentAngle().getRadians(), targetAngle.getRadians());
 
-        motor.set(motorPower);
+        motorGroup.setSpeed(pidOutput);
     }
 
-    public Rotation2d getCurrentRotation() {
+    public Rotation2d getCurrentAngle() {
         return Rotation2d.fromRotations((encoder.get())).minus(OFFSET);
     }
 
-    public Rotation2d getTargetRotation() {
-        return targetAngle;
-    }
-
-    public void setTargetRotation(Rotation2d angle) {
-        targetAngle = angle;
-    }
-
     public boolean atSetpoint() {
-        return pid.atSetpoint();
+        return pidController.atSetpoint();
     }
 }

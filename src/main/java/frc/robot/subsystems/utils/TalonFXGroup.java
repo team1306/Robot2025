@@ -12,17 +12,15 @@ import lombok.Setter;
 public class TalonFXGroup{
     public static class TalonData {
         public final TalonFX motor;
-        public final boolean inverted;
         @Getter @Setter
         private double speed; 
 
-        public TalonData(TalonFX motor, boolean inverted){
-           this(motor, inverted, 1);
+        public TalonData(TalonFX motor){
+           this(motor, 1);
         }
 
-        public TalonData(TalonFX motor, boolean inverted, double relativeSpeed){
+        public TalonData(TalonFX motor, double relativeSpeed){
             this.motor = motor;
-            this.inverted = inverted;
             this.speed = relativeSpeed;
         }
     }
