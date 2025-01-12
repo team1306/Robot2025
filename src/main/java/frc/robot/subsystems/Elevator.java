@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Inches;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -7,57 +9,70 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.DistanceUnit;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.utils.SparkMaxGroup;
+import frc.robot.subsystems.utils.SparkMaxGroup.SparkMaxData;
 import frc.robot.util.MotorUtil;
+import frc.robot.util.Dashboard.DashboardHelpers;
+import frc.robot.util.Dashboard.GetValue;
+import lombok.Getter;
+import lombok.Setter;
 
 
 public class Elevator extends SubsystemBase {
     
     // go to and hold positions (thrifty elevator) [PID and Feedforward]
-
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
-    private final double PID_P = 0, PID_I = 0, PID_D = 0, //PID constants
-            MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
-    private final double FF_S = 0, FF_G = 0, FF_V = 0; //FF constants
+    @GetValue
+    private double elevatorP = 0, elevatorI = 0, elevatorD = 0;
+    @GetValue
+    private double elevatorS = 0, elevatorG = 0, elevatorV = 0; 
 
-    private ProfiledPIDController pid = new ProfiledPIDController(PID_P, PID_I, PID_D, 
+    private final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
+    private ProfiledPIDController pid = new ProfiledPIDController(elevatorP, elevatorI, elevatorD, 
             new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
-    private ElevatorFeedforward feedforward = new ElevatorFeedforward(FF_S, FF_G, FF_V);
 
-    private final SparkMax leftMotor = MotorUtil.initSparkMax(Constants.ELEVATOR_LEFT_MOTOR_ID, IdleMode.kBrake),
-            rightMotor = MotorUtil.initSparkMax(Constants.ELEVATOR_RIGHT_MOTOR_ID, IdleMode.kBrake);
+    private ElevatorFeedforward feedforward = new ElevatorFeedforward(elevatorS, elevatorG, elevatorV);
 
-    private Rotation2d angleSetpoint = Rotation2d.kZero;
+    private final SparkMaxGroup motorGroup;
+    private final SparkMax leftMotor, rightMotor;
+
+    private final DutyCycleEncoder elevatorEncoder;
+
+    @Setter @Getter
+    private Distance elevatorSetpoint;
 
     public Elevator() {
+        DashboardHelpers.addUpdateClass(this);
         
+        leftMotor = MotorUtil.initSparkMax(Constants.ELEVATOR_LEFT_MOTOR_ID, IdleMode.kBrake);
+        rightMotor = MotorUtil.initSparkMax(Constants.ELEVATOR_RIGHT_MOTOR_ID, IdleMode.kBrake, true);
+
+        elevatorEncoder = new DutyCycleEncoder(0);
+
+        motorGroup = new SparkMaxGroup(new SparkMaxData(leftMotor), new SparkMaxData(rightMotor));
     }
 
     @Override
     public void periodic() {
-        double motorOutput = pid.calculate(getCurrentAngle().getRadians(), angleSetpoint.getRadians()) + feedforward.calculate(pid.getSetpoint().velocity);
+        double pidOutput = pid.calculate(getCurrentHeight().in(Inches), elevatorSetpoint.in(Inches));
+        double feedforwardOutput = feedforward.calculate(pid.getSetpoint().velocity);
+        double motorOutput = pidOutput + feedforwardOutput;
 
-        leftMotor.set(motorOutput);
-        rightMotor.set(motorOutput);
+        motorGroup.setSpeed(motorOutput);
     }
 
-    public Rotation2d getCurrentAngle() {
-        return Rotation2d.fromRotations(leftMotor.getEncoder().getPosition());
+    public Distance getCurrentHeight(){
+        return rotationsToDistance(elevatorEncoder.get());
     }
 
-    public void setHeight(double inches) {
-        angleSetpoint = Rotation2d.fromRotations(inchesToRotations(inches));
-    }
-
-    public double getHeightSetpoint() {
-        return rotationsToInches(angleSetpoint.getRotations());
-        //need to convert rotations to inches but idk how to do that
-    }
-
-    public static double rotationsToInches(double rotations) {
-        return rotations * SPROCKET_DIAMETER_INCHES * Math.PI;
+    public static Distance rotationsToDistance(double rotations) {
+        return Distance.ofBaseUnits(rotations * SPROCKET_DIAMETER_INCHES * Math.PI, Inches);
     }
     public static double inchesToRotations(double inches) {
         return inches / (SPROCKET_DIAMETER_INCHES * Math.PI);

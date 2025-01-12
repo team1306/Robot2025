@@ -1,8 +1,11 @@
 package frc.robot.util;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -12,31 +15,31 @@ import edu.wpi.first.math.MathUtil;
 import static frc.robot.Constants.NEO_CURRENT_LIMIT_AMPS;
 
 public class MotorUtil {
-    public static SparkMax initSparkMax(int motorId, IdleMode idleMode, int currentLimitAmps) {
+    public static SparkMax initSparkMax(int motorId, IdleMode idleMode, boolean inverted) {
         SparkMax motor = new SparkMax(motorId, MotorType.kBrushless);
         SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(idleMode);
-        config.smartCurrentLimit(currentLimitAmps);
-        motor.configure(config, null, PersistMode.kPersistParameters);
+        config.smartCurrentLimit(NEO_CURRENT_LIMIT_AMPS);
+        config.inverted(inverted);
+        motor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
         return motor;
     }
 
-    /**
-     * Create a new CANSparkMax Neo motor
-     *
-     * @param motorId   the CAN id of the motor
-     * @param motorType the type of the motor (Brushed or Brushless)
-     * @param idleMode  the idle mode of the motor (Brake or Coast)
-     * @return the motor with the paramenters specified
-     */
     public static SparkMax initSparkMax(int motorId, IdleMode idleMode) {
-        return initSparkMax(motorId, idleMode, NEO_CURRENT_LIMIT_AMPS);
+        return initSparkMax(motorId, idleMode, false);
     }
 
     public static TalonFX initTalonFX(int motorId, NeutralModeValue idleMode){
+        return initTalonFX(motorId, idleMode, InvertedValue.Clockwise_Positive);
+    }
+
+    public static TalonFX initTalonFX(int motorId, NeutralModeValue idleMode, InvertedValue inverted){
         TalonFX motor = new TalonFX(motorId);
-        motor.setNeutralMode(idleMode);
-        
+        TalonFXConfiguration config = new TalonFXConfiguration();
+        config.MotorOutput.withInverted(inverted);
+        config.MotorOutput.withNeutralMode(idleMode);
+        motor.getConfigurator().apply(config);
+
         return motor;
     }
 
