@@ -22,6 +22,6 @@ public class MoveElevatorToSetpointCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return elevator.getCurrentHeight() == targetHeight;
+        return false; //only ends when interrupted.
     }
 }

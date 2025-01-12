@@ -13,7 +13,7 @@ public enum ElevatorSetpoints {
     CORAL_L4(Inches.of(72 - Constants.ELEVATOR_STARTING_HEIGHT));
 
 
-    public final Distance height; //inches
+    public final Distance height;
 
     private ElevatorSetpoints(Distance height) {
         this.height = height;
