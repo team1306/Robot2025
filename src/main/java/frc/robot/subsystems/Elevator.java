@@ -72,7 +72,7 @@ public class Elevator extends SubsystemBase {
     public static Distance rotationsToDistance(double rotations) {
         return Inches.of(rotations * SPROCKET_DIAMETER_INCHES * Math.PI);
     }
-    public static double inchesToRotations(double inches) {
-        return inches / (SPROCKET_DIAMETER_INCHES * Math.PI);
+    public static double distanceToRotations(Distance distance) {
+        return distance.in(Inches) / (SPROCKET_DIAMETER_INCHES * Math.PI);
     }
 }
