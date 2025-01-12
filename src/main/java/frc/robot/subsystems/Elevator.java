@@ -70,6 +70,9 @@ public class Elevator extends SubsystemBase {
     public Distance getCurrentHeight(){
         return rotationsToDistance(elevatorEncoder.get());
     }
+    public double getCurrentHeight() {
+        return rotationsToInches(getCurrentRotation().getRotations());
+    }
 
     public static Distance rotationsToDistance(double rotations) {
         return Distance.ofBaseUnits(rotations * SPROCKET_DIAMETER_INCHES * Math.PI, Inches);
