@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Wrist;
 
 public class ManualWristControl extends Command {
-    
+     
     private Wrist wrist;
     private DoubleSupplier doubleSupplier;
     private final double SPEED = 0.01;
