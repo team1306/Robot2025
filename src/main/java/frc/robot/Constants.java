@@ -38,4 +38,6 @@ public final class Constants {
     public static final int           WRIST_ABSOLUTE_ENCODER         = 0;
     public static final int           ELEVATOR_RELATIVE_ENCODER_A    = 1;
     public static final int           ELEVATOR_RELATIVE_ENCODER_B    = 2;
+
+    public static final double        ELEVATOR_STARTING_HEIGHT       = 0; //needs measurement
 }

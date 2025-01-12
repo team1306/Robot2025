@@ -29,7 +29,7 @@ public class Elevator extends SubsystemBase {
     private final SparkMax leftMotor = MotorUtil.initSparkMax(Constants.ELEVATOR_LEFT_MOTOR_ID, IdleMode.kBrake),
             rightMotor = MotorUtil.initSparkMax(Constants.ELEVATOR_RIGHT_MOTOR_ID, IdleMode.kBrake);
 
-    private Rotation2d angleSetpoint = Rotation2d.kZero;
+    private Rotation2d targetAngle = Rotation2d.kZero;
 
     public Elevator() {
         
@@ -37,22 +37,25 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double motorOutput = pid.calculate(getCurrentAngle().getRadians(), angleSetpoint.getRadians()) + feedforward.calculate(pid.getSetpoint().velocity);
+        double motorOutput = pid.calculate(getCurrentRotation().getRadians(), targetAngle.getRadians()) + feedforward.calculate(pid.getSetpoint().velocity);
 
         leftMotor.set(motorOutput);
         rightMotor.set(motorOutput);
     }
 
-    public Rotation2d getCurrentAngle() {
+    public Rotation2d getCurrentRotation() {
         return Rotation2d.fromRotations(leftMotor.getEncoder().getPosition());
     }
-
-    public void setHeight(double inches) {
-        angleSetpoint = Rotation2d.fromRotations(inchesToRotations(inches));
+    public double getCurrentHeight() {
+        return rotationsToInches(getCurrentRotation().getRotations());
     }
 
-    public double getHeightSetpoint() {
-        return rotationsToInches(angleSetpoint.getRotations());
+    public void setTargetHeight(double inches) {
+        targetAngle = Rotation2d.fromRotations(inchesToRotations(inches));
+    }
+
+    public double getTargetHeight() {
+        return rotationsToInches(targetAngle.getRotations());
         //need to convert rotations to inches but idk how to do that
     }
 
