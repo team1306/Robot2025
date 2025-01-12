@@ -36,25 +36,25 @@ public class Wrist extends SubsystemBase  {
         pidController = new PIDController(kP, kI, kD, LOOP_TIME_SECONDS);
         pidController.setTolerance(PID_TOLERANCE.getRadians());
 
-        setTargetAngle(getCurrentAngle());
+        setTargetRotation(getCurrentRotation());
     }
 
     @Override
     public void periodic() {
-        double motorPower = pidController.calculate(getCurrentAngle().getRadians(), targetAngle.getRadians());
+        double motorPower = pidController.calculate(getCurrentRotation().getRadians(), targetAngle.getRadians());
 
         motor.set(motorPower);
     }
 
-    public Rotation2d getCurrentAngle() {
+    public Rotation2d getCurrentRotation() {
         return Rotation2d.fromRotations((encoder.get())).minus(OFFSET);
     }
 
-    public Rotation2d getTargetAngle() {
+    public Rotation2d getTargetRotation() {
         return targetAngle;
     }
 
-    public void setTargetAngle(Rotation2d angle) {
+    public void setTargetRotation(Rotation2d angle) {
         targetAngle = angle;
     }
 

@@ -18,7 +18,7 @@ public class MoveWristToSetpointCommand extends Command {
 
     @Override
     public void execute() {
-        wrist.setTargetAngle(targetRotation);
+        wrist.setTargetRotation(targetRotation);
     }
 
     @Override
