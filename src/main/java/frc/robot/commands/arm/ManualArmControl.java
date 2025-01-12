@@ -22,6 +22,6 @@ public class ManualArmControl extends Command {
     public void execute() {
         final double SPEED = 0.01; //some random speed factor
 
-        arm.setTargetRotation(arm.getTargetRotation().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * SPEED)));
+        arm.setTargetAngle(arm.getTargetAngle().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * SPEED)));
     }
 }

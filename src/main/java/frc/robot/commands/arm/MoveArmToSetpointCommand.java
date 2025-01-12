@@ -19,6 +19,6 @@ public class MoveArmToSetpointCommand extends Command {
 
     @Override
     public void execute() {
-        arm.setTargetRotation(targetRotation);
+        arm.setTargetAngle(targetRotation);
     }
 }
