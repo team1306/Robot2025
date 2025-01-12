@@ -5,11 +5,9 @@ package frc.robot;
  */
 public final class Constants {
     private Constants(){} // block instantiation
-    public static final int           INTAKE_ID                      = 1234;
-    public static final int           ARM_LEFT_MOTOR_ID              = 12334;
-    public static final int           ARM_RIGHT_MOTOR_ID             = 123345;
-    public static final int           WRIST_LEFT_MOTOR_ID            = 12334;
-    public static final int           WRIST_RIGHT_MOTOR_ID           = 123345;
+    public static final int           INTAKE_ID                      = -1;
+    public static final int           ARM_LEFT_MOTOR_ID              = -1;
+    public static final int           ARM_RIGHT_MOTOR_ID             = -1;
     public static final int           WRIST_MOTOR_ID                 = -1;
     public static final int           ELEVATOR_LEFT_MOTOR_ID         = -1;
     public static final int           ELEVATOR_RIGHT_MOTOR_ID        = -1;

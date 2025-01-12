@@ -14,36 +14,40 @@ import static frc.robot.Constants.*;
 
 public class Wrist extends SubsystemBase  {
 
-    private final TalonFX leftArmMotor, rightArmMotor;
-    private final DutyCycleEncoder absoluteThroughBoreEncoder;
+    private final TalonFX motor;
+    private final DutyCycleEncoder encoder;
 
 
     private final PIDController pidController;
 
     @GetValue public static double kP = 0, kI = 0.0, kD = 0.00; 
-    private static final double MAX_RPS = 360;
-    private double maxPower = 1;
 
-    public static final double OFFSET = -1, DELTA_AT_SETPOINT = .2;
+    public static final Rotation2d OFFSET = Rotation2d.kZero, PID_TOLERANCE = Rotation2d.fromDegrees(.2);
     
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
 
 
     public Wrist() {
         super("arm");
-        leftArmMotor = MotorUtil.initTalonFX(WRIST_LEFT_MOTOR_ID, NeutralModeValue.Brake);
-        rightArmMotor = MotorUtil.initTalonFX(WRIST_RIGHT_MOTOR_ID, NeutralModeValue.Brake);
+        motor = MotorUtil.initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake);
         
-        absoluteThroughBoreEncoder = new DutyCycleEncoder(WRIST_ABSOLUTE_ENCODER);
+        encoder = new DutyCycleEncoder(WRIST_ABSOLUTE_ENCODER);
 
         pidController = new PIDController(kP, kI, kD, LOOP_TIME_SECONDS);
-        pidController.setTolerance(DELTA_AT_SETPOINT);
+        pidController.setTolerance(PID_TOLERANCE.getRadians());
 
         setTargetAngle(getCurrentAngle());
     }
 
+    @Override
+    public void periodic() {
+        double motorPower = pidController.calculate(getCurrentAngle().getRadians(), targetAngle.getRadians());
+
+        motor.set(motorPower);
+    }
+
     public Rotation2d getCurrentAngle() {
-        return Rotation2d.fromRotations((absoluteThroughBoreEncoder.get())).minus(Rotation2d.fromDegrees(OFFSET));
+        return Rotation2d.fromRotations((encoder.get())).minus(OFFSET);
     }
 
     public Rotation2d getTargetAngle() {
@@ -56,10 +60,5 @@ public class Wrist extends SubsystemBase  {
 
     public boolean atSetpoint() {
         return pidController.atSetpoint();
-    }
-
-    @Override
-    public void periodic() {
-    
     }
 }
