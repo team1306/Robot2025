@@ -1,5 +1,7 @@
 package frc.robot.commands.elevator;
 
+import static edu.wpi.first.units.Units.Inches;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Elevator;
 
@@ -22,11 +24,11 @@ public class MoveElevatorToSetpointCommand extends Command {
 
     @Override
     public void execute() {
-        elevator.setTargetHeight(setpointInches);
+        elevator.setTargetHeight(Inches.of(setpointInches));
     }
 
     @Override
     public boolean isFinished() {
-        return elevator.getCurrentHeight() == setpointInches;
+        return elevator.getCurrentHeight().in(Inches) == setpointInches;
     }
 }

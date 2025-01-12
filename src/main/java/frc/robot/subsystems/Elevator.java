@@ -7,9 +7,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -45,7 +43,7 @@ public class Elevator extends SubsystemBase {
     private final DutyCycleEncoder elevatorEncoder;
 
     @Setter @Getter
-    private Distance elevatorSetpoint;
+    private Distance targetHeight;
 
     public Elevator() {
         DashboardHelpers.addUpdateClass(this);
@@ -60,7 +58,7 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double pidOutput = pid.calculate(getCurrentHeight().in(Inches), elevatorSetpoint.in(Inches));
+        double pidOutput = pid.calculate(getCurrentHeight().in(Inches), targetHeight.in(Inches));
         double feedforwardOutput = feedforward.calculate(pid.getSetpoint().velocity);
         double motorOutput = pidOutput + feedforwardOutput;
 
@@ -70,12 +68,9 @@ public class Elevator extends SubsystemBase {
     public Distance getCurrentHeight(){
         return rotationsToDistance(elevatorEncoder.get());
     }
-    public double getCurrentHeight() {
-        return rotationsToInches(getCurrentRotation().getRotations());
-    }
 
     public static Distance rotationsToDistance(double rotations) {
-        return Distance.ofBaseUnits(rotations * SPROCKET_DIAMETER_INCHES * Math.PI, Inches);
+        return Inches.of(rotations * SPROCKET_DIAMETER_INCHES * Math.PI);
     }
     public static double inchesToRotations(double inches) {
         return inches / (SPROCKET_DIAMETER_INCHES * Math.PI);
