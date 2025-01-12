@@ -71,7 +71,6 @@ public class SwerveSubsystem extends SubsystemBase {
         try {
             File directory = new File(Filesystem.getDeployDirectory(), "swerve");
             swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED); // 5 meters per second, temp value      // Alternative method if you don't want to supply the conversion factor via JSON files.
-            // swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed, angleConversionFactor, driveConversionFactor);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -87,7 +86,7 @@ public class SwerveSubsystem extends SubsystemBase {
         //swerveDrive.swerveController.thetaController.setTolerance(0);
         //limit the amount of instantaneous movement
         // swerveDrive.swerveController.angleLimiter = new SlewRateLimiter(3);
-        // swerveDrive.setMaximumAllowableSpeeds(swerveDrive.getMaximumChassisVelocity(), 5);
+        swerveDrive.getSwerveController().config.maxAngularVelocity = 25;
     }
 
     public void followTrajectory(SwerveSample sample) {
@@ -100,7 +99,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 sample.vy + translationController.calculate(pose.getY(), sample.y),
                 sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
-        System.out.println(sample.x);
+        System.out.println(speeds);
         // Apply the generated speeds
         driveFieldOriented(speeds);
     }
