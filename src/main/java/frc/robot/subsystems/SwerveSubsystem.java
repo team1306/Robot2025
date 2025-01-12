@@ -130,7 +130,6 @@ public class SwerveSubsystem extends SubsystemBase {
             pushPID = false;
         }
         //swerveDrive.swerveController.thetaController.setPID(headingP, headingI, headingD);
-        SmartDashboard.putNumber("heading d from yagsl", swerveDrive.swerveController.thetaController.getD());
     }
 
     @Override
@@ -359,7 +358,7 @@ public class SwerveSubsystem extends SubsystemBase {
             SmartDashboard.putNumber("Controller Heading", Rotation2d.fromRadians(Math.atan2(headingX.getAsDouble(), headingY.getAsDouble())).getDegrees());
             SmartDashboard.putNumber("PID Error", swerveDrive.swerveController.thetaController.getError());
 
-            
+
             // Make the robot move
             driveFieldOriented(
                     swerveDrive.swerveController.getTargetSpeeds(
