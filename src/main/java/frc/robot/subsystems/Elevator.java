@@ -32,10 +32,10 @@ public class Elevator extends SubsystemBase {
     private double elevatorS = 0, elevatorG = 0, elevatorV = 0; 
 
     private final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
-    private ProfiledPIDController pid = new ProfiledPIDController(elevatorP, elevatorI, elevatorD, 
-            new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
+    private Distance PID_TOLERANCE = Inches.of(0.2);
+    private ProfiledPIDController pid;
 
-    private ElevatorFeedforward feedforward = new ElevatorFeedforward(elevatorS, elevatorG, elevatorV);
+    private ElevatorFeedforward feedforward;
 
     private final SparkMaxGroup motorGroup;
     private final SparkMax leftMotor, rightMotor;
@@ -54,6 +54,12 @@ public class Elevator extends SubsystemBase {
         elevatorEncoder = new DutyCycleEncoder(0);
 
         motorGroup = new SparkMaxGroup(new SparkMaxData(leftMotor), new SparkMaxData(rightMotor));
+
+        pid = new ProfiledPIDController(elevatorP, elevatorI, elevatorD, 
+                new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
+        pid.setTolerance(PID_TOLERANCE.in(Inches));
+
+        feedforward = new ElevatorFeedforward(elevatorS, elevatorG, elevatorV);
     }
 
     @Override
@@ -63,6 +69,10 @@ public class Elevator extends SubsystemBase {
         double motorOutput = pidOutput + feedforwardOutput;
 
         motorGroup.setSpeed(motorOutput);
+    }
+
+    public boolean atSetpoint() {
+        return pid.atSetpoint();
     }
 
     public Distance getCurrentHeight(){

@@ -18,7 +18,7 @@ public class Wrist extends SubsystemBase  {
     private final DutyCycleEncoder encoder;
 
 
-    private final PIDController pidController;
+    private final PIDController pid;
 
     @GetValue public static double kP = 0, kI = 0.0, kD = 0.00; 
 
@@ -33,15 +33,15 @@ public class Wrist extends SubsystemBase  {
         
         encoder = new DutyCycleEncoder(WRIST_ABSOLUTE_ENCODER);
 
-        pidController = new PIDController(kP, kI, kD, LOOP_TIME_SECONDS);
-        pidController.setTolerance(PID_TOLERANCE.getRadians());
+        pid = new PIDController(kP, kI, kD, LOOP_TIME_SECONDS);
+        pid.setTolerance(PID_TOLERANCE.getRadians());
 
         setTargetRotation(getCurrentRotation());
     }
 
     @Override
     public void periodic() {
-        double motorPower = pidController.calculate(getCurrentRotation().getRadians(), targetAngle.getRadians());
+        double motorPower = pid.calculate(getCurrentRotation().getRadians(), targetAngle.getRadians());
 
         motor.set(motorPower);
     }
@@ -59,6 +59,6 @@ public class Wrist extends SubsystemBase  {
     }
 
     public boolean atSetpoint() {
-        return pidController.atSetpoint();
+        return pid.atSetpoint();
     }
 }

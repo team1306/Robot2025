@@ -1,7 +1,5 @@
 package frc.robot.commands.wrist;
 
-import static edu.wpi.first.units.Units.Inches;
-
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
