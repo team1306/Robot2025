@@ -78,6 +78,7 @@ public class RobotContainer {
 
     public void configureBindings(){
         controller1.a().toggleOnTrue(drivebase.sysIdDriveMotorCommand());
+        controller1.x().toggleOnTrue(drivebase.driveToDistanceCommand(4, 0.25, drivebase.getPose().getTranslation()));
     }
 
     public Command getAutonomousCommand() {
