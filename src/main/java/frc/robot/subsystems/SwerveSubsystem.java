@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -53,8 +54,6 @@ import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
 import swervelib.math.SwerveMath;
-import swervelib.motors.TalonFXSwerve;
-import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -303,9 +302,9 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param speedInMetersPerSecond the speed at which to drive in meters per second
      * @return a Command that drives the swerve drive to a specific distance at a given speed
      */
-    public Command driveToDistanceCommand(double distanceInMeters, double speedInMetersPerSecond, Translation2d originalPosition) {
-        return run(() -> drive(new ChassisSpeeds(speedInMetersPerSecond, 0, 0)))
-                .until(() -> swerveDrive.getPose().getTranslation().getDistance(originalPosition) > distanceInMeters);
+    public Command driveToDistanceCommand(double distanceInMeters, double speedInMetersPerSecond) {
+        return new InstantCommand(() -> resetOdometry(new Pose2d())).andThen(run(() -> drive(new ChassisSpeeds(speedInMetersPerSecond, 0, 0)))
+                .until(() -> swerveDrive.getPose().getTranslation().getDistance(new Translation2d()) > distanceInMeters));
     }
 
     /**
