@@ -53,6 +53,7 @@ import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
 import swervelib.math.SwerveMath;
+import swervelib.motors.TalonFXSwerve;
 import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
@@ -126,7 +127,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public void periodic() {
         if(pushPID){
             for (SwerveModule module : swerveDrive.getModules()){
-                module.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF));
+                // module.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF));
                 // module.setAnglePIDF(new PIDFConfig(angleP, angleI, angleD, angleF));
             }
             pushPID = false;
@@ -269,7 +270,7 @@ public class SwerveSubsystem extends SubsystemBase {
         return SwerveDriveTest.generateSysIdCommand(
                 SwerveDriveTest.setDriveSysIdRoutine(
                         new Config(),
-                        this, swerveDrive, 12),
+                        this, swerveDrive, 12, false),
                 3.0, 5.0, 3.0);
     }
 

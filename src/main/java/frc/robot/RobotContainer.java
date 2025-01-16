@@ -72,6 +72,12 @@ public class RobotContainer {
 
         // Schedule the selected auto during the autonomous period
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+
+        configureBindings();
+    }
+
+    public void configureBindings(){
+        controller1.a().toggleOnTrue(drivebase.sysIdDriveMotorCommand());
     }
 
     public Command getAutonomousCommand() {
