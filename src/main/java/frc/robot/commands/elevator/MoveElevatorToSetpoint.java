@@ -4,14 +4,15 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Elevator;
 
-public class MoveElevatorToSetpointCommand extends Command {
-    private Elevator elevator;
+public class MoveElevatorToSetpoint extends Command {
+
+    private final Elevator elevator;
+    private final Distance targetHeight;
     
-    private Distance targetHeight;
-    
-    public MoveElevatorToSetpointCommand(Elevator elevator, ElevatorSetpoints elevatorSetpoint) {
+    public MoveElevatorToSetpoint(Elevator elevator, ElevatorSetpoints elevatorSetpoint) {
         this.targetHeight = elevatorSetpoint.height;
         this.elevator = elevator;
+
         addRequirements(elevator);
     }
 
@@ -22,6 +23,6 @@ public class MoveElevatorToSetpointCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return false; //only ends when interrupted.
+        return false;
     }
 }

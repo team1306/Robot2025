@@ -5,17 +5,11 @@
 package frc.robot.commands.swervedrive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.subsystems.SwerveSubsystem;
 
-import java.util.List;
 import java.util.function.DoubleSupplier;
-import swervelib.SwerveController;
-import swervelib.math.SwerveMath;
 
 /**
  * An example command that uses an example subsystem.
@@ -71,7 +65,7 @@ public class AbsoluteDrive extends Command
   public void execute()
   {
     // Get the desired chassis speeds based on a 2 joystick module.
-    ChassisSpeeds desiredSpeeds = swerve.getTargetSpeeds(0, 0, headingHorizontal.getAsDouble(), headingVertical.getAsDouble());
+    ChassisSpeeds desiredSpeeds = swerve.getTargetSpeeds(vX.getAsDouble(), vY.getAsDouble(), headingHorizontal.getAsDouble(), headingVertical.getAsDouble());
 
     // Prevent Movement After Auto
     if (initRotation)

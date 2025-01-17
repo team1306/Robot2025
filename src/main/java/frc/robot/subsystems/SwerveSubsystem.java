@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -53,7 +54,6 @@ import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
 import swervelib.math.SwerveMath;
-import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -62,8 +62,10 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrive swerveDrive;
 
-    private final PIDController translationController = new PIDController(10.0, 0.0, 0.0);
-    private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
+    private final PIDController xController = new PIDController(1, 0.0, 0);
+    private final PIDController yController = new PIDController(1, 0.0, 0);
+
+    private final PIDController headingController = new PIDController(1, 0.0, 0.0);
 
     public SwerveSubsystem() {
         DashboardHelpers.addUpdateClass(this);
@@ -95,11 +97,18 @@ public class SwerveSubsystem extends SubsystemBase {
 
         // Generate the next speeds for the robot
         ChassisSpeeds speeds = new ChassisSpeeds(
-                sample.vx + translationController.calculate(pose.getX(), sample.x),
-                sample.vy + translationController.calculate(pose.getY(), sample.y),
+                sample.vx + xController.calculate(pose.getX(), sample.x),
+                sample.vy + yController.calculate(pose.getY(), sample.y),
                 sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
-        System.out.println(speeds);
+
+        ChassisSpeeds sampleSpeeds = new ChassisSpeeds(
+                sample.vx,
+                sample.vy,
+                sample.omega
+        );
+        System.out.println(sampleSpeeds +"\n" + "\n" + speeds + "\n");
+        
         // Apply the generated speeds
         driveFieldOriented(speeds);
     }
@@ -117,7 +126,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public void periodic() {
         if(pushPID){
             for (SwerveModule module : swerveDrive.getModules()){
-                module.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF));
+                // module.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF));
                 // module.setAnglePIDF(new PIDFConfig(angleP, angleI, angleD, angleF));
             }
             pushPID = false;
@@ -159,7 +168,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     },
                     new PPHolonomicDriveController(
                             // Translation PID constants
-                            new PIDConstants(translationController.getP(), translationController.getI(), translationController.getD()),
+                            new PIDConstants(xController.getP(), xController.getI(), xController.getD()),
                             // Rotation PID constants
                             new PIDConstants(headingController.getP(), headingController.getI(), headingController.getD())
                     ),
@@ -260,7 +269,7 @@ public class SwerveSubsystem extends SubsystemBase {
         return SwerveDriveTest.generateSysIdCommand(
                 SwerveDriveTest.setDriveSysIdRoutine(
                         new Config(),
-                        this, swerveDrive, 12),
+                        this, swerveDrive, 12, false),
                 3.0, 5.0, 3.0);
     }
 
@@ -294,8 +303,8 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return a Command that drives the swerve drive to a specific distance at a given speed
      */
     public Command driveToDistanceCommand(double distanceInMeters, double speedInMetersPerSecond) {
-        return run(() -> drive(new ChassisSpeeds(speedInMetersPerSecond, 0, 0)))
-                .until(() -> swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) > distanceInMeters);
+        return new InstantCommand(() -> resetOdometry(new Pose2d())).andThen(run(() -> drive(new ChassisSpeeds(speedInMetersPerSecond, 0, 0)))
+                .until(() -> swerveDrive.getPose().getTranslation().getDistance(new Translation2d()) > distanceInMeters));
     }
 
     /**
