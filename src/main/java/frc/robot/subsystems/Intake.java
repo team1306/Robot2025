@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -7,6 +9,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.utils.SparkMaxGroup;
+import frc.robot.subsystems.utils.TalonFXGroup;
+import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
 import frc.robot.subsystems.utils.SparkMaxGroup.SparkMaxData;
 import frc.robot.util.MotorUtil;
 import lombok.Getter;
@@ -15,8 +19,8 @@ import static frc.robot.Constants.INTAKE_SENSOR_ID;
 
 public class Intake extends SubsystemBase {
     
-    private final SparkMax motor;
-    private final SparkMaxGroup motorGroup;
+    private final TalonFX motor;
+    private final TalonFXGroup motorGroup;
     private final DigitalInput sensor;
 
     @Getter
@@ -24,8 +28,8 @@ public class Intake extends SubsystemBase {
     private boolean sensorReading = false;
 
     public Intake() {
-        motor = MotorUtil.initSparkMax(INTAKE_MOTOR_ID, IdleMode.kCoast);
-        motorGroup = new SparkMaxGroup(new SparkMaxData(motor));
+        motor = MotorUtil.initTalonFX(INTAKE_MOTOR_ID, NeutralModeValue.Coast);
+        motorGroup = new TalonFXGroup(new TalonData(motor));
         sensor = new DigitalInput(INTAKE_SENSOR_ID);
     }
 
