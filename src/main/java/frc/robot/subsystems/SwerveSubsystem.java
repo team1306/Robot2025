@@ -48,7 +48,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.util.Utilities;
 import frc.robot.util.Dashboard.DashboardHelpers;
-import frc.robot.util.Dashboard.GetValue;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -89,6 +88,11 @@ public class SwerveSubsystem extends SubsystemBase {
         //limit the amount of instantaneous movement
         // swerveDrive.swerveController.angleLimiter = new SlewRateLimiter(3);
         swerveDrive.getSwerveController().config.maxAngularVelocity = 25;
+
+        swerveDrive.getModules()[0].setFeedforward(new SimpleMotorFeedforward(0, 2.2629, 0.1113));
+        swerveDrive.getModules()[1].setFeedforward(new SimpleMotorFeedforward(0.09, 2.228, 0.043304));
+        swerveDrive.getModules()[2].setFeedforward(new SimpleMotorFeedforward(0.05159, 2.2674, 0.1307));
+        swerveDrive.getModules()[3].setFeedforward(new SimpleMotorFeedforward(0.037985, 2.2677, 0.23622));
     }
 
     public void followTrajectory(SwerveSample sample) {
@@ -113,30 +117,17 @@ public class SwerveSubsystem extends SubsystemBase {
         driveFieldOriented(speeds);
     }
 
-    @GetValue
-    private double driveP = 10, driveI = 0, driveD = 0, driveF = 0;
-    // @GetValue
-    // private double angleP = 0, angleI = 0, angleD = 0, angleF = 0;
-    @GetValue
-    private double headingP = 0.1, headingI = 0, headingD = 0;
-
-    public boolean pushPID = true;
-
-    @Override
-    public void periodic() {
-        if(pushPID){
-            for (SwerveModule module : swerveDrive.getModules()){
-                // module.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF));
-                // module.setAnglePIDF(new PIDFConfig(angleP, angleI, angleD, angleF));
-            }
-            pushPID = false;
-        }
-        //swerveDrive.swerveController.thetaController.setPID(headingP, headingI, headingD);
-    }
-
     @Override
     public void simulationPeriodic() {
 
+    }
+
+    public Command setModuleAngleSetpoint(Rotation2d angle){
+        return new InstantCommand( () -> {
+            for (SwerveModule swerveModule : swerveDrive.getModules()) {
+                swerveModule.getAngleMotor().setReference(angle.getDegrees(), 0);
+            }
+        });
     }
 
     /**
@@ -269,7 +260,7 @@ public class SwerveSubsystem extends SubsystemBase {
         return SwerveDriveTest.generateSysIdCommand(
                 SwerveDriveTest.setDriveSysIdRoutine(
                         new Config(),
-                        this, swerveDrive, 12, false),
+                        this, swerveDrive, 12, true),
                 3.0, 5.0, 3.0);
     }
 
