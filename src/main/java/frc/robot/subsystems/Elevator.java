@@ -2,6 +2,9 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Inches;
 
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -13,6 +16,8 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.utils.SparkMaxGroup;
+import frc.robot.subsystems.utils.TalonFXGroup;
+import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
 import frc.robot.subsystems.utils.SparkMaxGroup.SparkMaxData;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Dashboard.DashboardHelpers;
@@ -37,8 +42,8 @@ public class Elevator extends SubsystemBase {
 
     private ElevatorFeedforward feedforward;
 
-    private final SparkMaxGroup motorGroup;
-    private final SparkMax leftMotor, rightMotor;
+    private final TalonFXGroup motorGroup;
+    private final TalonFX leftMotor, rightMotor;
 
     private final DutyCycleEncoder elevatorEncoder;
 
@@ -48,12 +53,12 @@ public class Elevator extends SubsystemBase {
     public Elevator() {
         DashboardHelpers.addUpdateClass(this);
         
-        leftMotor = MotorUtil.initSparkMax(Constants.ELEVATOR_LEFT_MOTOR_ID, IdleMode.kBrake);
-        rightMotor = MotorUtil.initSparkMax(Constants.ELEVATOR_RIGHT_MOTOR_ID, IdleMode.kBrake, true);
+        leftMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Brake);
+        rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
 
         elevatorEncoder = new DutyCycleEncoder(0);
 
-        motorGroup = new SparkMaxGroup(new SparkMaxData(leftMotor), new SparkMaxData(rightMotor));
+        motorGroup = new TalonFXGroup(new TalonData(leftMotor), new TalonData(rightMotor));
 
         pid = new ProfiledPIDController(elevatorP, elevatorI, elevatorD, 
                 new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));

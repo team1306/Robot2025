@@ -20,7 +20,7 @@ import static frc.robot.Constants.*;
 
 public class Arm extends SubsystemBase  {
 
-    private final TalonFX leftMotor, rightMotor;
+    private final TalonFX motor;
     private final TalonFXGroup motorGroup;
     private final DutyCycleEncoder armEncoder;
 
@@ -39,10 +39,9 @@ public class Arm extends SubsystemBase  {
     private Rotation2d targetAngle = Rotation2d.kZero;
 
     public Arm() {
-        leftMotor = MotorUtil.initTalonFX(ARM_LEFT_MOTOR_ID, NeutralModeValue.Brake);
-        rightMotor = MotorUtil.initTalonFX(ARM_RIGHT_MOTOR_ID, NeutralModeValue.Brake);
+        motor = MotorUtil.initTalonFX(ARM_MOTOR_ID, NeutralModeValue.Brake);
         
-        motorGroup = new TalonFXGroup(new TalonData(leftMotor), new TalonData(rightMotor));
+        motorGroup = new TalonFXGroup(new TalonData(motor));
 
         armEncoder = new DutyCycleEncoder(0);
 
