@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -14,6 +16,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import static frc.robot.Constants.*;
+
+import org.dyn4j.geometry.Rotation;
 
 public class Wrist extends SubsystemBase  {
 
@@ -29,7 +33,7 @@ public class Wrist extends SubsystemBase  {
     private final Rotation2d OFFSET = Rotation2d.kZero;
     private final Rotation2d TOLERANCE = Rotation2d.kZero;
 
-    @Getter @Setter
+    @Getter
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
 
     public Wrist() {
@@ -56,5 +60,9 @@ public class Wrist extends SubsystemBase  {
 
     public boolean atSetpoint() {
         return pidController.atSetpoint();
+    }
+
+    public void setTargetAngle(Rotation2d setpoint) {
+        targetAngle = Rotation2d.fromRadians(MathUtil.clamp(setpoint.getRadians(), -20, 110));
     }
 }
