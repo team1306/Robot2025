@@ -43,4 +43,9 @@ public class Intake extends SubsystemBase {
     public void setTargetSpeed(double targetSpeed) {
         this.targetSpeed = MotorUtil.clampPercent(targetSpeed);
     }
+
+    public boolean getSensorReading() {
+        System.out.println("Method getSensorReading() is not implemented");
+        return false;
+    }
 }

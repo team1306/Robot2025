@@ -24,4 +24,9 @@ public class ToggleIntake extends Command{
     public void end(boolean interrupted) {
         intake.setTargetSpeed(0);
     }
+
+    @Override
+    public boolean isFinished() {
+        return intake.getSensorReading(); //add sensor thing
+    }
 }
