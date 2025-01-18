@@ -2,13 +2,14 @@ package frc.robot.commands.wrist;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public enum WristSetpoints {
+public enum WristSetpoint {
 
-    OPEN(Rotation2d.fromDegrees(90));
+    HORAZONTAL(Rotation2d.fromDegrees(90)),
+    VERTICAL(Rotation2d.fromDegrees(0));
 
     public final Rotation2d rotation;
 
-    private WristSetpoints(Rotation2d rotation) {
+    private WristSetpoint(Rotation2d rotation) {
         this.rotation = rotation;
     }
 

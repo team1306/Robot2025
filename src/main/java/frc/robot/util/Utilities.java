@@ -27,6 +27,10 @@ public class Utilities {
         return !Double.isNaN(value) && !Double.isInfinite(value);
     }
 
+    public static boolean isEqual(double a, double b, double tolerance) {
+        return Math.abs(a - b) < tolerance;
+    }
+
     /**
      * Run consumer if object is not null, else do nothing
      *
