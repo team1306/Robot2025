@@ -8,8 +8,6 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -28,30 +26,23 @@ public class RobotContainer {
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
      */
     private final SwerveInputStream driveAngularVelocity =
-            SwerveInputStream.of(drivebase.getSwerveDrive(), () -> controller1.getLeftY() * -1, () -> controller1.getLeftX() * -1)
-                    .withControllerRotationAxis(controller1::getRightX).deadband(Constants.LEFT_X_DEADBAND)
-                    .scaleTranslation(1).allianceRelativeControl(true);
+            SwerveInputStream.of(drivebase.getSwerveDrive(), () -> -controller1.getLeftY(), () -> -controller1.getLeftX())
+                    .withControllerRotationAxis(() -> -controller1.getRightX()).deadband(Constants.LEFT_X_DEADBAND)
+                    .scaleTranslation(0.5).allianceRelativeControl(true);
 
     /**
      * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
      */
-    private final SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(controller1::getRightX,
-            controller1::getRightY).headingWhile(true);
+    private final SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(() -> -controller1.getRightX(),
+    () -> -controller1.getRightY()).headingWhile(true);
 
     private final Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
-    private final Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
     private final Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
     private final AutoChooser autoChooser;
 
     public RobotContainer() {
-        Command driveFieldOrientedDirectAngleTest = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-controller1.getLeftY(), 0),
-        () -> MathUtil.applyDeadband(-controller1.getLeftX(), 0),
-        () -> -controller1.getRightX(),
-        () -> -controller1.getRightY());
-        
-        drivebase.setDefaultCommand(driveFieldOrientedDirectAngleTest);
+        drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
 
         autoFactory = new AutoFactory(
                 drivebase::getPose, // A function that returns the current robot pose
@@ -76,8 +67,7 @@ public class RobotContainer {
     }
 
     public void configureBindings(){
-        controller1.a().toggleOnTrue(drivebase.sysIdDriveMotorCommand());
-        controller1.x().toggleOnTrue(drivebase.driveToDistanceCommand(4, 0.25));
+        controller1.start().onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
     }
 
     public Command getAutonomousCommand() {

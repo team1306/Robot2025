@@ -87,7 +87,6 @@ public class SwerveSubsystem extends SubsystemBase {
         //swerveDrive.swerveController.thetaController.setTolerance(0);
         //limit the amount of instantaneous movement
         // swerveDrive.swerveController.angleLimiter = new SlewRateLimiter(3);
-        swerveDrive.getSwerveController().config.maxAngularVelocity = 25;
 
         swerveDrive.getModules()[0].setFeedforward(new SimpleMotorFeedforward(0, 2.2629, 0.1113));
         swerveDrive.getModules()[1].setFeedforward(new SimpleMotorFeedforward(0.09, 2.228, 0.043304));
@@ -346,7 +345,7 @@ public class SwerveSubsystem extends SubsystemBase {
             // final double sidewaysComponent = smartPow(translationY.getAsDouble(), 2) * swerveDrive.getMaximumChassisVelocity();
 
             Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
-                                                                                 translationY.getAsDouble()), 0.8);
+                                                                                 translationY.getAsDouble()), 0.25);
 
             SmartDashboard.putNumber("Controller Heading", Rotation2d.fromRadians(Math.atan2(headingX.getAsDouble(), headingY.getAsDouble())).getDegrees());
             SmartDashboard.putNumber("PID Error", swerveDrive.swerveController.thetaController.getError());
