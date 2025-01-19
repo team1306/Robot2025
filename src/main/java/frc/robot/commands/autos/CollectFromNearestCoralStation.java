@@ -1,5 +1,10 @@
 package frc.robot.commands.autos;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.commands.arm.ArmSetpoint;
 import frc.robot.commands.arm.MoveArmToSetpoint;
@@ -12,19 +17,18 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Wrist;
 
-public class CollectFromCoralStation extends ParallelCommandGroup {
+public class CollectFromNearestCoralStation extends ParallelCommandGroup {
     
-    public CollectFromCoralStation(SwerveSubsystem swerve, Elevator elevator, Arm arm, Wrist wrist, boolean left, boolean coralHorazontal) {
-        FieldLocation coralStationPosition;
-        if (left) coralStationPosition = FieldLocation.CORAL_STATION_LEFT;
-        else coralStationPosition = FieldLocation.CORAL_STATION_RIGHT;
+    public CollectFromNearestCoralStation(SwerveSubsystem swerve, Elevator elevator, Arm arm, Wrist wrist, boolean coralHorazontal) {
+        Pose2d nearestCoralStationPosition = swerve.getPose().nearest(new ArrayList<Pose2d>(Arrays.asList(
+            FieldLocation.CORAL_STATION_LEFT.getPose(), FieldLocation.CORAL_STATION_RIGHT.getPose())));
 
         WristSetpoint wristSetpoint;
         if (coralHorazontal) wristSetpoint = WristSetpoint.HORAZONTAL;
         else wristSetpoint = WristSetpoint.VERTICAL;
 
         addCommands(
-            swerve.driveToPose(coralStationPosition.getPose()),
+            swerve.driveToPose(nearestCoralStationPosition),
             new MoveElevatorToSetpoint(elevator, ElevatorSetpoint.CORAL_STATION),
             new MoveArmToSetpoint(arm, ArmSetpoint.CORAL_STATION),
             new MoveWristToSetpoint(wrist, wristSetpoint)
