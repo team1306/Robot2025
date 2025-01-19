@@ -13,19 +13,27 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
 
-public class PlaceCoralL2 extends ParallelCommandGroup{
+public class PlaceCoral extends ParallelCommandGroup {
     
-    public PlaceCoralL2(Elevator elevator, Arm arm, Wrist wrist) {
+    public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, int level) {
+
+        if (level < 1 || level > 4) throw new IllegalArgumentException("Coral level must be between 1 and 4");
+
+        ElevatorSetpoint elevatorSetpoint = ElevatorSetpoint.values()[level - 1];
+        ArmSetpoint armSetpoint = ArmSetpoint.values()[level - 1];
+        WristSetpoint wristSetpoint = WristSetpoint.values()[level - 1];
+        
 
         addCommands(
-            new MoveElevatorToSetpoint(elevator, ElevatorSetpoint.CORAL_L2),
+            new MoveElevatorToSetpoint(elevator, elevatorSetpoint),
             new SequentialCommandGroup(
                 new WaitCommand(0),
                 new ParallelCommandGroup(
-                    new MoveArmToSetpoint(arm, ArmSetpoint.CORAL_L2),
-                    new MoveWristToSetpoint(wrist, WristSetpoint.VERTICAL)
+                    new MoveArmToSetpoint(arm, armSetpoint),
+                    new MoveWristToSetpoint(wrist, wristSetpoint)
                 )
             )
         );
+
     }
 }
