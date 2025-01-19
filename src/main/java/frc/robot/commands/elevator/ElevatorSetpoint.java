@@ -9,8 +9,9 @@ public enum ElevatorSetpoint {
     CORAL_L1(Inches.of(18 - Constants.ELEVATOR_STARTING_HEIGHT)),
     CORAL_L2(Inches.of(31.875 - Constants.ELEVATOR_STARTING_HEIGHT)),
     CORAL_L3(Inches.of(47.625 - Constants.ELEVATOR_STARTING_HEIGHT)),
-    CORAL_L4(Inches.of(72 - Constants.ELEVATOR_STARTING_HEIGHT));
-
+    CORAL_L4(Inches.of(72 - Constants.ELEVATOR_STARTING_HEIGHT)),
+    
+    CORAL_STATION(Inches.of(0));
 
     public final Distance height;
 

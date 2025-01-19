@@ -18,7 +18,10 @@ public enum FieldLocation {
     REEF_CLOSE_RIGHT_LEFT   (new Pose2d(Inches.of(0), Inches.of(0), Rotation2d.fromDegrees(60))),
     REEF_CLOSE_RIGHT_RIGHT  (new Pose2d(Inches.of(0), Inches.of(0), Rotation2d.fromDegrees(60))),
     REEF_FAR_RIGHT_LEFT     (new Pose2d(Inches.of(0), Inches.of(0), Rotation2d.fromDegrees(120))),
-    REEF_FAR_RIGHT_RIGHT    (new Pose2d(Inches.of(0), Inches.of(0), Rotation2d.fromDegrees(120)));
+    REEF_FAR_RIGHT_RIGHT    (new Pose2d(Inches.of(0), Inches.of(0), Rotation2d.fromDegrees(120))),
+
+    CORAL_STATION_LEFT      (new Pose2d(Inches.of(0), Inches.of(0), Rotation2d.fromDegrees(0))),
+    CORAL_STATION_RIGHT     (new Pose2d(Inches.of(0), Inches.of(0), Rotation2d.fromDegrees(0)));
 
 
     private final Pose2d pose;
