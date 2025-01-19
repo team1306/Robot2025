@@ -13,11 +13,7 @@ import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Dashboard.GetValue;
 import lombok.Getter;
-import lombok.Setter;
-
 import static frc.robot.Constants.*;
-
-import org.dyn4j.geometry.Rotation;
 
 public class Wrist extends SubsystemBase  {
 

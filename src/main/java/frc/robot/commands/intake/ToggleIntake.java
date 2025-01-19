@@ -27,6 +27,6 @@ public class ToggleIntake extends Command{
 
     @Override
     public boolean isFinished() {
-        return intake.getSensorReading(); //add sensor thing
+        return intake.getSensorReading();
     }
 }

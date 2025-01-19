@@ -2,16 +2,11 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.utils.SparkMaxGroup;
 import frc.robot.subsystems.utils.TalonFXGroup;
 import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
-import frc.robot.subsystems.utils.SparkMaxGroup.SparkMaxData;
 import frc.robot.util.MotorUtil;
 import lombok.Getter;
 import static frc.robot.Constants.INTAKE_MOTOR_ID;
@@ -45,7 +40,6 @@ public class Intake extends SubsystemBase {
     }
 
     public boolean getSensorReading() {
-        System.out.println("Method getSensorReading() is not implemented");
-        return false;
+        return sensorReading;
     }
 }
