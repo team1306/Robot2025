@@ -9,8 +9,8 @@ public class MoveWristToSetpoint extends Command {
 
     private final double TOLERANCE = 0.02; //rads
 
-    private Wrist wrist;
-    private Rotation2d targetRotation;
+    private final Wrist wrist;
+    private final Rotation2d targetRotation;
     
     public MoveWristToSetpoint(Wrist wrist, WristSetpoint wristSetpoint) {
         this.targetRotation = wristSetpoint.rotation;

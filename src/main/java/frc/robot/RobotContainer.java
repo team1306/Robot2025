@@ -37,7 +37,7 @@ public class RobotContainer {
     () -> -controller1.getRightY()).headingWhile(true);
 
     private final Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
-    private final Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+    private final Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
     private final AutoChooser autoChooser;
 
