@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.utils.TalonFXGroup;
 import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
+import frc.robot.util.Dashboard.DashboardHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Dashboard.GetValue;
 import lombok.Getter;
@@ -17,14 +18,10 @@ import static frc.robot.Constants.*;
 
 public class Wrist extends SubsystemBase  {
 
-    private final TalonFX motor;
-    private final TalonFXGroup motorGroup;
-
-    private final DutyCycleEncoder encoder;
-    private final PIDController pidController;
-
     @GetValue 
-    public double kP = 0, kI = 0.0, kD = 0.00; 
+    public double kP = 0, kI = 0.0, kD = 0.00;
+
+    private final double MIN_ANGLE = 0, MAX_ANGLE = 60;
 
     private final Rotation2d OFFSET = Rotation2d.kZero;
     private final Rotation2d TOLERANCE = Rotation2d.kZero;
@@ -32,10 +29,18 @@ public class Wrist extends SubsystemBase  {
     @Getter
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
 
+    private final TalonFX motor;
+    private final TalonFXGroup motorGroup;
+
+    private final DutyCycleEncoder encoder;
+    private final PIDController pidController;
+
     public Wrist() {
+        DashboardHelpers.addUpdateClass(this);
+        
         motor = MotorUtil.initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake);
         motorGroup = new TalonFXGroup(new TalonData(motor));
-        encoder = new DutyCycleEncoder(WRIST_ABSOLUTE_ENCODER);
+        encoder = new DutyCycleEncoder(WRIST_ENCODER_ID);
 
         pidController = new PIDController(kP, kI, kD);
         pidController.setTolerance(TOLERANCE.getRadians());
@@ -47,6 +52,9 @@ public class Wrist extends SubsystemBase  {
     public void periodic() {
         double pidOutput = pidController.calculate(getCurrentAngle().getRadians(), targetAngle.getRadians());
 
+        //TODO make sure to create a way to override this forced stopping of wrist
+        if(getCurrentAngle().getDegrees() < MIN_ANGLE || getCurrentAngle().getDegrees() > MAX_ANGLE)
+            pidOutput = 0;
         motorGroup.setSpeed(pidOutput);
     }
 
@@ -59,6 +67,6 @@ public class Wrist extends SubsystemBase  {
     }
 
     public void setTargetAngle(Rotation2d setpoint) {
-        targetAngle = Rotation2d.fromRadians(MathUtil.clamp(setpoint.getRadians(), -20, 110));
+        targetAngle = Rotation2d.fromRadians(MathUtil.clamp(setpoint.getRadians(), MIN_ANGLE, MAX_ANGLE));
     }
 }
