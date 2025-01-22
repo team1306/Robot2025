@@ -1,5 +1,6 @@
 package frc.robot.util.Dashboard;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import lombok.SneakyThrows;
@@ -105,11 +106,20 @@ public class DashboardHelpers {
 
         if (type.equals(double.class)) {
             field.set(getField.instance, SmartDashboard.getNumber(getField.key, (double) getField.defaultValue));
+        
         } else if (type.equals(String.class)) {
             String stringDefault = (String) getField.defaultValue;
+            
             field.set(getField.instance, SmartDashboard.getString(getField.key, stringDefault == null ? "" : stringDefault));
+        
         } else if (type.equals(boolean.class)) {
             field.set(getField.instance, SmartDashboard.getBoolean(getField.key, (boolean) getField.defaultValue));
+        
+        } else if (type.equals(Rotation2d.class)) {
+            Rotation2d rotationDefault = (Rotation2d) getField.defaultValue;
+            
+            field.set(getField.instance, Rotation2d.fromDegrees(SmartDashboard.getNumber(getField.key, rotationDefault == null ? 0 : rotationDefault.getDegrees())));
+        
         } else {
             throw new RuntimeException("Unsupported getValue type: " + type);
         }
@@ -133,10 +143,16 @@ public class DashboardHelpers {
     public static void putValue(String key, Object value) {
         if (value instanceof Double) {
             SmartDashboard.putNumber(key, (double) value);
+        
         } else if (value instanceof String) {
             SmartDashboard.putString(key, (String) value);
+        
         } else if (value instanceof Boolean) {
             SmartDashboard.putBoolean(key, (boolean) value);
+        
+        } else if (value instanceof Rotation2d) {
+            SmartDashboard.putNumber(key, ((Rotation2d) value).getDegrees());
+
         } else {
             throw new RuntimeException("Unsupported putValue type: " + (value == null ? "void is not a valid type" : value.getClass()));
         }

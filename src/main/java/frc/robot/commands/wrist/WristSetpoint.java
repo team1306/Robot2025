@@ -9,7 +9,7 @@ public enum WristSetpoint {
 
     public final Rotation2d rotation;
 
-    private WristSetpoint(Rotation2d rotation) {
+    WristSetpoint(Rotation2d rotation) {
         this.rotation = rotation;
     }
 

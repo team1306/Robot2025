@@ -18,15 +18,13 @@ public class PlaceCoral extends ParallelCommandGroup {
         if (level < 1 || level > 4) throw new IllegalArgumentException("Coral level must be 1 - 4");
 
         ElevatorSetpoint elevatorSetpoint = ElevatorSetpoint.values()[level - 1];
-        ArmSetpoint armSetpoint = ArmSetpoint.values()[level - 1];
-        WristSetpoint wristSetpoint = WristSetpoint.values()[level - 1];
+        ArmSetpoint armSetpoint = ArmSetpoint.values()[level];
         
-
         addCommands(
             new MoveElevatorToSetpoint(elevator, elevatorSetpoint),
             new ParallelCommandGroup(
                     new MoveArmToSetpoint(arm, armSetpoint),
-                    new MoveWristToSetpoint(wrist, wristSetpoint)
+                    new MoveWristToSetpoint(wrist, WristSetpoint.VERTICAL)
             )
         );
 

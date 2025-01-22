@@ -8,8 +8,8 @@ import frc.robot.subsystems.Wrist;
 
 public class ManualWristControl extends Command {
      
-    private Wrist wrist;
-    private DoubleSupplier doubleSupplier;
+    private final Wrist wrist;
+    private final DoubleSupplier doubleSupplier;
     private final double SPEED = 0.01;
 
     public ManualWristControl(Wrist wrist, DoubleSupplier doubleSupplier) {

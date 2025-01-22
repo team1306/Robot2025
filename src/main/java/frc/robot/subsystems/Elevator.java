@@ -1,15 +1,13 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Inches;
-
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.utils.TalonFXGroup;
@@ -20,10 +18,11 @@ import frc.robot.util.Dashboard.GetValue;
 import lombok.Getter;
 import lombok.Setter;
 
+import static edu.wpi.first.units.Units.*;
+
 
 public class Elevator extends SubsystemBase {
     
-    // go to and hold positions (thrifty elevator) [PID and Feedforward]
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
     @GetValue
@@ -33,15 +32,14 @@ public class Elevator extends SubsystemBase {
 
     private final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
     private Distance PID_TOLERANCE = Inches.of(0.2);
-    private ProfiledPIDController pid;
-
-    private ElevatorFeedforward feedforward;
+    
+    
+    private final ProfiledPIDController pid;
+    private final ElevatorFeedforward feedforward;
 
     private final TalonFXGroup motorGroup;
     private final TalonFX leftMotor, rightMotor;
-
-    private final DutyCycleEncoder elevatorEncoder;
-
+    
     @Setter @Getter
     private Distance targetHeight;
 
@@ -50,8 +48,9 @@ public class Elevator extends SubsystemBase {
         
         leftMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Brake);
         rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
-
-        elevatorEncoder = new DutyCycleEncoder(0);
+        leftMotor.setPosition(Rotations.of(0));
+        rightMotor.setPosition(Rotations.of(0));
+        //TODO add gear ratio into positions (in tuner x?)
 
         motorGroup = new TalonFXGroup(new TalonData(leftMotor), new TalonData(rightMotor));
 
@@ -76,7 +75,16 @@ public class Elevator extends SubsystemBase {
     }
 
     public Distance getCurrentHeight(){
-        return rotationsToDistance(elevatorEncoder.get());
+        return rotationsToDistance(getCurrentElevatorMotorPositions().in(Rotations));
+    }
+    
+    public Angle getCurrentElevatorMotorPositions(){
+        return leftMotor.getPosition().getValue().plus(rightMotor.getPosition().getValue()).div(2);
+    }
+    
+    public void zeroElevatorMotorPositions(){
+        leftMotor.setPosition(Rotations.of(0));
+        rightMotor.setPosition(Rotations.of(0));
     }
 
     public static Distance rotationsToDistance(double rotations) {
