@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
 
 public class FieldLocation {
-    public static Pose2d A = new Pose2d(0, 0, Rotation2d.k180deg);
+    public static Pose2d A = new Pose2d(5.737, 4.186, Rotation2d.k180deg);
     public static Pose2d B = new Pose2d(5.713, 3.863, Rotation2d.k180deg);
     public static Pose2d C = new Pose2d(5.253, 3.041, Rotation2d.fromDegrees(120));
     public static Pose2d D = new Pose2d(4.965, 2.882, Rotation2d.fromDegrees(120));
