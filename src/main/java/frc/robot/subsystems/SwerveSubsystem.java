@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static frc.robot.Constants.LIMELIGHT_NAME;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -46,8 +48,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.util.LimelightHelpers;
 import frc.robot.util.Utilities;
 import frc.robot.util.Dashboard.DashboardHelpers;
+import frc.robot.util.LimelightHelpers.PoseEstimate;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -61,10 +65,10 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrive swerveDrive;
 
-    private final PIDController xController = new PIDController(1, 0.0, 0);
-    private final PIDController yController = new PIDController(1, 0.0, 0);
+    private final PIDController xController = new PIDController(4, 0.01, 0);
+    private final PIDController yController = new PIDController(4, 0.01, 0);
 
-    private final PIDController headingController = new PIDController(1, 0.0, 0.0);
+    private final PIDController headingController = new PIDController(1, 0.01, 0.0);
 
     public SwerveSubsystem() {
         DashboardHelpers.addUpdateClass(this);
@@ -77,7 +81,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
-        swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+        swerveDrive.setCosineCompensator(true);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         swerveDrive.setAngularVelocityCompensation(false, false, 0.1); //Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
         // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
@@ -104,21 +108,20 @@ public class SwerveSubsystem extends SubsystemBase {
                 sample.vy + yController.calculate(pose.getY(), sample.y),
                 sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
-
-        ChassisSpeeds sampleSpeeds = new ChassisSpeeds(
-                sample.vx,
-                sample.vy,
-                sample.omega
-        );
-        System.out.println(sampleSpeeds +"\n" + "\n" + speeds + "\n");
         
         // Apply the generated speeds
         driveFieldOriented(speeds);
     }
 
     @Override
-    public void simulationPeriodic() {
+    public void periodic() {
+       addVisionMeasurement();
+    }
 
+    public void addVisionMeasurement(){
+        LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, (Utilities.isRedAlliance() ? 0 : 180) - swerveDrive.getYaw().getDegrees(), 0, 0, 0, 0, 0);
+        PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT_NAME);
+        if(poseEstimate.tagCount >= 1) swerveDrive.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds); 
     }
 
     public Command setModuleAngleSetpoint(Rotation2d angle){
