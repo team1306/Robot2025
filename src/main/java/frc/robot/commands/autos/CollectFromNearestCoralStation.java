@@ -18,11 +18,9 @@ import frc.robot.subsystems.Wrist;
 public class CollectFromNearestCoralStation extends ParallelCommandGroup {
     
     public CollectFromNearestCoralStation(SwerveSubsystem swerve, Elevator elevator, Arm arm, Wrist wrist) {
-        Pose2d nearestCoralStationPosition = swerve.getPose().nearest(Arrays.asList(
-            FieldLocation.CORAL_STATION_LEFT, FieldLocation.CORAL_STATION_RIGHT));
 
         addCommands(
-            swerve.driveToPose(nearestCoralStationPosition),
+            swerve.driveToPose(swerve.getPose().nearest(FieldLocation.coralStationLocations)),
             new MoveElevatorToSetpoint(elevator, ElevatorSetpoint.CORAL_STATION),
             new MoveArmToSetpoint(arm, ArmSetpoint.CORAL_STATION),
             new MoveWristToSetpoint(wrist, WristSetpoint.HORIZONTAL)
