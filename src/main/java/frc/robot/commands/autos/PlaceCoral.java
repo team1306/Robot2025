@@ -3,7 +3,6 @@ package frc.robot.commands.autos;
 import static edu.wpi.first.units.Units.Inches;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.ConditionalWaitCommand;
 import frc.robot.commands.arm.ArmSetpoint;
 import frc.robot.commands.arm.MoveArmToSetpoint;
@@ -15,7 +14,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
 
-public class PlaceCoral extends SequentialCommandGroup {
+public class PlaceCoral extends ParallelCommandGroup {
     
     public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, int level) {
 
@@ -25,13 +24,12 @@ public class PlaceCoral extends SequentialCommandGroup {
         ArmSetpoint armSetpoint = ArmSetpoint.values()[level];
         addCommands(
             new MoveElevatorToSetpoint(elevator, elevatorSetpoint),
-            new SequentialCommandGroup(
-                new ConditionalWaitCommand(() -> elevator.getCurrentHeight().gt(elevator.getTargetHeight().minus(Inches.of(4)))),
+            new ConditionalWaitCommand(() -> elevator.getCurrentHeight().gt(elevator.getTargetHeight().minus(Inches.of(4))))
+            .andThen(
                 new ParallelCommandGroup(
                     new MoveArmToSetpoint(arm, armSetpoint),
                     new MoveWristToSetpoint(wrist, WristSetpoint.VERTICAL)
-                )
-            )
+            ))
         );
 
     }
