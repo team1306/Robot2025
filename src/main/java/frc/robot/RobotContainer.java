@@ -42,7 +42,7 @@ public class RobotContainer {
     private final AutoChooser autoChooser;
 
     public RobotContainer() {
-        drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
+        drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
 
         autoFactory = new AutoFactory(
                 drivebase::getPose, // A function that returns the current robot pose

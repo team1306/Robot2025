@@ -16,7 +16,6 @@ import frc.robot.util.Dashboard.DashboardHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Dashboard.GetValue;
 import lombok.Getter;
-import lombok.Setter;
 
 import static frc.robot.Constants.*;
 

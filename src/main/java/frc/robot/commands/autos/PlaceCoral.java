@@ -15,11 +15,11 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
 
-public class PlaceCoral extends ParallelCommandGroup {
+public class PlaceCoral extends SequentialCommandGroup {
     
     public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, int level) {
 
-        if (level < 1 || level > 4) throw new IllegalArgumentException("Coral level must be 1 - 4");
+        if (level < 2 || level > 4) throw new IllegalArgumentException("Coral level must be 2 - 4. (to prevent uneeded code)");
 
         ElevatorSetpoint elevatorSetpoint = ElevatorSetpoint.values()[level - 1];
         ArmSetpoint armSetpoint = ArmSetpoint.values()[level];
