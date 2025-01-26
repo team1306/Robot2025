@@ -2,7 +2,6 @@ package frc.robot.commands.autos;
 
 import static edu.wpi.first.units.Units.Inches;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

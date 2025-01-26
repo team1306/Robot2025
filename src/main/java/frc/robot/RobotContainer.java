@@ -22,6 +22,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.commands.autos.DriveToNearestReef;
+import frc.robot.commands.autos.FieldLocation;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
@@ -76,6 +78,9 @@ public class RobotContainer {
 
     public void configureBindings(){
         controller1.start().onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
+        controller1.a().onTrue(new InstantCommand(() -> {
+            System.out.println(drivebase.getPose().nearest(FieldLocation.reefLocations));
+        }).andThen(            drivebase.driveToPose(FieldLocation.H)));
     }
 
     public Command getAutonomousCommand() {

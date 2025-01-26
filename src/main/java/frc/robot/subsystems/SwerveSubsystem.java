@@ -123,6 +123,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public void addVisionMeasurement(){
         LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, (Utilities.isRedAlliance() ? -180 : 0) + swerveDrive.getYaw().getDegrees(), 0, 0, 0, 0, 0);
         PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT_NAME);
+        if(poseEstimate == null) return;
         if(poseEstimate.tagCount >= 1) swerveDrive.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds); 
     }
 
@@ -201,7 +202,6 @@ public class SwerveSubsystem extends SubsystemBase {
         PathConstraints constraints = new PathConstraints(
                 swerveDrive.getMaximumChassisVelocity(), 4.0,
                 swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
-
         return AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
     }
 
