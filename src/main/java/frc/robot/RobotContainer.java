@@ -4,6 +4,14 @@
 
 package frc.robot;
 
+import java.io.IOException;
+
+import org.json.simple.parser.ParseException;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FileVersionException;
+
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -42,7 +50,7 @@ public class RobotContainer {
     private final AutoChooser autoChooser;
 
     public RobotContainer() {
-        drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
+        drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
 
         autoFactory = new AutoFactory(
                 drivebase::getPose, // A function that returns the current robot pose
@@ -55,8 +63,8 @@ public class RobotContainer {
         autoChooser = new AutoChooser();
 
         // Add options to the chooser
-        autoChooser.addRoutine("Drive Routine", this::getDriveRoutine);
-
+        autoChooser.addRoutine("Choreo", this::getDriveRoutine);
+        autoChooser.addCmd("Pathplanner", this::getAutonomousCommand);
         // Put the auto chooser on the dashboard
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -71,7 +79,15 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoFactory.trajectoryCmd("TestPath").andThen(new InstantCommand(() -> System.out.println("\nFinished\n")));
+        PathPlannerPath path;
+        try {
+            path = PathPlannerPath.fromPathFile("Example Path");
+            drivebase.resetOdometry(path.getStartingHolonomicPose().get());
+            return new InstantCommand(() -> drivebase.resetOdometry(path.getStartingHolonomicPose().get())).andThen(AutoBuilder.followPath(path));
+        } catch (FileVersionException | IOException | ParseException e) {
+            e.printStackTrace();
+        }
+        return new InstantCommand();
     }
 
     public AutoRoutine getDriveRoutine(){
