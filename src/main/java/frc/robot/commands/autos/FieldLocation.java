@@ -1,14 +1,11 @@
 package frc.robot.commands.autos;
 
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Distance;
-import org.dyn4j.geometry.Rotation;
 
 public class FieldLocation {
     
