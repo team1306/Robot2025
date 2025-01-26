@@ -1,9 +1,9 @@
 package frc.robot.commands.autos;
 
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import static edu.wpi.first.units.Units.Inches;
+
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.ConditionalWaitCommand;
 import frc.robot.commands.arm.ArmSetpoint;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.elevator.ElevatorSetpoint;
@@ -14,7 +14,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
 
-public class PlaceCoral extends SequentialCommandGroup {
+public class PlaceCoral extends ParallelCommandGroup {
     
     public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, int level) {
 
@@ -22,13 +22,14 @@ public class PlaceCoral extends SequentialCommandGroup {
 
         ElevatorSetpoint elevatorSetpoint = ElevatorSetpoint.values()[level - 1];
         ArmSetpoint armSetpoint = ArmSetpoint.values()[level];
-        
         addCommands(
             new MoveElevatorToSetpoint(elevator, elevatorSetpoint),
-            new ParallelCommandGroup(
+            new ConditionalWaitCommand(() -> elevator.getCurrentHeight().gt(elevator.getTargetHeight().minus(Inches.of(4))))
+            .andThen(
+                new ParallelCommandGroup(
                     new MoveArmToSetpoint(arm, armSetpoint),
                     new MoveWristToSetpoint(wrist, WristSetpoint.VERTICAL)
-            )
+            ))
         );
 
     }

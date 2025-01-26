@@ -1,6 +1,11 @@
 package frc.robot.commands.autos;
 
 import static edu.wpi.first.units.Units.Inches;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -21,6 +26,8 @@ public class FieldLocation {
     public static Pose2d K;
     public static Pose2d L; 
 
+    public static List<Pose2d> reefLocations;
+    public static List<Pose2d> coralStationLocations;
 
     public static Pose2d CORAL_STATION_LEFT      =new Pose2d(0, 0, Rotation2d.fromDegrees(306));
     public static Pose2d CORAL_STATION_RIGHT     =new Pose2d(0, 0, Rotation2d.fromDegrees(54));
@@ -48,6 +55,9 @@ public class FieldLocation {
         J = calculateReefPosition(rotation60.unaryMinus(), false);
         K = calculateReefPosition(rotation120.unaryMinus(), true);
         L = calculateReefPosition(rotation120.unaryMinus(), false);
+
+        reefLocations = Arrays.asList(A, B, C, D, E, F, G, H, I, J, K, L);
+        coralStationLocations = Arrays.asList(CORAL_STATION_LEFT, CORAL_STATION_RIGHT);
     }
 
     private static Pose2d calculateReefPosition(Rotation2d angle, boolean leftSide){

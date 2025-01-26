@@ -10,7 +10,9 @@ public enum ArmSetpoint {
     CORAL_L3(Rotation2d.fromDegrees(0)),
     CORAL_L4(Rotation2d.fromDegrees(0)),
 
-    CORAL_STATION(Rotation2d.fromDegrees(55));
+    CORAL_STATION(Rotation2d.fromDegrees(55)),
+
+    STOW(Rotation2d.fromDegrees(80));
 
     public final Rotation2d rotation;
 
