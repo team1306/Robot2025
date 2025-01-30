@@ -5,6 +5,8 @@
 package frc.robot;
 
 import java.io.IOException;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 import org.json.simple.parser.ParseException;
 
@@ -16,15 +18,16 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import frc.robot.commands.autos.DriveToNearestReef;
 import frc.robot.commands.autos.FieldLocation;
 import frc.robot.subsystems.SwerveSubsystem;
+import lombok.Setter;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {

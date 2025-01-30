@@ -200,9 +200,11 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command driveToPose(Pose2d pose) {
         PathConstraints constraints = new PathConstraints(
-                swerveDrive.getMaximumChassisVelocity(), 4.0,
-                swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
-        return AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
+                swerveDrive.getMaximumChassisVelocity(), 6.0,
+                swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(1440));
+        Command driveToPose = AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
+        driveToPose.addRequirements(this);
+        return driveToPose;
     }
 
     /**
@@ -346,15 +348,8 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier headingX, DoubleSupplier headingY) {
         // swerveDrive.setHeadingCorrection(true); // Normally you would want heading correction for this kind of control.
         return run(() -> {
-            // final double forwardComponent = smartPow(translationX.getAsDouble(), 2) * swerveDrive.getMaximumChassisVelocity();
-            // final double sidewaysComponent = smartPow(translationY.getAsDouble(), 2) * swerveDrive.getMaximumChassisVelocity();
-
             Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
                                                                                  translationY.getAsDouble()), 0.25);
-
-            SmartDashboard.putNumber("Controller Heading", Rotation2d.fromRadians(Math.atan2(headingX.getAsDouble(), headingY.getAsDouble())).getDegrees());
-            SmartDashboard.putNumber("PID Error", swerveDrive.swerveController.thetaController.getError());
-
 
             // Make the robot move
             driveFieldOriented(
