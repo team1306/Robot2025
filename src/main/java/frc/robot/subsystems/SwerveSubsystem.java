@@ -65,10 +65,10 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrive swerveDrive;
 
-    private final PIDController xController = new PIDController(4, 0.01, 0);
-    private final PIDController yController = new PIDController(4, 0.01, 0);
+    private final PIDController xController = new PIDController(4, 0.2, 0);
+    private final PIDController yController = new PIDController(4, 0.2, 0);
 
-    private final PIDController headingController = new PIDController(1, 0.01, 0.0);
+    private final PIDController headingController = new PIDController(1, 0.2, 0.0);
 
     public SwerveSubsystem() {
         DashboardHelpers.addUpdateClass(this);
@@ -81,7 +81,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
-        swerveDrive.setCosineCompensator(true);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+        swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         swerveDrive.setAngularVelocityCompensation(false, false, 0.1); //Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
         // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
@@ -96,6 +96,8 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.getModules()[1].setFeedforward(new SimpleMotorFeedforward(0.09, 2.228, 0.043304));
         swerveDrive.getModules()[2].setFeedforward(new SimpleMotorFeedforward(0.05159, 2.2674, 0.1307));
         swerveDrive.getModules()[3].setFeedforward(new SimpleMotorFeedforward(0.037985, 2.2677, 0.23622));
+
+        setupPathPlanner();
     }
 
     public void followTrajectory(SwerveSample sample) {
@@ -119,8 +121,9 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void addVisionMeasurement(){
-        LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, (Utilities.isRedAlliance() ? 0 : 180) - swerveDrive.getYaw().getDegrees(), 0, 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, (Utilities.isRedAlliance() ? -180 : 0) + swerveDrive.getYaw().getDegrees(), 0, 0, 0, 0, 0);
         PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT_NAME);
+        if(poseEstimate == null) return;
         if(poseEstimate.tagCount >= 1) swerveDrive.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds); 
     }
 
@@ -199,7 +202,6 @@ public class SwerveSubsystem extends SubsystemBase {
         PathConstraints constraints = new PathConstraints(
                 swerveDrive.getMaximumChassisVelocity(), 4.0,
                 swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
-
         return AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
     }
 

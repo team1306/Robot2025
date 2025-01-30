@@ -17,21 +17,15 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Wrist;
 
-public class PlaceCoral extends ParallelCommandGroup {
-    
-    public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, Intake intake, int level) {
-
-        if (level < 2 || level > 4) throw new IllegalArgumentException("Coral level must be 2 - 4. (to prevent uneeded code)");
-
-        ElevatorSetpoint elevatorSetpoint = ElevatorSetpoint.values()[level - 1];
-        ArmSetpoint armSetpoint = ArmSetpoint.values()[level];
+public class DumpCoral extends ParallelCommandGroup{
+        public DumpCoral(Elevator elevator, Arm arm, Wrist wrist, Intake intake) {
         addCommands(
-            new MoveElevatorToSetpoint(elevator, elevatorSetpoint),
+            new MoveElevatorToSetpoint(elevator, ElevatorSetpoint.CORAL_L1),
             new ConditionalWaitCommand(() -> elevator.getCurrentHeight().gt(elevator.getTargetHeight().minus(Inches.of(4))))
             .andThen(
                 new ParallelCommandGroup(
-                    new MoveArmToSetpoint(arm, armSetpoint),
-                    new MoveWristToSetpoint(wrist, WristSetpoint.VERTICAL)
+                    new MoveArmToSetpoint(arm, ArmSetpoint.CORAL_L1),
+                    new MoveWristToSetpoint(wrist, WristSetpoint.HORIZONTAL)
             ))
             .andThen(
                 new ToggleIntake(intake, () -> -1).withTimeout(Seconds.of(1))
