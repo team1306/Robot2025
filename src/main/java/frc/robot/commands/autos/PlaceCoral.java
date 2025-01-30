@@ -33,9 +33,7 @@ public class PlaceCoral extends ParallelCommandGroup {
                     new MoveArmToSetpoint(arm, armSetpoint),
                     new MoveWristToSetpoint(wrist, WristSetpoint.VERTICAL)
             ))
-            .andThen(
-                new ToggleIntake(intake, () -> -1).withTimeout(Seconds.of(1))
-            )
+            
         );
 
     }
