@@ -9,6 +9,7 @@ import static frc.robot.Constants.LIMELIGHT_NAME;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
@@ -596,9 +597,18 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
     }
     
-    public void setHeadingCorrection(boolean headingCorrection) {
-        if(headingCorrection == swerveDrive.headingCorrection) return;
-        swerveDrive.setHeadingCorrection(headingCorrection);
+    public void setCommandedHeading() {
+        try {
+            Field field = SwerveDrive.class.getDeclaredField("lastHeadingRadians");
+            field.setAccessible(true);
+            field.set(swerveDrive, swerveDrive.getOdometryHeading().getRadians());
+        } catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
+    public void setHeadingCorrection(boolean headingCorrection){
+        swerveDrive.setHeadingCorrection(headingCorrection);
+    }
 }
