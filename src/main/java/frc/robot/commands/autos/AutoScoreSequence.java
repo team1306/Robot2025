@@ -14,8 +14,7 @@ public class AutoScoreSequence extends SequentialCommandGroup{
 
         addCommands(
             new DriveToNearestReef(swerve),
-            new PlaceCoral(elevator, arm, wrist, level)
-            
+            new ScoreCoral(swerve, elevator, arm, wrist, intake, level)
         );
     }
 

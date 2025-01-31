@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.io.IOException;
 
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -22,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import frc.robot.commands.autos.DriveToNearestReef;
 import frc.robot.commands.autos.FieldLocation;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
@@ -72,7 +72,9 @@ public class RobotContainer {
 
         // Schedule the selected auto during the autonomous period
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
-
+        //See if has any performance impact
+        RobotModeTriggers.teleop().whileTrue(new RepeatCommand(new InstantCommand(() -> drivebase.setHeadingCorrection(driveFieldOrientedDirectAngle.isScheduled()))));
+        
         configureBindings();
     }
 
