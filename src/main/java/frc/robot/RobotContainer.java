@@ -7,6 +7,8 @@ package frc.robot;
 import java.io.IOException;
 
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -73,16 +75,19 @@ public class RobotContainer {
         // Schedule the selected auto during the autonomous period
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
         //See if has any performance impact
-        RobotModeTriggers.teleop().whileTrue(new RepeatCommand(new InstantCommand(() -> drivebase.setHeadingCorrection(driveFieldOrientedDirectAngle.isScheduled()))));
-        
+        // RobotModeTriggers.teleop().onTrue(new InstantCommand(() -> driveFieldOrientedDirectAngle.schedule()));
+        // RobotModeTriggers.teleop().whileTrue(new RepeatCommand(new InstantCommand(() -> drivebase.setHeadingCorrection(driveFieldOrientedDirectAngle.isScheduled()))));
+
         configureBindings();
     }
 
     public void configureBindings(){
         controller1.start().onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
-        controller1.a().onTrue(new InstantCommand(() -> {
-            System.out.println(drivebase.getPose().nearest(FieldLocation.reefLocations));
-        }).andThen(            drivebase.driveToPose(FieldLocation.H)));
+        controller1.a().onTrue(
+            new InstantCommand(() -> drivebase.setCommandedHeading()).andThen(new InstantCommand(() -> {
+                System.out.println(drivebase.getPose().nearest(FieldLocation.reefLocations));
+        }),
+        drivebase.driveToPose(FieldLocation.H)));
     }
 
     public Command getAutonomousCommand() {
