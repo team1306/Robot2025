@@ -9,7 +9,7 @@ import frc.robot.commands.arm.ArmSetpoint;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.elevator.ElevatorSetpoint;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
-import frc.robot.commands.intake.ToggleIntake;
+import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.wrist.MoveWristToSetpoint;
 import frc.robot.commands.wrist.WristSetpoint;
 import frc.robot.subsystems.Arm;
@@ -28,7 +28,7 @@ public class DumpCoral extends ParallelCommandGroup{
                     new MoveWristToSetpoint(wrist, WristSetpoint.HORIZONTAL)
             ))
             .andThen(
-                new ToggleIntake(intake, () -> -1).withTimeout(Seconds.of(1))
+                new RunIntake(intake, () -> -1).withTimeout(Seconds.of(1))
             )
         );
 

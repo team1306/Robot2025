@@ -32,7 +32,7 @@ public class Wrist extends SubsystemBase  {
     private final TalonFX motor;
     private final TalonFXGroup motorGroup;
 
-    private final DutyCycleEncoder encoder;
+    private final DutyCycleEncoder encoder; //change with arm
     private final PIDController pidController;
 
     public Wrist() {
