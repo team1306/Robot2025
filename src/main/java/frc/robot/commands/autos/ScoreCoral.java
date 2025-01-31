@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.intake.ToggleIntake;
+import frc.robot.commands.intake.RunIntake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
@@ -21,7 +21,7 @@ public class ScoreCoral extends SequentialCommandGroup {
         addCommands(
             new PlaceCoral(elevator, arm, wrist, intake, level),
             new ParallelCommandGroup(
-                new ToggleIntake(intake, () -> -1).withTimeout(Seconds.of(1)),
+                new RunIntake(intake, () -> -1).withTimeout(Seconds.of(1)),
                 new InstantCommand(() -> swerve.drive(new Translation2d(-2, 0), 0, false)) //drive backwards
             )
         );

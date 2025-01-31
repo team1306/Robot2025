@@ -15,6 +15,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import lombok.Getter;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -63,6 +64,13 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase {
+    /**
+     * -- GETTER --
+     *  Gets the swerve drive object.
+     *
+     * @return {@link SwerveDrive}
+     */
+    @Getter
     private final SwerveDrive swerveDrive;
 
     private final PIDController xController = new PIDController(4, 0.2, 0);
@@ -587,13 +595,10 @@ public class SwerveSubsystem extends SubsystemBase {
     public void addFakeVisionReading() {
         swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
     }
-
-    /**
-     * Gets the swerve drive object.
-     *
-     * @return {@link SwerveDrive}
-     */
-    public SwerveDrive getSwerveDrive() {
-        return swerveDrive;
+    
+    public void setHeadingCorrection(boolean headingCorrection) {
+        if(headingCorrection == swerveDrive.headingCorrection) return;
+        swerveDrive.setHeadingCorrection(headingCorrection);
     }
+
 }

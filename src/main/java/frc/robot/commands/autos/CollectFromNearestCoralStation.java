@@ -8,7 +8,7 @@ import frc.robot.commands.arm.ArmSetpoint;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.elevator.ElevatorSetpoint;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
-import frc.robot.commands.intake.ToggleIntake;
+import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.wrist.MoveWristToSetpoint;
 import frc.robot.commands.wrist.WristSetpoint;
 import frc.robot.subsystems.Arm;
@@ -26,7 +26,7 @@ public class CollectFromNearestCoralStation extends ParallelCommandGroup {
             new MoveElevatorToSetpoint(elevator, ElevatorSetpoint.CORAL_STATION),
             new MoveArmToSetpoint(arm, ArmSetpoint.CORAL_STATION),
             new MoveWristToSetpoint(wrist, WristSetpoint.HORIZONTAL),
-            new ToggleIntake(intake, () -> 10)
+            new RunIntake(intake, () -> 10)
         );
     }
 }

@@ -4,12 +4,13 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.commands.ConditionalWaitCommand;
 import frc.robot.commands.arm.ArmSetpoint;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.elevator.ElevatorSetpoint;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
-import frc.robot.commands.intake.ToggleIntake;
+import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.wrist.MoveWristToSetpoint;
 import frc.robot.commands.wrist.WristSetpoint;
 import frc.robot.subsystems.Arm;
@@ -27,7 +28,7 @@ public class PlaceCoral extends ParallelCommandGroup {
         ArmSetpoint armSetpoint = ArmSetpoint.values()[level];
         addCommands(
             new MoveElevatorToSetpoint(elevator, elevatorSetpoint),
-            new ConditionalWaitCommand(() -> elevator.getCurrentHeight().gt(elevator.getTargetHeight().minus(Inches.of(4))))
+            new WaitUntilCommand(()-> elevator.getCurrentHeight().gt(elevator.getTargetHeight().minus(Inches.of(4))))
             .andThen(
                 new ParallelCommandGroup(
                     new MoveArmToSetpoint(arm, armSetpoint),
