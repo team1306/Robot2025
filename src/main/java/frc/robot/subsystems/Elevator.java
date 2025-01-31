@@ -5,6 +5,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
@@ -75,22 +76,36 @@ public class Elevator extends SubsystemBase {
     }
 
     public Distance getCurrentHeight(){
-        return rotationsToDistance(getCurrentElevatorMotorPositions().in(Rotations));
+        return rotationsToDistance(getCurrentElevatorMotorPositions());
     }
     
-    public Angle getCurrentElevatorMotorPositions(){
-        return leftMotor.getPosition().getValue().plus(rightMotor.getPosition().getValue()).div(2);
+    /**
+     * Gets the motor positions
+     * @return the rotation of the motors
+     */
+    public Rotation2d getCurrentElevatorMotorPositions(){
+        return Rotation2d.fromRadians(leftMotor.getPosition().getValue().plus(rightMotor.getPosition().getValue()).div(2).in(Radians));
     }
     
+    /**
+     * Sets the elevator motor positions to zero
+     */
     public void zeroElevatorMotorPositions(){
         leftMotor.setPosition(Rotations.of(0));
         rightMotor.setPosition(Rotations.of(0));
     }
 
-    public static Distance rotationsToDistance(double rotations) {
-        return Inches.of(rotations * SPROCKET_DIAMETER_INCHES * Math.PI);
+    /**
+     * Converts from a Rotation2d to a Distance using the sproket diameter.
+     */
+    public static Distance rotationsToDistance(Rotation2d rotation) {
+        return Inches.of(rotation.getRadians() * SPROCKET_DIAMETER_INCHES * Math.PI);
     }
-    public static double distanceToRotations(Distance distance) {
-        return distance.in(Inches) / (SPROCKET_DIAMETER_INCHES * Math.PI);
+
+    /**
+     * Converts from a Distance to a Rotation2d using the sproket diameter.
+     */
+    public static Rotation2d distanceToRotations(Distance distance) {
+        return Rotation2d.fromRotations(distance.in(Inches) / (SPROCKET_DIAMETER_INCHES * Math.PI));
     }
 }

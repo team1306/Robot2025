@@ -25,6 +25,11 @@ public class Intake extends SubsystemBase {
     private final TalonFXGroup motorGroup;
     private final DigitalInput sensor;
 
+    /**
+     * The intake is mounted on the wrist and used to pick up coral and release it to score.
+     * Hardware: The intake has one Talon FX motor controller and a beam-break sensor.
+     * Controllers: None
+     */
     public Intake() {
         DashboardHelpers.addUpdateClass(this);
         
@@ -40,10 +45,18 @@ public class Intake extends SubsystemBase {
         SmartDashboard.putBoolean("Current Intake Sensor Reading", sensorReading);
     }
 
+    /**
+     * Sets the target speed of the intake.
+     * @param targetSpeed the speed for the intake setpoint (-1 - 1).
+     */
     public void setTargetSpeed(double targetSpeed) {
         this.targetSpeed = MotorUtil.clampPercent(targetSpeed);
     }
 
+    /**
+     * Gets the reading from the beam-break sensor on the intake.
+     * @return true if the sensor detects an object in the intake
+     */
     @PutValue(key = "Sensor Reading")
     public boolean getSensorReading() {
         return sensorReading;

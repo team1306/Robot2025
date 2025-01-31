@@ -39,6 +39,12 @@ public class Arm extends SubsystemBase  {
     private final ProfiledPIDController profiledPIDController;
     private ArmFeedforward feedforward;
 
+    
+    /**
+     * The arm is mounted on the elevator and moves the wrist and intake to place and pick up coral.
+     * Hardware: The arm has one Talon FX motor controller and an Absolute Analog Encoder
+     * Controllers: Feedforward and Profiled PID Controller.
+     */
     public Arm() {
         DashboardHelpers.addUpdateClass(this);
         
@@ -74,14 +80,26 @@ public class Arm extends SubsystemBase  {
         motorGroup.setSpeed(motorOutput);
     }
 
+    /**
+     * Gets if the arm is at its setpoint.
+     * @return true if the arm is at its setpoint (with a tolerance of course).
+     */
     public boolean atSetpoint() {
         return Math.abs(getCurrentAngle().minus(targetAngle).getDegrees()) < TOLERANCE.getDegrees();
     }
 
+    /**
+     * Gets the current angle of the arm.
+     * @return the rotation of the arm.
+     */
     public Rotation2d getCurrentAngle() {
         return Rotation2d.fromRotations(armEncoder.get()).minus(OFFSET);
     }
-    
+
+    /**
+     * Sets the target angle of the arm.
+     * @param setpoint the rotation for the arm setpoint.
+     */
     public void setTargetAngle(Rotation2d setpoint) {
         targetAngle = Rotation2d.fromRadians(MathUtil.clamp(setpoint.getRadians(), MIN_ANGLE, MAX_ANGLE));
     }

@@ -35,6 +35,11 @@ public class Wrist extends SubsystemBase  {
     private final DutyCycleEncoder encoder; //change with arm
     private final PIDController pidController;
 
+    /**
+     * The wrist is mounted on the arm and rotates the intake to place and pick up coral.
+     * Hardware: The wrist has one Talon FX motor controller and an Absolute Analog Encoder.
+     * Controllers: Normal PID Controller.
+     */
     public Wrist() {
         DashboardHelpers.addUpdateClass(this);
         
@@ -58,14 +63,26 @@ public class Wrist extends SubsystemBase  {
         motorGroup.setSpeed(pidOutput);
     }
 
+    /**
+     * Gets the current angle of the wrist.
+     * @return the rotation of the wrist.
+     */
     public Rotation2d getCurrentAngle() {
         return Rotation2d.fromRotations((encoder.get())).minus(OFFSET);
     }
 
+    /**
+     * Gets if the arm is at its setpoint using the PID controller.
+     * @return true if the arm is at its setpoint.
+     */
     public boolean atSetpoint() {
         return pidController.atSetpoint();
     }
 
+    /**
+     * Sets the target angle of the wrist.
+     * @param setpoint the rotation for the wrist setpoint.
+     */
     public void setTargetAngle(Rotation2d setpoint) {
         targetAngle = Rotation2d.fromRadians(MathUtil.clamp(setpoint.getRadians(), MIN_ANGLE, MAX_ANGLE));
     }
