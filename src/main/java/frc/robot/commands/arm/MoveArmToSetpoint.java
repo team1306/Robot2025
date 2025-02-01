@@ -12,6 +12,9 @@ public class MoveArmToSetpoint extends Command {
     private final Arm arm;
     private final Rotation2d targetRotation;
 
+    /**
+     * Sets the target postiton for the arm
+     */
     public MoveArmToSetpoint(Arm arm, ArmSetpoint armSetpoint) {
         this.arm = arm;
         this.targetRotation = armSetpoint.rotation;
