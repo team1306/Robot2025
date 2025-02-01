@@ -18,6 +18,9 @@ public enum ElevatorSetpoint {
 
     public final Distance height;
 
+    /**
+     * pre configured setpoints for the elevator
+     */
     ElevatorSetpoint(Distance height) {
         this.height = height;
     }
