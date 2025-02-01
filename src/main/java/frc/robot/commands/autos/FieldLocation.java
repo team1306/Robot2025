@@ -5,10 +5,13 @@ import static edu.wpi.first.units.Units.Inches;
 import java.util.Arrays;
 import java.util.List;
 
+import com.pathplanner.lib.util.FlippingUtil;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
+import frc.robot.util.Utilities;
 
 /**
  * A collection of Pose2d field locations
@@ -63,7 +66,9 @@ public class FieldLocation {
     }
 
     private static Pose2d calculateReefPosition(Rotation2d angle, boolean leftSide){
-        return new Pose2d(calculateReefRelativePosition(angle, leftSide).plus(reefCenter), angle);
+        Pose2d reefPosition = new Pose2d(calculateReefRelativePosition(angle, leftSide).plus(reefCenter), angle);
+        if (Utilities.isRedAlliance()) reefPosition = flipToRedSide(reefPosition);
+        return reefPosition;
     }
     
     private static Translation2d calculateReefRelativePosition(Rotation2d angle, boolean leftSide){
@@ -78,5 +83,9 @@ public class FieldLocation {
         return reefEdgeDistance.plus(robotWidth.div(2)).plus(robotOffsetFromReef);
     }
     
-    
+    private static Pose2d flipToRedSide(Pose2d pose) {
+        if (FlippingUtil.symmetryType != FlippingUtil.FieldSymmetry.kMirrored) System.out.println("Symetry type changed to mirrored");
+        FlippingUtil.symmetryType = FlippingUtil.FieldSymmetry.kMirrored;
+        return FlippingUtil.flipFieldPose(pose);
+    }
 }

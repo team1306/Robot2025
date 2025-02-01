@@ -25,7 +25,7 @@ public class Arm extends SubsystemBase  {
     @GetValue public double kG = 0, kV = 0; 
     private final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
     
-    private final double MIN_ANGLE = 0, MAX_ANGLE = 60;
+    private final double MIN_ANGLE = -15, MAX_ANGLE = 80;
 
     private final Rotation2d OFFSET = Rotation2d.kZero, TOLERANCE = Rotation2d.kZero;
 

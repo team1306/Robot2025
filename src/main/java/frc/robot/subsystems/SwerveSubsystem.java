@@ -27,6 +27,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
@@ -153,7 +154,7 @@ public class SwerveSubsystem extends SubsystemBase {
         RobotConfig config;
         try {
             config = RobotConfig.fromGUISettings();
-
+            
             final boolean enableFeedforward = true;
 
             AutoBuilder.configure(
