@@ -44,6 +44,11 @@ public class Elevator extends SubsystemBase {
     @Setter @Getter
     private Distance targetHeight;
 
+    /**
+     * The elevator is mounted on the robot frame and moves the arm up and down.
+     * Hardware: the elevator has two Talon FX motor controllers.
+     * Controllers: Feedforward and ProfiledPIDController.
+     */
     public Elevator() {
         DashboardHelpers.addUpdateClass(this);
         
@@ -71,10 +76,18 @@ public class Elevator extends SubsystemBase {
         motorGroup.setSpeed(motorOutput);
     }
 
+    /**
+     * Gets whether the elevator is at its setpoint using the PID controller.
+     * @return true if the elevator is at its setpoint.
+     */
     public boolean atSetpoint() {
         return pid.atSetpoint();
     }
 
+    /**
+     * Gets the current height of the elevator.
+     * @return the elevator height in distance.
+     */
     public Distance getCurrentHeight(){
         return rotationsToDistance(getCurrentElevatorMotorPositions());
     }
