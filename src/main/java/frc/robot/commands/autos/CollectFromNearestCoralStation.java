@@ -1,8 +1,5 @@
 package frc.robot.commands.autos;
 
-import java.util.Arrays;
-
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.commands.arm.ArmSetpoint;
 import frc.robot.commands.arm.MoveArmToSetpoint;
@@ -19,6 +16,9 @@ import frc.robot.subsystems.Wrist;
 
 public class CollectFromNearestCoralStation extends ParallelCommandGroup {
     
+    /**
+     * Drives to the nearest coral station, brings the intake to the correct position and intakes the coral.
+     */
     public CollectFromNearestCoralStation(SwerveSubsystem swerve, Elevator elevator, Arm arm, Wrist wrist, Intake intake) {
 
         addCommands(

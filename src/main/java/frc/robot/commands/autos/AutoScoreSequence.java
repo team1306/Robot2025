@@ -9,6 +9,10 @@ import frc.robot.subsystems.Wrist;
 
 public class AutoScoreSequence extends SequentialCommandGroup{
     
+    /**
+     * Full sequence for scoring on the closest reef.
+     * @param level the scoring level.
+     */
     public AutoScoreSequence(SwerveSubsystem swerve, Elevator elevator, Arm arm, Wrist wrist, Intake intake, int level) {
 
 
