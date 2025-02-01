@@ -15,7 +15,10 @@ import frc.robot.subsystems.Wrist;
 
 public class ScoreCoral extends SequentialCommandGroup {
     
-
+    /**
+     * Places the coral and drives back to score it
+     * @param level the level for coral scoring
+     */
     public ScoreCoral(SwerveSubsystem swerve, Elevator elevator, Arm arm, Wrist wrist, Intake intake, int level) {
 
         addCommands(
