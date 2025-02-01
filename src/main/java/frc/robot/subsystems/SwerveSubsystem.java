@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static frc.robot.Constants.LIMELIGHT_NAME;
 
@@ -28,6 +29,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
+import com.pathplanner.lib.util.FileVersionException;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 
@@ -50,6 +52,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.commands.autos.FieldLocation;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.Utilities;
 import frc.robot.util.Dashboard.DashboardHelpers;
@@ -214,6 +217,16 @@ public class SwerveSubsystem extends SubsystemBase {
         Command driveToPose = AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
         driveToPose.addRequirements(this);
         return driveToPose;
+    }
+
+    public Command driveToH(){
+        try {
+            return driveToPose(new Pose2d(Meters.of(2), Meters.of(4), Rotation2d.kZero)).andThen(AutoBuilder.followPath(PathPlannerPath.fromPathFile("Path To H")));
+        } catch (FileVersionException | IOException | ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return new InstantCommand();
     }
 
     /**
@@ -595,20 +608,5 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public void addFakeVisionReading() {
         swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
-    }
-    
-    public void setCommandedHeading() {
-        try {
-            Field field = SwerveDrive.class.getDeclaredField("lastHeadingRadians");
-            field.setAccessible(true);
-            field.set(swerveDrive, swerveDrive.getOdometryHeading().getRadians());
-        } catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
-    public void setHeadingCorrection(boolean headingCorrection){
-        swerveDrive.setHeadingCorrection(headingCorrection);
     }
 }

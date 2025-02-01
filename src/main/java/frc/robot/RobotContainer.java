@@ -5,9 +5,7 @@
 package frc.robot;
 
 import java.io.IOException;
-
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import java.lang.reflect.Field;
 
 import org.json.simple.parser.ParseException;
 
@@ -23,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.commands.autos.FieldLocation;
@@ -45,8 +44,10 @@ public class RobotContainer {
     /**
      * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
      */
+    //TODO this is the problem for rotating after path finishes
     private final SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(() -> -controller1.getRightX(),
     () -> -controller1.getRightY()).headingWhile(true);
+
 
     private final Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
     private final Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
@@ -76,18 +77,16 @@ public class RobotContainer {
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
         //See if has any performance impact
         // RobotModeTriggers.teleop().onTrue(new InstantCommand(() -> driveFieldOrientedDirectAngle.schedule()));
-        // RobotModeTriggers.teleop().whileTrue(new RepeatCommand(new InstantCommand(() -> drivebase.setHeadingCorrection(driveFieldOrientedDirectAngle.isScheduled()))));
-
+        // RobotModeTriggers.teleop().whileTrue(new RepeatCommand(new InstantCommand(() -> wasLastScheduled = driveFieldOrientedDirectAngle.isScheduled())));
         configureBindings();
     }
 
     public void configureBindings(){
         controller1.start().onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
         controller1.a().onTrue(
-            new InstantCommand(() -> drivebase.setCommandedHeading()).andThen(new InstantCommand(() -> {
+            new InstantCommand(() -> {
                 System.out.println(drivebase.getPose().nearest(FieldLocation.reefLocations));
-        }),
-        drivebase.driveToPose(FieldLocation.H)));
+        }).andThen(drivebase.driveToH(), new InstantCommand(() -> drivebase.getSwerveController().lastAngleScalar = FieldLocation.H.getRotation().getRadians())));
     }
 
     public Command getAutonomousCommand() {
