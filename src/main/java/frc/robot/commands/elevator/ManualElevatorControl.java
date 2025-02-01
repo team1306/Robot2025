@@ -13,6 +13,9 @@ public class ManualElevatorControl extends Command {
     private final DoubleSupplier doubleSupplier;
     private final double SPEED = 1;
 
+    /**
+     * Manual setting of the elevator level by a controller
+    */
     public ManualElevatorControl(Elevator elevator, DoubleSupplier doubleSupplier) {
         this.elevator = elevator;
         this.doubleSupplier = doubleSupplier;

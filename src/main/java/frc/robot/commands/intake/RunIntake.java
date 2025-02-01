@@ -8,6 +8,9 @@ public class RunIntake extends Command{
     private final Intake intake;
     private final DoubleSupplier speed;
 
+    /**
+     * Sets the speed/direction of the intake
+     */
     public RunIntake(Intake intake, DoubleSupplier speed){
         this.intake = intake;
         this.speed = speed;

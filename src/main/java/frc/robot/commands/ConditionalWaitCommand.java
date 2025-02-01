@@ -8,6 +8,9 @@ public class ConditionalWaitCommand extends Command {
     
     private BooleanSupplier condition;
     
+    /**
+     * Sets the angle of the wrist
+     */
     public ConditionalWaitCommand (BooleanSupplier condition) {
         this.condition = condition;
     }
