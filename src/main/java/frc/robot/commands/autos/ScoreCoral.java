@@ -1,12 +1,9 @@
 package frc.robot.commands.autos;
 
-import static edu.wpi.first.units.Units.Seconds;
-
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.intake.SpitCoral;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
