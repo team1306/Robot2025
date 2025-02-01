@@ -211,7 +211,7 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command driveToPose(Pose2d pose) {
         PathConstraints constraints = new PathConstraints(
-                swerveDrive.getMaximumChassisVelocity(), 6.0,
+                1, 1,
                 swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(1440));
         Command driveToPose = AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
         driveToPose.addRequirements(this);
@@ -220,16 +220,18 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public Command driveToReef(Pose2d location, Pose2d intermediatePoint){
         PathConstraints constraints = new PathConstraints(
-            swerveDrive.getMaximumChassisVelocity(), 6.0,
-            swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(1440));
+            1, 1,
+            swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
 
         Command pathfind = driveToPose(intermediatePoint);
-        List<PathPoint> points = Arrays.asList(
-            new PathPoint(intermediatePoint.getTranslation(), new RotationTarget(0, intermediatePoint.getRotation())), 
-            new PathPoint(location.getTranslation(), new RotationTarget(0, location.getRotation())));
+        // List<PathPoint> points = Arrays.asList(
+        //     new PathPoint(intermediatePoint.getTranslation(), new RotationTarget(0, intermediatePoint.getRotation())), 
+        //     new PathPoint(location.getTranslation(), new RotationTarget(0, location.getRotation())));
+        // System.out.println(location);
+        // System.out.println(intermediatePoint);
 
-        var path = PathPlannerPath.fromPathPoints(points, constraints, new GoalEndState(0, location.getRotation()));
-        return pathfind.andThen(AutoBuilder.followPath(path));
+        // var path = PathPlannerPath.fromPathPoints(points, constraints, new GoalEndState(0, location.getRotation()));
+        return pathfind.andThen(driveToPose(location));
     }  
 
     /**

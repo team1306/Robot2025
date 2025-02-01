@@ -78,8 +78,8 @@ public class RobotContainer {
         controller1.start().onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
         controller1.a().onTrue(
             drivebase.driveToReef(
-                drivebase.getPose().nearest(FieldLocation.reefLocations), 
-                FieldLocation.getIntermediatePoseFromFinal(drivebase.getPose().nearest(FieldLocation.reefLocations)))
+                FieldLocation.H, 
+                FieldLocation.getIntermediatePoseFromFinal(FieldLocation.H))
             .andThen( 
                 new InstantCommand(() -> drivebase.getSwerveController().lastAngleScalar = FieldLocation.H.getRotation().getRadians())));
     }
