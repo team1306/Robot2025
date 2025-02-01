@@ -15,6 +15,7 @@ public class ManualElevatorControl extends Command {
 
     /**
      * Manual setting of the elevator level by a controller
+     * @param doubleSupplier controller input from -1 to 1. negitive valeus lower and positive values raise the setpoint
     */
     public ManualElevatorControl(Elevator elevator, DoubleSupplier doubleSupplier) {
         this.elevator = elevator;

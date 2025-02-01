@@ -9,6 +9,10 @@ public enum WristSetpoint {
 
     public final Rotation2d rotation;
 
+    /**
+     * pre configured angles for the wrist
+     * @param rotation the rotation for the setpoint
+     */
     WristSetpoint(Rotation2d rotation) {
         this.rotation = rotation;
     }

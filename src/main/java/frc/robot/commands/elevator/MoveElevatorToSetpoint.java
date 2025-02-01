@@ -16,6 +16,7 @@ public class MoveElevatorToSetpoint extends Command {
     
     /**
      * Sets the elevator level
+     * @param elevatorSetpoint setpoint for the elevator to go to
      */
     public MoveElevatorToSetpoint(Elevator elevator, ElevatorSetpoint elevatorSetpoint) {
         this.targetHeight = elevatorSetpoint.height;

@@ -10,6 +10,7 @@ public class RunIntake extends Command{
 
     /**
      * Sets the speed/direction of the intake
+     * @param speed speed value for the intake
      */
     public RunIntake(Intake intake, DoubleSupplier speed){
         this.intake = intake;

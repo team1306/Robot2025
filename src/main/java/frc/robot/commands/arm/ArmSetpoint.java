@@ -18,6 +18,7 @@ public enum ArmSetpoint {
 
     /**
      * pre configured setpoints for the arm
+     * @param rotation the rotation for the setpoint
      */
     ArmSetpoint(Rotation2d rotation) {
         this.rotation = rotation;
