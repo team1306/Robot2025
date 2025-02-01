@@ -110,6 +110,14 @@ public class FieldLocation {
 
         reefLocations = Arrays.asList(A, B, C, D, E, F, G, H, I, J, K, L);
         coralStationLocations = Arrays.asList(CORAL_STATION_LEFT, CORAL_STATION_RIGHT);
+
+        ABIntermediate = Utilities.isRedAlliance() ? flipToRedSide(ABIntermediate) : ABIntermediate;
+        CDIntermediate = Utilities.isRedAlliance() ? flipToRedSide(CDIntermediate) : CDIntermediate;
+        EFIntermediate = Utilities.isRedAlliance() ? flipToRedSide(EFIntermediate) : EFIntermediate;
+        GHIntermediate = Utilities.isRedAlliance() ? flipToRedSide(GHIntermediate) : GHIntermediate;
+        IJIntermediate = Utilities.isRedAlliance() ? flipToRedSide(IJIntermediate) : IJIntermediate;
+        KLIntermediate = Utilities.isRedAlliance() ? flipToRedSide(KLIntermediate) : KLIntermediate;
+
     }
 
     private static Pose2d calculateReefPosition(Rotation2d angle, boolean leftSide){
