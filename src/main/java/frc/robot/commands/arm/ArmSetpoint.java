@@ -12,7 +12,8 @@ public enum ArmSetpoint {
 
     CORAL_STATION(Rotation2d.fromDegrees(55)),
 
-    STOW(Rotation2d.fromDegrees(80));
+    STOW(Rotation2d.fromDegrees(80)),
+    HOVER(Rotation2d.fromDegrees(60));
 
     public final Rotation2d rotation;
 

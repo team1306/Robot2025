@@ -155,7 +155,7 @@ public class SwerveSubsystem extends SubsystemBase {
         RobotConfig config;
         try {
             config = RobotConfig.fromGUISettings();
-
+            
             final boolean enableFeedforward = true;
 
             AutoBuilder.configure(
