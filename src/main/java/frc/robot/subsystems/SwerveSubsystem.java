@@ -4,14 +4,13 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static frc.robot.Constants.LIMELIGHT_NAME;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -26,11 +25,12 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
+import com.pathplanner.lib.path.PathPoint;
+import com.pathplanner.lib.path.RotationTarget;
 import com.pathplanner.lib.util.DriveFeedforwards;
-import com.pathplanner.lib.util.FileVersionException;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 
@@ -52,7 +52,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
-import frc.robot.commands.autos.FieldLocation;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.Utilities;
 import frc.robot.util.Dashboard.DashboardHelpers;
@@ -219,15 +218,19 @@ public class SwerveSubsystem extends SubsystemBase {
         return driveToPose;
     }
 
-    public Command driveToH(){
-        try {
-            return driveToPose(new Pose2d(Meters.of(2), Meters.of(4), Rotation2d.kZero)).andThen(AutoBuilder.followPath(PathPlannerPath.fromPathFile("Path To H")));
-        } catch (FileVersionException | IOException | ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return new InstantCommand();
-    }
+    public Command driveToReef(Pose2d location, Pose2d intermediatePoint){
+        PathConstraints constraints = new PathConstraints(
+            swerveDrive.getMaximumChassisVelocity(), 6.0,
+            swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(1440));
+
+        Command pathfind = driveToPose(intermediatePoint);
+        List<PathPoint> points = Arrays.asList(
+            new PathPoint(intermediatePoint.getTranslation(), new RotationTarget(0, intermediatePoint.getRotation())), 
+            new PathPoint(location.getTranslation(), new RotationTarget(0, location.getRotation())));
+
+        var path = PathPlannerPath.fromPathPoints(points, constraints, new GoalEndState(0, location.getRotation()));
+        return pathfind.andThen(AutoBuilder.followPath(path));
+    }  
 
     /**
      * Drive with {@link SwerveSetpointGenerator} from 254, implemented by PathPlanner.
