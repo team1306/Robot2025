@@ -7,7 +7,6 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -44,6 +43,11 @@ public class Elevator extends SubsystemBase {
     @Setter @Getter
     private Distance targetHeight;
 
+    /**
+     * The elevator is mounted on the robot frame and moves the arm up and down.
+     * Hardware: the elevator has two Talon FX motor controllers.
+     * Controllers: Feedforward and ProfiledPIDController.
+     */
     public Elevator() {
         DashboardHelpers.addUpdateClass(this);
         
@@ -71,10 +75,18 @@ public class Elevator extends SubsystemBase {
         motorGroup.setSpeed(motorOutput);
     }
 
+    /**
+     * Gets whether the elevator is at its setpoint using the PID controller.
+     * @return true if the elevator is at its setpoint.
+     */
     public boolean atSetpoint() {
         return pid.atSetpoint();
     }
 
+    /**
+     * Gets the current height of the elevator.
+     * @return the elevator height in distance.
+     */
     public Distance getCurrentHeight(){
         return rotationsToDistance(getCurrentElevatorMotorPositions());
     }

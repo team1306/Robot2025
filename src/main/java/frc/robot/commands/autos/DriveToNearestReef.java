@@ -5,6 +5,9 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 public class DriveToNearestReef extends ParallelCommandGroup {
     
+    /**
+     * Calculates the nearest reef and drives to it.
+     */
     public DriveToNearestReef(SwerveSubsystem swerve) {
         
         addCommands(

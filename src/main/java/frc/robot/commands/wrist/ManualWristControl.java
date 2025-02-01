@@ -12,6 +12,10 @@ public class ManualWristControl extends Command {
     private final DoubleSupplier doubleSupplier;
     private final double SPEED = 0.01;
 
+    /**
+    * Manual setting of the wrist angle by a controller
+    * @param doubleSupplier controller input from -1 to 1. Negative values lower and positive values raise the setpoint.
+    */   
     public ManualWristControl(Wrist wrist, DoubleSupplier doubleSupplier) {
         this.wrist = wrist;
         this.doubleSupplier = doubleSupplier;
