@@ -94,7 +94,7 @@ public class FieldLocation {
 
     private static final Distance reefOffset = Inches.of(6.469);
     
-    public static void calculateReefPositions() {
+    public static void calculateReefPositions(){
         A = calculateReefPosition(Rotation2d.k180deg, true);
         B = calculateReefPosition(Rotation2d.k180deg, false);
         C = calculateReefPosition(rotation120, true);
