@@ -215,7 +215,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(1440));
         Command driveToPose = AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
         driveToPose.addRequirements(this);
-        return driveToPose;
+        return driveToPose.andThen(new InstantCommand(() -> {        System.out.println(pose);}));
     }
 
     public Command driveToReef(Pose2d location, Pose2d intermediatePoint){

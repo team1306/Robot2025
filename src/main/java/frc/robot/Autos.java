@@ -3,6 +3,7 @@ package frc.robot;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.autos.FieldLocation;
@@ -31,9 +32,9 @@ public class Autos {
                 drivebase::followTrajectory, // The drive subsystem trajectory follower 
                 false, // If alliance flipping should be enabled 
                 drivebase // The drive subsystem
-        );
-        autoFactory.bind("AutoL4", new InstantCommand(() -> System.out.println("AutoL4")).andThen(drivebase.driveToPose(FieldLocation.A)));
-        autoFactory.bind("AutoCollect", new InstantCommand(() -> System.out.println("AutoCollect")));
+        )
+                .bind("Score L4", new InstantCommand(() -> System.out.println("AutoL4")).andThen(drivebase.driveToReef(FieldLocation.A, FieldLocation.getIntermediatePoseFromFinal(FieldLocation.A))))
+                .bind("Collect Coral", new InstantCommand(() -> System.out.println("AutoCollect")));
     }
 
     public AutoRoutine getTestDriveRoutine(){

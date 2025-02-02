@@ -54,7 +54,9 @@ public class RobotContainer {
         
         Autos autos = new Autos(drivebase);
         autoChooser = new AutoChooser();
-        autoChooser.addRoutine("Choreo", autos::getTestDriveRoutine);
+        autoChooser.addRoutine("Test Path", autos::getTestDriveRoutine);
+        autoChooser.addRoutine("1 Coral A", autos::get1CoralDriveRoutine);
+
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         // Schedule the selected auto during the autonomous period
