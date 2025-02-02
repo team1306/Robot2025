@@ -213,6 +213,10 @@ public class SwerveSubsystem extends SubsystemBase {
         PathConstraints constraints = new PathConstraints(
                 1, 1,
                 swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(1440));
+        return driveToPose(pose, constraints);
+    }
+
+    public Command driveToPose(Pose2d pose, PathConstraints constraints){
         Command driveToPose = AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
         driveToPose.addRequirements(this);
         return driveToPose;
@@ -224,14 +228,7 @@ public class SwerveSubsystem extends SubsystemBase {
             swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
 
         Command pathfind = driveToPose(intermediatePoint);
-        // List<PathPoint> points = Arrays.asList(
-        //     new PathPoint(intermediatePoint.getTranslation(), new RotationTarget(0, intermediatePoint.getRotation())), 
-        //     new PathPoint(location.getTranslation(), new RotationTarget(0, location.getRotation())));
-        // System.out.println(location);
-        // System.out.println(intermediatePoint);
-
-        // var path = PathPlannerPath.fromPathPoints(points, constraints, new GoalEndState(0, location.getRotation()));
-        return pathfind.andThen(driveToPose(location));
+        return pathfind.andThen(driveToPose(location, constraints));
     }  
 
     /**
