@@ -30,10 +30,10 @@ public class Autos {
                 drivebase::getPose, // A function that returns the current robot pose
                 drivebase::resetOdometry, // A function that resets the current robot pose to the provided Pose2d
                 drivebase::followTrajectory, // The drive subsystem trajectory follower 
-                false, // If alliance flipping should be enabled 
+                true, // If alliance flipping should be enabled 
                 drivebase // The drive subsystem
         )
-                .bind("Score L4", new InstantCommand(() -> System.out.println("AutoL4")).andThen(drivebase.driveToReef(FieldLocation.A, FieldLocation.getIntermediatePoseFromFinal(FieldLocation.A))))
+                .bind("Score L4", new InstantCommand(() -> System.out.println("AutoL4")))
                 .bind("Collect Coral", new InstantCommand(() -> System.out.println("AutoCollect")));
     }
 
@@ -51,13 +51,13 @@ public class Autos {
     }
     
     public AutoRoutine get1CoralDriveRoutine(){
-        AutoRoutine routine = autoFactory.newRoutine("1 Coral A");
-        AutoTrajectory coralPath = routine.trajectory("1 Coral Auto A");
+        AutoRoutine routine = autoFactory.newRoutine("1 Coral Mid A");
+        AutoTrajectory coralPath = routine.trajectory("Middle to A");
 
         routine.active().onTrue(
                 Commands.sequence(
-                        coralPath.resetOdometry(),
-                        coralPath.cmd()
+                        coralPath.resetOdometry(), new InstantCommand(() -> System.out.println(coralPath.getInitialPose()))
+                        // coralPath.cmd()
                 ));
 
         return routine;
