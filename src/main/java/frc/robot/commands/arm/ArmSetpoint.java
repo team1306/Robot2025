@@ -3,7 +3,7 @@ package frc.robot.commands.arm;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public enum ArmSetpoint {
-
+    //DO NOT ADD MORE SETPOINTS AT FRONT
     GROUND_CORAL(Rotation2d.fromDegrees(-10)),
     CORAL_L1(Rotation2d.fromDegrees(0)),
     CORAL_L2(Rotation2d.fromDegrees(0)),
