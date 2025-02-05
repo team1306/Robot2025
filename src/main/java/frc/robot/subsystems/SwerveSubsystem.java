@@ -76,10 +76,10 @@ public class SwerveSubsystem extends SubsystemBase {
     @Getter
     private final SwerveDrive swerveDrive;
 
-    private final PIDController xController = new PIDController(4, 0.2, 0);
-    private final PIDController yController = new PIDController(4, 0.2, 0);
+    private final PIDController xController = new PIDController(0.1, 0, 0);
+    private final PIDController yController = new PIDController(0.1, 0, 0);
 
-    private final PIDController headingController = new PIDController(1, 0.2, 0.0);
+    private final PIDController headingController = new PIDController(0.1, 0, 0.0);
 
     public SwerveSubsystem() {
         DashboardHelpers.addUpdateClass(this);
@@ -132,10 +132,10 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void addVisionMeasurement(){
-        LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, (Utilities.isRedAlliance() ? -180 : 0) + swerveDrive.getYaw().getDegrees(), 0, 0, 0, 0, 0);
-        PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT_NAME);
-        if(poseEstimate == null) return;
-        if(poseEstimate.tagCount >= 1) swerveDrive.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds); 
+        LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, swerveDrive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        PoseEstimate poseEstimateMT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT_NAME);
+        if(poseEstimateMT2 == null) return;
+        if(poseEstimateMT2.tagCount >= 1) swerveDrive.addVisionMeasurement(poseEstimateMT2.pose, poseEstimateMT2.timestampSeconds); 
     }
 
     public Command setModuleAngleSetpoint(Rotation2d angle){
