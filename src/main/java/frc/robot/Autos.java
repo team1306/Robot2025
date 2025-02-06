@@ -54,7 +54,7 @@ public class Autos {
 
         routine.active().onTrue(
                 Commands.sequence(
-                        coralPath.resetOdometry(), new InstantCommand(() -> System.out.println(coralPath.getInitialPose())),
+                        coralPath.resetOdometry(),
                         coralPath.cmd()
                 ));
 

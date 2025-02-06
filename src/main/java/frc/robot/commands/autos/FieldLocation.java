@@ -20,8 +20,8 @@ public class FieldLocation {
     public static List<Pose2d> reefLocations;
     public static List<Pose2d> coralStationLocations;
 
-    public static Pose2d CORAL_STATION_LEFT      =new Pose2d(0, 0, Rotation2d.fromDegrees(306));
-    public static Pose2d CORAL_STATION_RIGHT     =new Pose2d(0, 0, Rotation2d.fromDegrees(54));
+    public static Pose2d CORAL_STATION_LEFT = new Pose2d(0, 0, Rotation2d.fromDegrees(306));
+    public static Pose2d CORAL_STATION_RIGHT = new Pose2d(0, 0, Rotation2d.fromDegrees(54));
 
     private static final Translation2d reefCenter = new Translation2d(Inches.of(176.277), Inches.of(158.801));
     private static final Distance reefEdgeDistance = Inches.of(32.746);
@@ -74,29 +74,35 @@ public class FieldLocation {
         IJIntermediate = new Pose2d(3.6, 5.4, rotation60.unaryMinus());
         KLIntermediate = new Pose2d(5.4, 5.5, rotation120.unaryMinus());
 
-        reefLocations = Arrays.asList(A, B, C, D, E, F, G, H, I, J, K, L);
-        coralStationLocations = Arrays.asList(CORAL_STATION_LEFT, CORAL_STATION_RIGHT);
-
-        // A = Utilities.isRedAlliance() ? flipToRedSide(A) : A;
-        // B = Utilities.isRedAlliance() ? flipToRedSide(B) : B;
-        // C = Utilities.isRedAlliance() ? flipToRedSide(C) : C;
-        // D = Utilities.isRedAlliance() ? flipToRedSide(D) : D;
-        // E = Utilities.isRedAlliance() ? flipToRedSide(E) : E;
-        // F = Utilities.isRedAlliance() ? flipToRedSide(F) : F;
-        // G = Utilities.isRedAlliance() ? flipToRedSide(G) : G;
-        // H = Utilities.isRedAlliance() ? flipToRedSide(H) : H;
-        // I = Utilities.isRedAlliance() ? flipToRedSide(I) : I;
-        // J = Utilities.isRedAlliance() ? flipToRedSide(J) : J;
-        // K = Utilities.isRedAlliance() ? flipToRedSide(K) : K;
-        // L = Utilities.isRedAlliance() ? flipToRedSide(L) : L;
+        A = Utilities.isRedAlliance() ? flipToRedSide(A) : A;
+        B = Utilities.isRedAlliance() ? flipToRedSide(B) : B;
+        C = Utilities.isRedAlliance() ? flipToRedSide(C) : C;
+        D = Utilities.isRedAlliance() ? flipToRedSide(D) : D;
+        E = Utilities.isRedAlliance() ? flipToRedSide(E) : E;
+        F = Utilities.isRedAlliance() ? flipToRedSide(F) : F;
+        G = Utilities.isRedAlliance() ? flipToRedSide(G) : G;
+        H = Utilities.isRedAlliance() ? flipToRedSide(H) : H;
+        I = Utilities.isRedAlliance() ? flipToRedSide(I) : I;
+        J = Utilities.isRedAlliance() ? flipToRedSide(J) : J;
+        K = Utilities.isRedAlliance() ? flipToRedSide(K) : K;
+        L = Utilities.isRedAlliance() ? flipToRedSide(L) : L;
         
-        // ABIntermediate = Utilities.isRedAlliance() ? flipToRedSide(ABIntermediate) : ABIntermediate;
-        // CDIntermediate = Utilities.isRedAlliance() ? flipToRedSide(CDIntermediate) : CDIntermediate;
-        // EFIntermediate = Utilities.isRedAlliance() ? flipToRedSide(EFIntermediate) : EFIntermediate;
-        // GHIntermediate = Utilities.isRedAlliance() ? flipToRedSide(GHIntermediate) : GHIntermediate;
-        // IJIntermediate = Utilities.isRedAlliance() ? flipToRedSide(IJIntermediate) : IJIntermediate;
-        // KLIntermediate = Utilities.isRedAlliance() ? flipToRedSide(KLIntermediate) : KLIntermediate;
+        ABIntermediate = Utilities.isRedAlliance() ? flipToRedSide(ABIntermediate) : ABIntermediate;
+        CDIntermediate = Utilities.isRedAlliance() ? flipToRedSide(CDIntermediate) : CDIntermediate;
+        EFIntermediate = Utilities.isRedAlliance() ? flipToRedSide(EFIntermediate) : EFIntermediate;
+        GHIntermediate = Utilities.isRedAlliance() ? flipToRedSide(GHIntermediate) : GHIntermediate;
+        IJIntermediate = Utilities.isRedAlliance() ? flipToRedSide(IJIntermediate) : IJIntermediate;
+        KLIntermediate = Utilities.isRedAlliance() ? flipToRedSide(KLIntermediate) : KLIntermediate;
 
+        reefLocations = Arrays.asList(A, B, C, D, E, F, G, H, I, J, K, L);
+
+        CORAL_STATION_LEFT = new Pose2d(0, 0, Rotation2d.fromDegrees(306));
+        CORAL_STATION_RIGHT = new Pose2d(0, 0, Rotation2d.fromDegrees(54));
+
+        CORAL_STATION_LEFT = Utilities.isRedAlliance() ? flipToRedSide(CORAL_STATION_LEFT) : CORAL_STATION_LEFT;
+        CORAL_STATION_RIGHT = Utilities.isRedAlliance() ? flipToRedSide(CORAL_STATION_RIGHT) : CORAL_STATION_RIGHT;
+        
+        coralStationLocations = Arrays.asList(CORAL_STATION_LEFT, CORAL_STATION_RIGHT);
     }
 
     private static Pose2d calculateReefPosition(Rotation2d angle, boolean leftSide){

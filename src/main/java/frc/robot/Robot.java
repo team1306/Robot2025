@@ -16,6 +16,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
+        FieldLocation.calculateReefPositions();
         robotContainer = new RobotContainer();
     }
 

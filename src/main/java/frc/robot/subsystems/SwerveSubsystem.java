@@ -48,6 +48,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.commands.autos.FieldLocation;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.Utilities;
 import frc.robot.util.Dashboard.DashboardHelpers;
@@ -198,34 +199,6 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command getAutonomousCommand(String pathName) {
         return new PathPlannerAuto(pathName);
     }
-
-    /**
-     * Use PathPlanner Path finding to go to a point on the field.
-     *
-     * @param pose Target {@link Pose2d} to go to.
-     * @return PathFinding command
-     */
-    public Command driveToPose(Pose2d pose) {
-        PathConstraints constraints = new PathConstraints(
-                1, 1,
-                swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(1440));
-        return driveToPose(pose, constraints);
-    }
-
-    public Command driveToPose(Pose2d pose, PathConstraints constraints){
-        Command driveToPose = AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
-        driveToPose.addRequirements(this);
-        return driveToPose.andThen(new InstantCommand(() -> {        System.out.println(pose);}));
-    }
-
-    public Command driveToReef(Pose2d location, Pose2d intermediatePoint){
-        PathConstraints constraints = new PathConstraints(
-            1, 1,
-            swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
-
-        Command pathfind = driveToPose(intermediatePoint);
-        return pathfind.andThen(driveToPose(location, constraints));
-    }  
 
     /**
      * Drive with {@link SwerveSetpointGenerator} from 254, implemented by PathPlanner.
