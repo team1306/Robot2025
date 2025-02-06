@@ -34,7 +34,7 @@ public class Arm extends SubsystemBase  {
 
     private final TalonFX motor;
     private final TalonFXGroup motorGroup;
-    private final DutyCycleEncoder armEncoder; //TODO: look at rev lib to change to absolute analog encoder
+    private final DutyCycleEncoder armEncoder;
 
     private final ProfiledPIDController profiledPIDController;
     private ArmFeedforward feedforward;

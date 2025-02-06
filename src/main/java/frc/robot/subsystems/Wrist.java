@@ -21,7 +21,7 @@ public class Wrist extends SubsystemBase  {
     @GetValue 
     public double kP = 0, kI = 0.0, kD = 0.00;
 
-    private final double MIN_ANGLE = 0, MAX_ANGLE = 60;
+    private final double MIN_ANGLE = 0, MAX_ANGLE = 100;
 
     private final Rotation2d OFFSET = Rotation2d.kZero;
     private final Rotation2d TOLERANCE = Rotation2d.kZero;
@@ -32,7 +32,7 @@ public class Wrist extends SubsystemBase  {
     private final TalonFX motor;
     private final TalonFXGroup motorGroup;
 
-    private final DutyCycleEncoder encoder; //change with arm
+    private final DutyCycleEncoder encoder;
     private final PIDController pidController;
 
     /**

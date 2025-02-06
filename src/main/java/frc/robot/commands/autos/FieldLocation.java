@@ -54,28 +54,48 @@ public class FieldLocation {
     public static Pose2d KLIntermediate = new Pose2d(5.4, 5.5, rotation120.unaryMinus());
     
     public static void calculateReefPositions(){
+        A = calculateReefPosition(Rotation2d.k180deg, true);
+        B = calculateReefPosition(Rotation2d.k180deg, false);
+        C = calculateReefPosition(rotation120, true);
+        D = calculateReefPosition(rotation120, false);
+        E = calculateReefPosition(rotation60, true);
+        F = calculateReefPosition(rotation60, false);
+        G = calculateReefPosition(Rotation2d.kZero, true);
+        H = calculateReefPosition(Rotation2d.kZero, false);
+        I = calculateReefPosition(rotation60.unaryMinus(), true);
+        J = calculateReefPosition(rotation60.unaryMinus(), false);
+        K = calculateReefPosition(rotation120.unaryMinus(), true);
+        L = calculateReefPosition(rotation120.unaryMinus(), false);
+
+        ABIntermediate = new Pose2d(6.3, 4, Rotation2d.k180deg);
+        CDIntermediate = new Pose2d(5.4, 2.5, rotation120); 
+        EFIntermediate = new Pose2d(3.6, 2.5, rotation60);
+        GHIntermediate = new Pose2d(2.6, 4, Rotation2d.kZero);
+        IJIntermediate = new Pose2d(3.6, 5.4, rotation60.unaryMinus());
+        KLIntermediate = new Pose2d(5.4, 5.5, rotation120.unaryMinus());
+
         reefLocations = Arrays.asList(A, B, C, D, E, F, G, H, I, J, K, L);
         coralStationLocations = Arrays.asList(CORAL_STATION_LEFT, CORAL_STATION_RIGHT);
 
-        A = Utilities.isRedAlliance() ? flipToRedSide(A) : A;
-        B = Utilities.isRedAlliance() ? flipToRedSide(B) : B;
-        C = Utilities.isRedAlliance() ? flipToRedSide(C) : C;
-        D = Utilities.isRedAlliance() ? flipToRedSide(D) : D;
-        E = Utilities.isRedAlliance() ? flipToRedSide(E) : E;
-        F = Utilities.isRedAlliance() ? flipToRedSide(F) : F;
-        G = Utilities.isRedAlliance() ? flipToRedSide(G) : G;
-        H = Utilities.isRedAlliance() ? flipToRedSide(H) : H;
-        I = Utilities.isRedAlliance() ? flipToRedSide(I) : I;
-        J = Utilities.isRedAlliance() ? flipToRedSide(J) : J;
-        K = Utilities.isRedAlliance() ? flipToRedSide(K) : K;
-        L = Utilities.isRedAlliance() ? flipToRedSide(L) : L;
+        // A = Utilities.isRedAlliance() ? flipToRedSide(A) : A;
+        // B = Utilities.isRedAlliance() ? flipToRedSide(B) : B;
+        // C = Utilities.isRedAlliance() ? flipToRedSide(C) : C;
+        // D = Utilities.isRedAlliance() ? flipToRedSide(D) : D;
+        // E = Utilities.isRedAlliance() ? flipToRedSide(E) : E;
+        // F = Utilities.isRedAlliance() ? flipToRedSide(F) : F;
+        // G = Utilities.isRedAlliance() ? flipToRedSide(G) : G;
+        // H = Utilities.isRedAlliance() ? flipToRedSide(H) : H;
+        // I = Utilities.isRedAlliance() ? flipToRedSide(I) : I;
+        // J = Utilities.isRedAlliance() ? flipToRedSide(J) : J;
+        // K = Utilities.isRedAlliance() ? flipToRedSide(K) : K;
+        // L = Utilities.isRedAlliance() ? flipToRedSide(L) : L;
         
-        ABIntermediate = Utilities.isRedAlliance() ? flipToRedSide(ABIntermediate) : ABIntermediate;
-        CDIntermediate = Utilities.isRedAlliance() ? flipToRedSide(CDIntermediate) : CDIntermediate;
-        EFIntermediate = Utilities.isRedAlliance() ? flipToRedSide(EFIntermediate) : EFIntermediate;
-        GHIntermediate = Utilities.isRedAlliance() ? flipToRedSide(GHIntermediate) : GHIntermediate;
-        IJIntermediate = Utilities.isRedAlliance() ? flipToRedSide(IJIntermediate) : IJIntermediate;
-        KLIntermediate = Utilities.isRedAlliance() ? flipToRedSide(KLIntermediate) : KLIntermediate;
+        // ABIntermediate = Utilities.isRedAlliance() ? flipToRedSide(ABIntermediate) : ABIntermediate;
+        // CDIntermediate = Utilities.isRedAlliance() ? flipToRedSide(CDIntermediate) : CDIntermediate;
+        // EFIntermediate = Utilities.isRedAlliance() ? flipToRedSide(EFIntermediate) : EFIntermediate;
+        // GHIntermediate = Utilities.isRedAlliance() ? flipToRedSide(GHIntermediate) : GHIntermediate;
+        // IJIntermediate = Utilities.isRedAlliance() ? flipToRedSide(IJIntermediate) : IJIntermediate;
+        // KLIntermediate = Utilities.isRedAlliance() ? flipToRedSide(KLIntermediate) : KLIntermediate;
 
     }
 

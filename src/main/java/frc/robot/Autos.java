@@ -3,10 +3,8 @@ package frc.robot;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
-import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.commands.autos.FieldLocation;
 import frc.robot.subsystems.*;
 
 public class Autos {
@@ -56,8 +54,8 @@ public class Autos {
 
         routine.active().onTrue(
                 Commands.sequence(
-                        coralPath.resetOdometry(), new InstantCommand(() -> System.out.println(coralPath.getInitialPose()))
-                        // coralPath.cmd()
+                        coralPath.resetOdometry(), new InstantCommand(() -> System.out.println(coralPath.getInitialPose())),
+                        coralPath.cmd()
                 ));
 
         return routine;

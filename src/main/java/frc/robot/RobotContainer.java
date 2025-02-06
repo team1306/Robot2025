@@ -49,6 +49,7 @@ public class RobotContainer {
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
         // Schedule the selected auto during the autonomous period
+        RobotModeTriggers.disabled().onChange(new InstantCommand(FieldLocation::calculateReefPositions));
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
         configureBindings();
     }
