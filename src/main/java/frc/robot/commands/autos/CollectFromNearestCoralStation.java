@@ -20,9 +20,8 @@ public class CollectFromNearestCoralStation extends ParallelCommandGroup {
      * Drives to the nearest coral station, brings the intake to the correct position and intakes the coral.
      */
     public CollectFromNearestCoralStation(SwerveSubsystem swerve, Elevator elevator, Arm arm, Wrist wrist, Intake intake) {
-
         addCommands(
-            swerve.driveToPose(swerve.getPose().nearest(FieldLocation.coralStationLocations)),
+            new DriveToPoseCommand(swerve, () -> swerve.getPose().nearest(FieldLocation.coralStationLocations)),
             new MoveElevatorToSetpoint(elevator, ElevatorSetpoint.CORAL_STATION),
             new MoveArmToSetpoint(arm, ArmSetpoint.CORAL_STATION),
             new MoveWristToSetpoint(wrist, WristSetpoint.HORIZONTAL),

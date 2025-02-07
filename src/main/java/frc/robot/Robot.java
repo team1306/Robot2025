@@ -36,6 +36,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledExit() {
+        FieldLocation.calculateReefPositions();
     }
 
     @Override

@@ -7,11 +7,11 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
  */
 public final class Constants {
     private Constants(){} // block instantiation
-    public static final int         INTAKE_MOTOR_ID                 = -1;
-    public static final int         ARM_MOTOR_ID                    = -1;
-    public static final int         WRIST_MOTOR_ID                  = -1;
-    public static final int         ELEVATOR_LEFT_MOTOR_ID          = -1;
-    public static final int         ELEVATOR_RIGHT_MOTOR_ID         = -1;
+    public static final int         INTAKE_MOTOR_ID                 = 10;
+    public static final int         ARM_MOTOR_ID                    = 30;
+    public static final int         WRIST_MOTOR_ID                  = 20;
+    public static final int         ELEVATOR_LEFT_MOTOR_ID          = 40;
+    public static final int         ELEVATOR_RIGHT_MOTOR_ID         = 41;
 
     public static final int         ARM_ENCODER_ID                  = 0;
     public static final int         WRIST_ENCODER_ID                = 0;

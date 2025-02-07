@@ -10,7 +10,6 @@ import static frc.robot.Constants.LIMELIGHT_NAME;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -25,11 +24,8 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPoint;
-import com.pathplanner.lib.path.RotationTarget;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
@@ -52,6 +48,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.commands.autos.FieldLocation;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.Utilities;
 import frc.robot.util.Dashboard.DashboardHelpers;
@@ -76,10 +73,10 @@ public class SwerveSubsystem extends SubsystemBase {
     @Getter
     private final SwerveDrive swerveDrive;
 
-    private final PIDController xController = new PIDController(4, 0.2, 0);
-    private final PIDController yController = new PIDController(4, 0.2, 0);
+    private final PIDController xController = new PIDController(0.1, 0, 0);
+    private final PIDController yController = new PIDController(0.1, 0, 0);
 
-    private final PIDController headingController = new PIDController(1, 0.2, 0.0);
+    private final PIDController headingController = new PIDController(0.1, 0, 0.0);
 
     public SwerveSubsystem() {
         DashboardHelpers.addUpdateClass(this);
@@ -132,10 +129,10 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void addVisionMeasurement(){
-        LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, (Utilities.isRedAlliance() ? -180 : 0) + swerveDrive.getYaw().getDegrees(), 0, 0, 0, 0, 0);
-        PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT_NAME);
-        if(poseEstimate == null) return;
-        if(poseEstimate.tagCount >= 1) swerveDrive.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds); 
+        LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, swerveDrive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        PoseEstimate poseEstimateMT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT_NAME);
+        if(poseEstimateMT2 == null) return;
+        if(poseEstimateMT2.tagCount >= 1) swerveDrive.addVisionMeasurement(poseEstimateMT2.pose, poseEstimateMT2.timestampSeconds); 
     }
 
     public Command setModuleAngleSetpoint(Rotation2d angle){
@@ -202,37 +199,6 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command getAutonomousCommand(String pathName) {
         return new PathPlannerAuto(pathName);
     }
-
-    /**
-     * Use PathPlanner Path finding to go to a point on the field.
-     *
-     * @param pose Target {@link Pose2d} to go to.
-     * @return PathFinding command
-     */
-    public Command driveToPose(Pose2d pose) {
-        PathConstraints constraints = new PathConstraints(
-                1, 1,
-                swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(1440));
-        Command driveToPose = AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
-        driveToPose.addRequirements(this);
-        return driveToPose;
-    }
-
-    public Command driveToReef(Pose2d location, Pose2d intermediatePoint){
-        PathConstraints constraints = new PathConstraints(
-            1, 1,
-            swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
-
-        Command pathfind = driveToPose(intermediatePoint);
-        // List<PathPoint> points = Arrays.asList(
-        //     new PathPoint(intermediatePoint.getTranslation(), new RotationTarget(0, intermediatePoint.getRotation())), 
-        //     new PathPoint(location.getTranslation(), new RotationTarget(0, location.getRotation())));
-        // System.out.println(location);
-        // System.out.println(intermediatePoint);
-
-        // var path = PathPlannerPath.fromPathPoints(points, constraints, new GoalEndState(0, location.getRotation()));
-        return pathfind.andThen(driveToPose(location));
-    }  
 
     /**
      * Drive with {@link SwerveSetpointGenerator} from 254, implemented by PathPlanner.
