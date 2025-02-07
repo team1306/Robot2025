@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.util.Color8Bit;
+
 /**
  * Storage for robot-wide constants
  */
@@ -30,5 +32,9 @@ public final class Constants {
 
     public static final double      ROBOT_MASS                      = 31.2; // kg
 
-    public static final double      ELEVATOR_STARTING_HEIGHT        = 0; 
+    public static final double      ELEVATOR_STARTING_HEIGHT        = 0;
+
+    public static final int LED_PORT = 1; // pwm port
+    public static final int LED_COUNT = 10; // pixels
+    public static final Color8Bit RED = new Color8Bit(255,0,0);
 }

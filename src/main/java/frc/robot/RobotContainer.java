@@ -22,6 +22,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.commands.autos.FieldLocation;
+import frc.robot.commands.led.FillLEDColor;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
@@ -30,6 +32,7 @@ public class RobotContainer {
     private final AutoFactory autoFactory;
     private final CommandXboxController controller1 = new CommandXboxController(0);
     public final SwerveSubsystem drivebase = new SwerveSubsystem();
+    public final LEDSubsystem LEDStrip = new LEDSubsystem(0, Constants.LED_COUNT);
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
      */
@@ -82,6 +85,10 @@ public class RobotContainer {
                 FieldLocation.getIntermediatePoseFromFinal(FieldLocation.H))
             .andThen( 
                 new InstantCommand(() -> drivebase.getSwerveController().lastAngleScalar = FieldLocation.H.getRotation().getRadians())));
+        controller1.b().onTrue(
+            FillLEDColor.fillColor(LEDStrip, Constants.RED)
+        );
+
     }
 
     public Command getAutonomousCommand() {
