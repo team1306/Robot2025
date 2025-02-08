@@ -1,12 +1,11 @@
 package frc.robot.commands.led;
 
-import static frc.robot.Constants.LED_OFF;
-
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.util.Utilities;
 
 /**
  * Sets an LEDStrip objects color
@@ -34,6 +33,12 @@ public class FillLEDColor extends Command{
         );
     }
     public static Command turnOff(LEDSubsystem subsystem){
-        return Commands.runOnce(() -> subsystem.fillAndCommitColor(LED_OFF), subsystem);
+        return Commands.runOnce(() -> subsystem.fillAndCommitColor(Constants.LED_OFF), subsystem);
+    }
+    public static Command setAlianceColor(LEDSubsystem subsystem){
+        if(Utilities.isRedAlliance()){
+            return Commands.runOnce(() -> subsystem.fillAndCommitColor(Constants.RED), subsystem);
+        }
+        return Commands.runOnce(() -> subsystem.fillAndCommitColor(Constants.BLUE), subsystem);
     }
 }
