@@ -70,7 +70,7 @@ public class RobotContainer {
         // controller1.a().onTrue(new DriveToNearestReef(drivebase));
         controller1.a().onTrue(new InstantCommand(() -> elevator.zeroElevatorMotorPositions()).ignoringDisable(true));
         controller1.b().onTrue(
-            FillLEDColor.fillColor(LEDStrip, Constants.RED)
+            FillLEDColor.flashTwoColors(LEDStrip, Constants.BLUE, Constants.RED, 1)
         );
     }
 }
