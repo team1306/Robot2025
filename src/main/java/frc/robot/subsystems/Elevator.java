@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -31,7 +33,7 @@ public class Elevator extends SubsystemBase {
     @GetValue
     private double kG = 0, kV = 0; 
 
-    private final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
+    private final double MAX_VELOCITY = 5, MAX_ACCELERATION = 1; // placeholder
     private Distance PID_TOLERANCE = Inches.of(0.2);
     
     private final ProfiledPIDController pid;
@@ -42,11 +44,15 @@ public class Elevator extends SubsystemBase {
 
     @GetValue
     private double conversionFactor = 54.75 / 575.87;
+
+    @GetValue
+    private double maxHeightInches = 1e+9, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
     
     @Setter @Getter
     private Distance targetHeight = Inches.of(0);
 
     private Distance currentHeight = Inches.of(0);
+
 
     /**
      * The elevator is mounted on the robot frame and moves the arm up and down.
@@ -79,7 +85,10 @@ public class Elevator extends SubsystemBase {
         currentHeight = getCurrentHeight();
         SmartDashboard.putNumber("Elevator/Current Height", currentHeight.in(Inches));
 
-        double pidOutput = pid.calculate(currentHeight.in(Inches), targetHeight.in(Inches));
+        final double target = MathUtil.clamp(targetHeight.in(Inches), baseHeightInches, maxHeightInches);
+        targetHeight = Inches.of(target);
+
+        double pidOutput = pid.calculate(currentHeight.in(Inches), target);
         double feedforwardOutput = feedforward.calculate(pid.getSetpoint().velocity);
         double motorOutput = pidOutput + feedforwardOutput;
 

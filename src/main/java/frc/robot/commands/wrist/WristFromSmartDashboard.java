@@ -11,7 +11,7 @@ public class WristFromSmartDashboard extends Command {
    
     private final Wrist wrist;
     @GetValue
-    private Rotation2d targetRotation;
+    private Rotation2d targetRotation = Rotation2d.kZero;
     
     /**
      * Sets the wrist angle

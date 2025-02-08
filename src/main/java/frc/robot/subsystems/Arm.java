@@ -22,7 +22,7 @@ import static frc.robot.Constants.*;
 
 public class Arm extends SubsystemBase  {
     
-    @GetValue public double kP = 0, kI = 0, kD = 0; 
+    @GetValue public double kP = 0.011, kI = 0, kD = 0.00028; 
     @GetValue public double kG = 0.04, kV = 0; 
 
     @GetValue

@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
@@ -20,7 +21,7 @@ import static frc.robot.Constants.*;
 public class Wrist extends SubsystemBase  {
 
     @GetValue 
-    public double kP = 0, kI = 0.0, kD = 0.00;
+    public double kP = 0.4, kI = 0.0, kD = 0.01;
 
     private final double MIN_ANGLE = 0, MAX_ANGLE = 100;
 
@@ -50,7 +51,7 @@ public class Wrist extends SubsystemBase  {
     public Wrist() {
         DashboardHelpers.addUpdateClass(this);
         
-        motor = MotorUtil.initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake);
+        motor = MotorUtil.initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
         motorGroup = new TalonFXGroup(new TalonData(motor));
         encoder = new DutyCycleEncoder(WRIST_ENCODER_ID);
 
@@ -77,7 +78,7 @@ public class Wrist extends SubsystemBase  {
      * @return the rotation of the wrist.
      */
     public Rotation2d getCurrentAngle() {
-        return Rotation2d.fromRotations((encoder.get())).minus(OFFSET);
+        return Rotation2d.fromRotations((encoder.get())).minus(OFFSET).unaryMinus();
     }
 
     /**

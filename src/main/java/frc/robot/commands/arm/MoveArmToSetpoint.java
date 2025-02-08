@@ -12,15 +12,23 @@ public class MoveArmToSetpoint extends Command {
     private final Arm arm;
     private final Rotation2d targetRotation;
 
+    private final boolean finishWhenDone;
+
     /**
      * Sets the target postiton for the arm
      * @param armSetpoint moves the arm to the provided setpoint
      */
-    public MoveArmToSetpoint(Arm arm, ArmSetpoint armSetpoint) {
+    public MoveArmToSetpoint(Arm arm, ArmSetpoint armSetpoint, boolean finishWhenDone) {
         this.arm = arm;
-        this.targetRotation = armSetpoint.rotation;
+        this.targetRotation = armSetpoint.getAngle();
+
+        this.finishWhenDone = finishWhenDone;
 
         addRequirements(arm);
+    }
+
+    public MoveArmToSetpoint(Arm arm, ArmSetpoint armSetpoint) {
+        this(arm, armSetpoint, true);
     }
 
     @Override
@@ -30,6 +38,6 @@ public class MoveArmToSetpoint extends Command {
 
     @Override
     public boolean isFinished() {
-        return Utilities.isEqual(targetRotation.getRadians(), arm.getCurrentAngle().getRadians(), TOLERANCE);
+        return finishWhenDone && Utilities.isEqual(targetRotation.getRadians(), arm.getCurrentAngle().getRadians(), TOLERANCE);
     }
 }
