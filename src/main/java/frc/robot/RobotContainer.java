@@ -10,18 +10,26 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.commands.arm.ArmFromSmartDashboard;
 import frc.robot.commands.autos.DriveToNearestReef;
 import frc.robot.commands.autos.FieldLocation;
 import frc.robot.commands.led.FillLEDColor;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.Wrist;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
 
     private final CommandXboxController controller1 = new CommandXboxController(0);
-    public final SwerveSubsystem drivebase = new SwerveSubsystem();
-    public final LEDSubsystem LEDStrip = new LEDSubsystem(0, Constants.LED_COUNT);
+    private final SwerveSubsystem drivebase = new SwerveSubsystem();
+    private final LEDSubsystem LEDStrip = new LEDSubsystem(0, Constants.LED_COUNT);
+    private final Wrist wrist = new Wrist();
+    private final Arm arm = new Arm();
+    private final Elevator elevator = new Elevator();
+    
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
      */
@@ -49,17 +57,18 @@ public class RobotContainer {
         autoChooser = new AutoChooser();
         autoChooser.addRoutine("Test Path", autos::getTestDriveRoutine);
         autoChooser.addRoutine("1 Coral A", autos::get1CoralDriveRoutine);
-
         SmartDashboard.putData("Auto Chooser", autoChooser);
         // Schedule the selected auto during the autonomous period
         RobotModeTriggers.disabled().onChange(new InstantCommand(FieldLocation::calculateReefPositions));
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+        RobotModeTriggers.teleop().onTrue(new ArmFromSmartDashboard(arm));
         configureBindings();
     }
 
     public void configureBindings(){
         controller1.start().onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
-        controller1.a().onTrue(new DriveToNearestReef(drivebase));
+        // controller1.a().onTrue(new DriveToNearestReef(drivebase));
+        controller1.a().onTrue(new InstantCommand(() -> elevator.zeroElevatorMotorPositions()).ignoringDisable(true));
         controller1.b().onTrue(
             FillLEDColor.flashTwoColors(LEDStrip, Constants.BLUE, Constants.RED, 1)
         );
