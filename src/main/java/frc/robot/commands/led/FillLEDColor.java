@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.subsystems.LEDSubsystem;
-import frc.robot.util.Utilities;
 
 public class FillLEDColor extends Command{
     public static Command fillColor(LEDSubsystem subsystem, Color8Bit color){
@@ -29,11 +28,5 @@ public class FillLEDColor extends Command{
     }
     public static Command turnOff(LEDSubsystem subsystem){
         return Commands.runOnce(() -> subsystem.fillAndCommitColor(Constants.LED_OFF), subsystem);
-    }
-    public static Command setAlianceColor(LEDSubsystem subsystem){
-        if(Utilities.isRedAlliance()){
-            return Commands.runOnce(() -> subsystem.fillAndCommitColor(Constants.RED), subsystem);
-        }
-        return Commands.runOnce(() -> subsystem.fillAndCommitColor(Constants.BLUE), subsystem);
     }
 }
