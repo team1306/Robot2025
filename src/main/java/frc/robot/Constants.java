@@ -37,4 +37,7 @@ public final class Constants {
     public static final int LED_PORT = 1; // pwm port
     public static final int LED_COUNT = 10; // pixels
     public static final Color8Bit RED = new Color8Bit(255,0,0);
+    public static final Color8Bit BLUE = new Color8Bit(0,0,255);
+    public static final Color8Bit LED_OFF = new Color8Bit(0,0,0);
+
 }
