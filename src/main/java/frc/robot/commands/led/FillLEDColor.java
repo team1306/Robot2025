@@ -7,11 +7,6 @@ import frc.robot.Constants;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.util.Utilities;
 
-/**
- * Sets an LEDStrip objects color
- * @param subsystem LEDSubsystem object
- * @param color takes a Color8Bit object
- */
 public class FillLEDColor extends Command{
     public static Command fillColor(LEDSubsystem subsystem, Color8Bit color){
         return Commands.runOnce(() -> subsystem.fillAndCommitColor(color), subsystem);

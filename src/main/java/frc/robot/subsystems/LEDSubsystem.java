@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.LEDSegment;
@@ -26,5 +27,9 @@ public class LEDSubsystem extends SubsystemBase {
 
     public void fillColor(Color8Bit color) {
         leds.fill(color);
+    }
+
+    public void applyPattern(LEDPattern pattern){
+        leds.applyPattern(pattern);
     }
 }
