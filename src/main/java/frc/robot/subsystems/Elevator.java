@@ -30,11 +30,12 @@ public class Elevator extends SubsystemBase {
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
     @GetValue
-    private double kP = 0, kI = 0, kD = 0;
+    private double kP = 0.15, kI = 0, kD = 0.01;
     @GetValue
-    private double kG = 0, kV = 0; 
+    private double kG = 0.02, kV = 0; 
 
-    private final double MAX_VELOCITY = 5, MAX_ACCELERATION = 1; // placeholder
+    //Max 5 and 1
+    private final double MAX_VELOCITY = 2, MAX_ACCELERATION = 1; // placeholder
     private Distance PID_TOLERANCE = Inches.of(0.2);
     
     private final ProfiledPIDController pid;
@@ -44,6 +45,7 @@ public class Elevator extends SubsystemBase {
     private final TalonFX leftMotor, rightMotor;
 
     private final DigitalInput limitSwitch;
+
     @GetValue
     private double conversionFactor = 54.75 / 575.87;
 
@@ -55,7 +57,7 @@ public class Elevator extends SubsystemBase {
 
     private Distance currentHeight = Inches.of(0);
 
-    private Distance offset;
+    private Distance offset = Inches.of(0);
 
 
     /**
@@ -66,8 +68,8 @@ public class Elevator extends SubsystemBase {
     public Elevator() {
         DashboardHelpers.addUpdateClass(this);
         
-        leftMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast);
-        rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast, InvertedValue.CounterClockwise_Positive);
+        leftMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Brake);
+        rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
         leftMotor.setPosition(Rotations.of(0));
         rightMotor.setPosition(Rotations.of(0));
 
@@ -88,7 +90,7 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         pid.setPID(kP, kI, kD);
         feedforward = new ElevatorFeedforward(0, kG, kV, 0);
-        if (limitSwitch.get()) {
+        if (!limitSwitch.get()) {
             offset = getRawHeight();
         }
 

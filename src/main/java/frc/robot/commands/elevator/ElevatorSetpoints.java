@@ -14,7 +14,7 @@ public enum ElevatorSetpoints implements ElevatorSetpoint {
     
     CORAL_STATION(Inches.of(0)),
 
-    STOW(Inches.of(Constants.ELEVATOR_STARTING_HEIGHT));
+    STOW(Inches.of(4));
 
     private final Distance height;
 

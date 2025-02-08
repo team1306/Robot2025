@@ -16,8 +16,6 @@ public class AutoScoreSequence extends SequentialCommandGroup{
      * @param level the scoring level.
      */
     public AutoScoreSequence(SwerveSubsystem swerve, Elevator elevator, Arm arm, Wrist wrist, Intake intake, IntSupplier level) {
-
-
         addCommands(
             new DriveToNearestReef(swerve),
             new ScoreCoral(swerve, elevator, arm, wrist, intake, level)

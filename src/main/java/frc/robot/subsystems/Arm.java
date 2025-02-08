@@ -81,9 +81,6 @@ public class Arm extends SubsystemBase  {
         double motorOutput = pidOutput + feedforwardOutput;
 
         currentAngle = getCurrentAngle();
-
-        if((currentAngle.getDegrees() < MIN_ANGLE || currentAngle.getDegrees() > MAX_ANGLE) && !manualOverride)
-            motorOutput = 0;
         
         motorGroup.setSpeed(motorOutput);
     }

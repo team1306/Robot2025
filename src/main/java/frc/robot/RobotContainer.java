@@ -32,6 +32,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Wrist;
+import frc.robot.util.Dashboard.GetValue;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
@@ -45,6 +46,9 @@ public class RobotContainer {
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
+
+    @GetValue
+    private int intakeSpeed = 1;
     
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -91,19 +95,20 @@ public class RobotContainer {
             FillLEDColor.flashTwoColors(LEDStrip, Constants.BLUE, Constants.RED, 1)
         );
 
+        controller2.a().whileTrue(new RunIntake(intake, () -> intakeSpeed));
+        controller2.b().whileTrue(new RunIntake(intake, ()-> -intakeSpeed));
     }
 
     public void toolBindings() {
-        controller1.rightTrigger(.5).onTrue(new PlaceCoral(elevator, arm, wrist, intake, () -> MoveElevatorToSetpoint.getLastLevel()));
+        // controller1.rightTrigger(.5).onTrue(new PlaceCoral(elevator, arm, wrist, intake, () -> MoveElevatorToSetpoint.getLastLevel()));
 
         controller2.a().onTrue(
-            new MoveToolingToSetpoint(arm, elevator, wrist,
-                ElevatorSetpoints.STOW,
-                ArmSetpoints.GROUND_CORAL,
-                WristSetpoints.HORIZONTAL
-            )
-            .raceWith(
-                new IntakeCoral(intake)
+            new IntakeCoral(intake).deadlineFor(
+                new MoveToolingToSetpoint(arm, elevator, wrist,
+                    ElevatorSetpoints.STOW,
+                    ArmSetpoints.GROUND_CORAL,
+                    WristSetpoints.HORIZONTAL
+                )
             ).andThen(
                 new MoveToolingToSetpoint(arm, elevator, wrist,
                     ElevatorSetpoints.STOW,
@@ -124,7 +129,7 @@ public class RobotContainer {
         controller2.povUp().onTrue(
             new MoveToolingToSetpoint(arm, elevator, wrist,
                 ElevatorSetpoints.CORAL_L4,
-                ArmSetpoints.CORAL_STATION,
+                ArmSetpoints.HOVER_L4,
                 WristSetpoints.VERTICAL
             )
         );
@@ -132,7 +137,7 @@ public class RobotContainer {
         controller2.povRight().onTrue(
             new MoveToolingToSetpoint(arm, elevator, wrist,
                 ElevatorSetpoints.CORAL_L3,
-                ArmSetpoints.CORAL_STATION,
+                ArmSetpoints.HOVER_L2,
                 WristSetpoints.VERTICAL
             )
         );
@@ -140,7 +145,7 @@ public class RobotContainer {
         controller2.povLeft().onTrue(
             new MoveToolingToSetpoint(arm, elevator, wrist,
                 ElevatorSetpoints.CORAL_L2,
-                ArmSetpoints.CORAL_STATION,
+                ArmSetpoints.HOVER_L2,
                 WristSetpoints.VERTICAL
             )
         );
@@ -148,7 +153,7 @@ public class RobotContainer {
         controller2.povDown().onTrue(
             new MoveToolingToSetpoint(arm, elevator, wrist,
                 ElevatorSetpoints.CORAL_L1,
-                ArmSetpoints.CORAL_STATION,
+                ArmSetpoints.HOVER_L1,
                 WristSetpoints.HORIZONTAL
             )
         );

@@ -67,9 +67,6 @@ public class Wrist extends SubsystemBase  {
         double pidOutput = pidController.calculate(getCurrentAngle().getRadians(), targetAngle.getRadians());
         currentAngle = getCurrentAngle();
 
-        if((currentAngle.getDegrees() < MIN_ANGLE || currentAngle.getDegrees() > MAX_ANGLE) && !manualOverride)
-            pidOutput = 0;
-
         motorGroup.setSpeed(pidOutput);
     }
 

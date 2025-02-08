@@ -25,13 +25,16 @@ public class PlaceCoral extends ParallelCommandGroup {
      * @param level the level for coral scoring. Must be between 1 and 4
      */
     public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, Intake intake, IntSupplier level) {
+        if(level.getAsInt() < 2) throw new IllegalArgumentException("Level must be between 2 and 4");
+
         addCommands(
             new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.values()[level.getAsInt() - 1]),
             new SequentialCommandGroup(
-                new MoveArmToSetpoint(arm, ArmSetpoints.HOVER),
-                new MoveWristToSetpoint(wrist, (level.getAsInt() > 1) ? WristSetpoints.VERTICAL : WristSetpoints.HORIZONTAL)
+                new MoveArmToSetpoint(arm, level.getAsInt() == 4 ? ArmSetpoints.HOVER_L4 : ArmSetpoints.HOVER_L2),
+                new WaitUntilCommand(()-> elevator.getCurrentHeight().gt(elevator.getTargetHeight().minus(Inches.of(10)))),
+                new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL)
             ),
-            new WaitUntilCommand(()-> elevator.getCurrentHeight().gt(elevator.getTargetHeight().minus(Inches.of(4))))
+            new WaitUntilCommand(()-> elevator.getCurrentHeight().gt(elevator.getTargetHeight().minus(Inches.of(2))))
             .andThen(
                 new ParallelCommandGroup(
                     new MoveArmToSetpoint(arm, ArmSetpoints.values()[level.getAsInt()])
