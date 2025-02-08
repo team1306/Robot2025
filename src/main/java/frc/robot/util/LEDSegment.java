@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
 
@@ -59,5 +60,9 @@ public class LEDSegment {
   public void setColor(Color8Bit color, int index) {
     ledBuffer.setRGB(
         index, GAMMA_TABLE[color.red], GAMMA_TABLE[color.green], GAMMA_TABLE[color.blue]);
+  }
+  public void applyPattern(LEDPattern pattern){
+    pattern.applyTo(ledBuffer);
+    commitColor();
   }
 }
