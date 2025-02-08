@@ -61,7 +61,7 @@ public class RobotContainer {
         controller1.start().onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
         controller1.a().onTrue(new DriveToNearestReef(drivebase));
         controller1.b().onTrue(
-            FillLEDColor.flashColor(LEDStrip, Constants.BLUE)
+            FillLEDColor.flashTwoColors(LEDStrip, Constants.BLUE, Constants.RED, 1)
         );
     }
 }
