@@ -15,6 +15,7 @@ import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
 import frc.robot.util.Dashboard.DashboardHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Dashboard.GetValue;
+import frc.robot.util.Dashboard.PutValue;
 import lombok.Getter;
 
 import static frc.robot.Constants.*;
@@ -22,15 +23,22 @@ import static frc.robot.Constants.*;
 public class Arm extends SubsystemBase  {
     
     @GetValue public double kP = 0, kI = 0, kD = 0; 
-    @GetValue public double kG = 0, kV = 0; 
+    @GetValue public double kG = 0.04, kV = 0; 
+
+    @GetValue
+    public boolean manualOverride = false;
+    
     private final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
     
-    private final double MIN_ANGLE = -15, MAX_ANGLE = 80;
+    private final double MIN_ANGLE = -65, MAX_ANGLE = 80;
 
-    private final Rotation2d OFFSET = Rotation2d.kZero, TOLERANCE = Rotation2d.kZero;
+    private final Rotation2d OFFSET = Rotation2d.fromDegrees(52.3), TOLERANCE = Rotation2d.kZero;
 
     @Getter
     private Rotation2d targetAngle = Rotation2d.kZero;
+
+    @PutValue
+    public Rotation2d currentAngle = Rotation2d.kZero;
 
     private final TalonFX motor;
     private final TalonFXGroup motorGroup;
@@ -69,12 +77,12 @@ public class Arm extends SubsystemBase  {
         double pidOutput = profiledPIDController.calculate(getCurrentAngle().getDegrees(), getTargetAngle().getDegrees());
 
         final State state = profiledPIDController.getSetpoint();
-        double feedforwardOutput = feedforward.calculate(Math.toRadians(state.position), Math.toRadians(state.velocity));
-
+        double feedforwardOutput = feedforward.calculate(getCurrentAngle().getRadians(), Math.toRadians(state.velocity));
         double motorOutput = pidOutput + feedforwardOutput;
 
-        //TODO make sure to create a way to override this forced stopping of arm
-        if(getCurrentAngle().getDegrees() < MIN_ANGLE || getCurrentAngle().getDegrees() > MAX_ANGLE)
+        currentAngle = getCurrentAngle();
+
+        if((currentAngle.getDegrees() < MIN_ANGLE || currentAngle.getDegrees() > MAX_ANGLE) && !manualOverride)
             motorOutput = 0;
         
         motorGroup.setSpeed(motorOutput);

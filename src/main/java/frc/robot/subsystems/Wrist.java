@@ -13,6 +13,7 @@ import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
 import frc.robot.util.Dashboard.DashboardHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Dashboard.GetValue;
+import frc.robot.util.Dashboard.PutValue;
 import lombok.Getter;
 import static frc.robot.Constants.*;
 
@@ -23,11 +24,17 @@ public class Wrist extends SubsystemBase  {
 
     private final double MIN_ANGLE = 0, MAX_ANGLE = 100;
 
-    private final Rotation2d OFFSET = Rotation2d.kZero;
+    private final Rotation2d OFFSET = Rotation2d.fromDegrees(47.08);
     private final Rotation2d TOLERANCE = Rotation2d.kZero;
+
+    @GetValue
+    public boolean manualOverride = false;
 
     @Getter
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
+
+    @PutValue
+    public Rotation2d currentAngle;
 
     private final TalonFX motor;
     private final TalonFXGroup motorGroup;
@@ -55,11 +62,13 @@ public class Wrist extends SubsystemBase  {
 
     @Override
     public void periodic() {
+        pidController.setPID(kP, kI, kD);
         double pidOutput = pidController.calculate(getCurrentAngle().getRadians(), targetAngle.getRadians());
+        currentAngle = getCurrentAngle();
 
-        //TODO make sure to create a way to override this forced stopping of wrist
-        if(getCurrentAngle().getDegrees() < MIN_ANGLE || getCurrentAngle().getDegrees() > MAX_ANGLE)
+        if((currentAngle.getDegrees() < MIN_ANGLE || currentAngle.getDegrees() > MAX_ANGLE) && !manualOverride)
             pidOutput = 0;
+
         motorGroup.setSpeed(pidOutput);
     }
 

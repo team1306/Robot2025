@@ -10,7 +10,7 @@ public class ArmFromSmartDashboard extends Command {
 
     private final Arm arm;
     @GetValue
-    private Rotation2d targetRotation;
+    private Rotation2d targetRotation = Rotation2d.kZero;
 
     /**
      * Sets the target postiton for the arm
