@@ -3,11 +3,14 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -31,7 +34,7 @@ public class Elevator extends SubsystemBase {
     @GetValue
     private double kG = 0, kV = 0; 
 
-    private final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
+    private final double MAX_VELOCITY = 5, MAX_ACCELERATION = 1; // placeholder
     private Distance PID_TOLERANCE = Inches.of(0.2);
     
     private final ProfiledPIDController pid;
@@ -40,13 +43,20 @@ public class Elevator extends SubsystemBase {
     private final TalonFXGroup motorGroup;
     private final TalonFX leftMotor, rightMotor;
 
+    private final DigitalInput limitSwitch;
     @GetValue
     private double conversionFactor = 54.75 / 575.87;
+
+    @GetValue
+    private double maxHeightInches = 55, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
     
     @Setter @Getter
     private Distance targetHeight = Inches.of(0);
 
     private Distance currentHeight = Inches.of(0);
+
+    private Distance offset;
+
 
     /**
      * The elevator is mounted on the robot frame and moves the arm up and down.
@@ -68,6 +78,8 @@ public class Elevator extends SubsystemBase {
         pid.setTolerance(PID_TOLERANCE.in(Inches));
 
         feedforward = new ElevatorFeedforward(0, kG, kV, 0);
+
+        limitSwitch = new DigitalInput(Constants.ELEVATOR_LIMIT_SWITCH_ID);
         
         zeroElevatorMotorPositions();
     }
@@ -76,10 +88,17 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         pid.setPID(kP, kI, kD);
         feedforward = new ElevatorFeedforward(0, kG, kV, 0);
+        if (limitSwitch.get()) {
+            offset = getRawHeight();
+        }
+
         currentHeight = getCurrentHeight();
         SmartDashboard.putNumber("Elevator/Current Height", currentHeight.in(Inches));
 
-        double pidOutput = pid.calculate(currentHeight.in(Inches), targetHeight.in(Inches));
+        final double target = MathUtil.clamp(targetHeight.in(Inches), baseHeightInches, maxHeightInches);
+        targetHeight = Inches.of(target);
+
+        double pidOutput = pid.calculate(currentHeight.in(Inches), target);
         double feedforwardOutput = feedforward.calculate(pid.getSetpoint().velocity);
         double motorOutput = pidOutput + feedforwardOutput;
 
@@ -99,6 +118,10 @@ public class Elevator extends SubsystemBase {
      * @return the elevator height in distance.
      */
     public Distance getCurrentHeight(){
+        return getRawHeight().minus(offset);
+    }
+
+    private Distance getRawHeight() {
         return rotationsToDistance(getCurrentElevatorMotorPositions()).times(conversionFactor);
     }
     

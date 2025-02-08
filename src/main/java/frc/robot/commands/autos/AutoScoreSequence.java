@@ -1,5 +1,7 @@
 package frc.robot.commands.autos;
 
+import java.util.function.IntSupplier;
+
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
@@ -13,7 +15,7 @@ public class AutoScoreSequence extends SequentialCommandGroup{
      * Full sequence for scoring on the closest reef.
      * @param level the scoring level.
      */
-    public AutoScoreSequence(SwerveSubsystem swerve, Elevator elevator, Arm arm, Wrist wrist, Intake intake, int level) {
+    public AutoScoreSequence(SwerveSubsystem swerve, Elevator elevator, Arm arm, Wrist wrist, Intake intake, IntSupplier level) {
 
 
         addCommands(

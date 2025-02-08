@@ -13,25 +13,44 @@ public class MoveElevatorToSetpoint extends Command {
 
     private final Elevator elevator;
     private final Distance targetHeight;
-    
+    private final boolean finishWhenDone;
+
+    private static int LAST_LEVEL;
+
+    private int level;
+
+
     /**
      * Sets the elevator level
      * @param elevatorSetpoint setpoint for the elevator to go to
      */
-    public MoveElevatorToSetpoint(Elevator elevator, ElevatorSetpoint elevatorSetpoint) {
-        this.targetHeight = elevatorSetpoint.height;
-        this.elevator = elevator;
+    public MoveElevatorToSetpoint(Elevator elevator, ElevatorSetpoint elevatorSetpoint, boolean finishWhenDone) {
+        this.targetHeight = elevatorSetpoint.getHeight();
+        this.elevator = elevator;  
+
+        this.finishWhenDone = finishWhenDone;
+
+        this.level = elevatorSetpoint.getLevel();
 
         addRequirements(elevator);
+    }
+
+    public MoveElevatorToSetpoint(Elevator elevator, ElevatorSetpoint elevatorSetpoint) {
+        this(elevator, elevatorSetpoint, true);
     }
 
     @Override
     public void execute() {
         elevator.setTargetHeight(targetHeight);
+        MoveElevatorToSetpoint.LAST_LEVEL = level;
     }
 
     @Override
     public boolean isFinished() {
-        return Utilities.isEqual(targetHeight.in(Inches), elevator.getCurrentHeight().in(Inches), TOLERANCE);
+        return finishWhenDone && Utilities.isEqual(targetHeight.in(Inches), elevator.getCurrentHeight().in(Inches), TOLERANCE);
+    }
+
+    public static int getLastLevel() {
+        return MoveElevatorToSetpoint.LAST_LEVEL;
     }
 }

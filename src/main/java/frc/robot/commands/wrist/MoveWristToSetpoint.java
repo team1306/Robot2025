@@ -11,16 +11,21 @@ public class MoveWristToSetpoint extends Command {
 
     private final Wrist wrist;
     private final Rotation2d targetRotation;
-    
+    private final boolean finishWhenDone;
+
     /**
      * Sets the wrist angle
      * @param wristSetpoint setpoint for the wrist to go to
      */
-    public MoveWristToSetpoint(Wrist wrist, WristSetpoint wristSetpoint) {
-        this.targetRotation = wristSetpoint.rotation;
+    public MoveWristToSetpoint(Wrist wrist, WristSetpoint wristSetpoint, boolean finishWhenDone) {
+        this.targetRotation = wristSetpoint.getAngle();
         this.wrist = wrist;
-
+        this.finishWhenDone = finishWhenDone;
         addRequirements(wrist);
+    }
+
+    public MoveWristToSetpoint(Wrist wrist, WristSetpoint wristSetpoint) {
+        this(wrist, wristSetpoint, true);
     }
 
     @Override
@@ -30,6 +35,6 @@ public class MoveWristToSetpoint extends Command {
 
     @Override
     public boolean isFinished() {
-        return Utilities.isEqual(targetRotation.getRadians(), wrist.getCurrentAngle().getRadians(), TOLERANCE);
+        return finishWhenDone && Utilities.isEqual(targetRotation.getRadians(), wrist.getCurrentAngle().getRadians(), TOLERANCE);
     }
 }

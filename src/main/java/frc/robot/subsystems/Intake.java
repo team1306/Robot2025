@@ -42,7 +42,6 @@ public class Intake extends SubsystemBase {
     public void periodic() {
         motorGroup.setSpeed(targetSpeed);
         sensorReading = sensor.get();
-        SmartDashboard.putBoolean("Current Intake Sensor Reading", sensorReading);
     }
 
     /**
