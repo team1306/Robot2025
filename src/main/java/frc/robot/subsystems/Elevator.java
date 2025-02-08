@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -42,16 +43,19 @@ public class Elevator extends SubsystemBase {
     private final TalonFXGroup motorGroup;
     private final TalonFX leftMotor, rightMotor;
 
+    private final DigitalInput limitSwitch;
     @GetValue
     private double conversionFactor = 54.75 / 575.87;
 
     @GetValue
-    private double maxHeightInches = 1e+9, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
+    private double maxHeightInches = 55, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
     
     @Setter @Getter
     private Distance targetHeight = Inches.of(0);
 
     private Distance currentHeight = Inches.of(0);
+
+    private Distance offset;
 
 
     /**
@@ -74,6 +78,8 @@ public class Elevator extends SubsystemBase {
         pid.setTolerance(PID_TOLERANCE.in(Inches));
 
         feedforward = new ElevatorFeedforward(0, kG, kV, 0);
+
+        limitSwitch = new DigitalInput(Constants.ELEVATOR_LIMIT_SWITCH_ID);
         
         zeroElevatorMotorPositions();
     }
@@ -82,6 +88,10 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         pid.setPID(kP, kI, kD);
         feedforward = new ElevatorFeedforward(0, kG, kV, 0);
+        if (limitSwitch.get()) {
+            offset = getRawHeight();
+        }
+
         currentHeight = getCurrentHeight();
         SmartDashboard.putNumber("Elevator/Current Height", currentHeight.in(Inches));
 
@@ -108,6 +118,10 @@ public class Elevator extends SubsystemBase {
      * @return the elevator height in distance.
      */
     public Distance getCurrentHeight(){
+        return getRawHeight().minus(offset);
+    }
+
+    private Distance getRawHeight() {
         return rotationsToDistance(getCurrentElevatorMotorPositions()).times(conversionFactor);
     }
     
