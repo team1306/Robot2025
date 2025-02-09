@@ -31,7 +31,7 @@ public class Wrist extends SubsystemBase  {
     @GetValue
     public boolean manualOverride = false;
 
-    @Getter
+    @Getter @PutValue
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
 
     @PutValue
@@ -57,8 +57,8 @@ public class Wrist extends SubsystemBase  {
 
         pidController = new PIDController(kP, kI, kD);
         pidController.setTolerance(TOLERANCE.getRadians());
-
-        setTargetAngle(getCurrentAngle());
+        
+        setTargetAngle(Rotation2d.kZero);
     }
 
     @Override

@@ -28,7 +28,6 @@ import frc.robot.commands.wrist.WristSetpoint;
 import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Wrist;
@@ -37,14 +36,14 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
 
     private final CommandXboxController controller1 = new CommandXboxController(0);
-    private final OperatorContol operatorContol = new OperatorContol(new CommandXboxController(1));
+    // private final OperatorContol operatorContol = new OperatorContol(new CommandXboxController(1));
 
-    private final SwerveSubsystem drivebase = new SwerveSubsystem();
+    public final SwerveSubsystem drivebase = new SwerveSubsystem();
     private final LEDSubsystem LEDStrip = new LEDSubsystem(0, Constants.LED_COUNT);
     private final Wrist wrist = new Wrist();
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
-    private final Intake intake = new Intake();
+    // private final Intake intake = new Intake();
     
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -52,7 +51,7 @@ public class RobotContainer {
     private final SwerveInputStream driveAngularVelocity =
             SwerveInputStream.of(drivebase.getSwerveDrive(), () -> -controller1.getLeftY(), () -> -controller1.getLeftX())
                     .withControllerRotationAxis(() -> -controller1.getRightX()).deadband(Constants.LEFT_X_DEADBAND)
-                    .scaleTranslation(0.5).allianceRelativeControl(true);
+                    .scaleTranslation(0.01).allianceRelativeControl(true);
 
     /**
      * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
@@ -77,9 +76,6 @@ public class RobotContainer {
         // Schedule the selected auto during the autonomous period
         RobotModeTriggers.disabled().onChange(new InstantCommand(FieldLocation::calculateReefPositions));
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
-        RobotModeTriggers.teleop().onTrue(new ArmFromSmartDashboard(arm)
-            .alongWith(new WristFromSmartDashboard(wrist))
-            .alongWith(new ElevatorFromSmartDashboard(elevator)));
         configureBindings();
     }
 
@@ -95,11 +91,11 @@ public class RobotContainer {
 
     public void toolBindings() {
         
-        controller1.rightTrigger(.5).onTrue(new InstantCommand(() -> {
-                switch (operatorContol.getSelectedCommand()) {
+        // controller1.rightTrigger(.5).onTrue(new InstantCommand(() -> {
+        //         switch (operatorContol.getSelectedCommand()) {
                     
-                }
-            }));
+        //         }
+        //     }));
 
         
     }

@@ -34,7 +34,7 @@ public class Arm extends SubsystemBase  {
 
     private final Rotation2d OFFSET = Rotation2d.fromDegrees(52.3), TOLERANCE = Rotation2d.kZero;
 
-    @Getter
+    @Getter @PutValue
     private Rotation2d targetAngle = Rotation2d.kZero;
 
     @PutValue
@@ -66,7 +66,7 @@ public class Arm extends SubsystemBase  {
         profiledPIDController = new ProfiledPIDController(kP, kI, kD, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
 
         profiledPIDController.setTolerance(TOLERANCE.getRadians());
-        setTargetAngle(getCurrentAngle());
+        setTargetAngle(Rotation2d.kZero);
     }
 
     @Override
