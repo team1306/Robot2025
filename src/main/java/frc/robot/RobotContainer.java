@@ -83,7 +83,6 @@ public class RobotContainer {
     }
 
     public void toolBindings() {
-        
         controller1.rightTrigger(.5).onTrue(new InstantCommand(() -> {
                 switch (operatorContol.getSelectedCommand()) {
                     case CORAL_L1:
@@ -97,9 +96,6 @@ public class RobotContainer {
                     case CORAL_STATION:
                         break;
                 }
-            }));
-
-        
+        }));
     }
-    
 }
