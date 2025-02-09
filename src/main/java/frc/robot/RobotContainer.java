@@ -31,7 +31,7 @@ public class RobotContainer {
     private final LEDSubsystem LEDStrip = new LEDSubsystem(0, Constants.LED_COUNT);
     private final Wrist wrist = new Wrist();
     private final Arm arm = new Arm();
-    private final Elevator elevator = new Elevator();
+    // private final Elevator elevator = new Elevator();
     // private final Intake intake = new Intake();
     
     /**
@@ -71,7 +71,7 @@ public class RobotContainer {
     public void configureBindings(){
         controller1.start().onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
         // controller1.a().onTrue(new DriveToNearestReef(drivebase));
-        controller1.a().onTrue(new InstantCommand(() -> elevator.zeroElevatorMotorPositions()).ignoringDisable(true));
+        // controller1.a().onTrue(new InstantCommand(() -> elevator.zeroElevatorMotorPositions()).ignoringDisable(true));
         controller1.b().onTrue(
             FillLEDColor.flashTwoColors(LEDStrip, Constants.BLUE, Constants.RED, 1)
         );
