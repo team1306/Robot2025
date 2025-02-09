@@ -37,7 +37,7 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
 
     private final CommandXboxController controller1 = new CommandXboxController(0);
-    private final CommandXboxController controller2 = new CommandXboxController(1);
+    private final OperatorContol operatorContol = new OperatorContol(new CommandXboxController(1));
 
     private final SwerveSubsystem drivebase = new SwerveSubsystem();
     private final LEDSubsystem LEDStrip = new LEDSubsystem(0, Constants.LED_COUNT);
@@ -94,66 +94,14 @@ public class RobotContainer {
     }
 
     public void toolBindings() {
-        controller1.rightTrigger(.5).onTrue(new PlaceCoral(elevator, arm, wrist, intake, () -> MoveElevatorToSetpoint.getLastLevel()));
+        
+        controller1.rightTrigger(.5).onTrue(new InstantCommand(() -> {
+                switch (operatorContol.getSelectedCommand()) {
 
-        controller2.a().onTrue(
-            new MoveToolingToSetpoint(arm, elevator, wrist,
-                ElevatorSetpoints.STOW,
-                ArmSetpoints.GROUND_CORAL,
-                WristSetpoints.HORIZONTAL
-            )
-            .raceWith(
-                new IntakeCoral(intake)
-            ).andThen(
-                new MoveToolingToSetpoint(arm, elevator, wrist,
-                    ElevatorSetpoints.STOW,
-                    ArmSetpoints.STOW,
-                    WristSetpoints.HORIZONTAL
-                )
-            )
-        );
+                }
+            }));
 
-        controller2.x().onTrue(
-            new MoveToolingToSetpoint(arm, elevator, wrist,
-                ElevatorSetpoints.CORAL_STATION,
-                ArmSetpoints.CORAL_STATION,
-                WristSetpoints.HORIZONTAL
-            )
-        );
-
-        controller2.povUp().onTrue(
-            new MoveToolingToSetpoint(arm, elevator, wrist,
-                ElevatorSetpoints.CORAL_L4,
-                ArmSetpoints.CORAL_STATION,
-                WristSetpoints.VERTICAL
-            )
-        );
-
-        controller2.povRight().onTrue(
-            new MoveToolingToSetpoint(arm, elevator, wrist,
-                ElevatorSetpoints.CORAL_L3,
-                ArmSetpoints.CORAL_STATION,
-                WristSetpoints.VERTICAL
-            )
-        );
-
-        controller2.povLeft().onTrue(
-            new MoveToolingToSetpoint(arm, elevator, wrist,
-                ElevatorSetpoints.CORAL_L2,
-                ArmSetpoints.CORAL_STATION,
-                WristSetpoints.VERTICAL
-            )
-        );
-
-        controller2.povDown().onTrue(
-            new MoveToolingToSetpoint(arm, elevator, wrist,
-                ElevatorSetpoints.CORAL_L1,
-                ArmSetpoints.CORAL_STATION,
-                WristSetpoints.HORIZONTAL
-            )
-        );
-
-        controller2.b().whileTrue(new SpitCoral(intake));
+        
     }
     
 }
