@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -29,11 +30,12 @@ public class Elevator extends SubsystemBase {
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
     @GetValue
-    private double kP = 0, kI = 0, kD = 0;
+    private double kP = 0.15, kI = 0, kD = 0.01;
     @GetValue
-    private double kG = 0, kV = 0; 
+    private double kG = 0.02, kV = 0; 
 
-    private final double MAX_VELOCITY = 5, MAX_ACCELERATION = 1; // placeholder
+    //Max 5 and 1
+    private final double MAX_VELOCITY = 2, MAX_ACCELERATION = 1; // placeholder
     private Distance PID_TOLERANCE = Inches.of(0.2);
     
     private final ProfiledPIDController pid;
@@ -42,16 +44,20 @@ public class Elevator extends SubsystemBase {
     private final TalonFXGroup motorGroup;
     private final TalonFX leftMotor, rightMotor;
 
+    private final DigitalInput limitSwitch;
+
     @GetValue
     private double conversionFactor = 54.75 / 575.87;
 
     @GetValue
-    private double maxHeightInches = 1e+9, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
+    private double maxHeightInches = 55, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
     
     @Setter @Getter
     private Distance targetHeight = Inches.of(0);
 
     private Distance currentHeight = Inches.of(0);
+
+    private Distance offset = Inches.of(0);
 
 
     /**
@@ -62,8 +68,8 @@ public class Elevator extends SubsystemBase {
     public Elevator() {
         DashboardHelpers.addUpdateClass(this);
         
-        leftMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast);
-        rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast, InvertedValue.CounterClockwise_Positive);
+        leftMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Brake);
+        rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
         leftMotor.setPosition(Rotations.of(0));
         rightMotor.setPosition(Rotations.of(0));
 
@@ -74,6 +80,8 @@ public class Elevator extends SubsystemBase {
         pid.setTolerance(PID_TOLERANCE.in(Inches));
 
         feedforward = new ElevatorFeedforward(0, kG, kV, 0);
+
+        limitSwitch = new DigitalInput(Constants.ELEVATOR_LIMIT_SWITCH_ID);
         
         zeroElevatorMotorPositions();
     }
@@ -82,6 +90,10 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         pid.setPID(kP, kI, kD);
         feedforward = new ElevatorFeedforward(0, kG, kV, 0);
+        if (!limitSwitch.get()) {
+            offset = getRawHeight();
+        }
+
         currentHeight = getCurrentHeight();
         SmartDashboard.putNumber("Elevator/Current Height", currentHeight.in(Inches));
 
@@ -108,6 +120,10 @@ public class Elevator extends SubsystemBase {
      * @return the elevator height in distance.
      */
     public Distance getCurrentHeight(){
+        return getRawHeight().minus(offset);
+    }
+
+    private Distance getRawHeight() {
         return rotationsToDistance(getCurrentElevatorMotorPositions()).times(conversionFactor);
     }
     

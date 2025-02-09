@@ -97,7 +97,7 @@ public class RobotContainer {
         
         controller1.rightTrigger(.5).onTrue(new InstantCommand(() -> {
                 switch (operatorContol.getSelectedCommand()) {
-
+                    
                 }
             }));
 

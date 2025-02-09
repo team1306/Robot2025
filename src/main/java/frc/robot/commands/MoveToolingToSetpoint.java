@@ -1,11 +1,9 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.commands.arm.ArmSetpoint;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.elevator.ElevatorSetpoint;
-import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
 import frc.robot.commands.wrist.MoveWristToSetpoint;
 import frc.robot.commands.wrist.WristSetpoint;
@@ -20,12 +18,7 @@ public class MoveToolingToSetpoint extends ParallelCommandGroup {
     public MoveToolingToSetpoint(
         Arm arm, Elevator elevator, Wrist wrist,
         ElevatorSetpoint elevatorSetpoint, ArmSetpoint armSetpoint, WristSetpoint wristSetpoint) {
-        addCommands(/*
-            new InstantCommand(() -> lastLevel = switch (elevatorSetpoint) {
-                case ElevatorSetpoints.CORAL_L1 -> 1;
-                default -> 1;
-            }),
-            */
+        addCommands(
             new MoveElevatorToSetpoint(elevator, elevatorSetpoint, false),
             new MoveArmToSetpoint(arm, armSetpoint, false),
             new MoveWristToSetpoint(wrist, wristSetpoint, false)

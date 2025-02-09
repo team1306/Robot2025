@@ -20,7 +20,6 @@ public class ScoreCoral extends SequentialCommandGroup {
      * @param level the level for coral scoring
      */
     public ScoreCoral(SwerveSubsystem swerve, Elevator elevator, Arm arm, Wrist wrist, Intake intake, IntSupplier level) {
-
         addCommands(
             new PlaceCoral(elevator, arm, wrist, intake, level),
             new ParallelCommandGroup(

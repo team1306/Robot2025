@@ -17,6 +17,7 @@ public final class Constants {
     public static final int         ARM_ENCODER_ID                  = 2;
     public static final int         WRIST_ENCODER_ID                = 1;
     public static final int         INTAKE_SENSOR_ID                = 0;
+    public static final int         ELEVATOR_LIMIT_SWITCH_ID        = 3;
 
     public static final int         NEO_CURRENT_LIMIT_AMPS          = 80; // motor would reach safety limit after ~70s of stalling at 60A
 
