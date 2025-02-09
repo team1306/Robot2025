@@ -29,7 +29,7 @@ public class MoveToolingToSetpoint extends ParallelCommandGroup {
                 new MoveElevatorToSetpoint(elevator, elevatorSetpoint),
                 new StartEventCommand(
                     new MoveArmToSetpoint(arm, armSetpoint),
-                    () -> Math.abs(wrist.getCurrentAngle().getDegrees()) > 30 || armSetpoint.getAngle().getDegrees() > 70
+                    () -> !(Math.abs(wrist.getCurrentAngle().getDegrees()) > 30 && armSetpoint.getAngle().getDegrees() > 70) //go unless wrist is too rotated for how high the arm is trying to go
                 ),
                 new StartEventCommand( //only move wrist when arm is between threshold degrees/elevator is above threshold
                     new MoveWristToSetpoint(wrist, wristSetpoint),
