@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.autos;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.commands.arm.ArmSetpoint;
@@ -12,7 +12,10 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
 
 public class MoveToolingToSetpoint extends ParallelCommandGroup {
-    public MoveToolingToSetpoint(Arm arm, Elevator elevator, Wrist wrist, ElevatorSetpoint elevatorSetpoint, ArmSetpoint armSetpoint, WristSetpoint wristSetpoint) {
+    /**
+     * Move elevator, arm, and wrist to setpoints in a parallel command group
+     */
+    public MoveToolingToSetpoint(Elevator elevator, Arm arm, Wrist wrist, ElevatorSetpoint elevatorSetpoint, ArmSetpoint armSetpoint, WristSetpoint wristSetpoint) {
         addCommands(
             new MoveElevatorToSetpoint(elevator, elevatorSetpoint),
             new MoveArmToSetpoint(arm, armSetpoint),
