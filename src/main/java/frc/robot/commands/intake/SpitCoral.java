@@ -12,7 +12,6 @@ public class SpitCoral extends ParallelRaceGroup {
      * Reverses the intake until coral is no longer detected.
      */
     public SpitCoral(Intake intake) {
-
         addCommands(
             new RunIntake(intake, () -> -INTAKE_SPEED),
             new WaitUntilCommand(() -> !intake.getSensorReading())

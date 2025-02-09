@@ -121,7 +121,7 @@ public class DashboardHelpers {
             field.set(getField.instance, Rotation2d.fromDegrees(SmartDashboard.getNumber(getField.key, rotationDefault == null ? 0 : rotationDefault.getDegrees())));
         
         } else {
-            throw new RuntimeException("Unsupported getValue type: " + type);
+            throw new RuntimeException("Unsupported getValue type: " + type + "\nName of offender: " + getField.key);
         }
     }
 
@@ -154,7 +154,7 @@ public class DashboardHelpers {
             SmartDashboard.putNumber(key, ((Rotation2d) value).getDegrees());
 
         } else {
-            throw new RuntimeException("Unsupported putValue type: " + (value == null ? "void is not a valid type" : value.getClass()));
+            throw new RuntimeException("Unsupported putValue type: " + (value == null ? "void is not a valid type" : value.getClass()) + "\nName of offender: " + key);
         }
     }
 

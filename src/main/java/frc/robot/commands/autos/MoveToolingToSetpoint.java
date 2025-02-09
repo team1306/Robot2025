@@ -11,16 +11,17 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
 
-public class Stow extends ParallelCommandGroup {
-    
+public class MoveToolingToSetpoint extends ParallelCommandGroup {
     /**
-     * returns the elevator, arm, and wrist to stow position.
+     * Move elevator, arm, and wrist to setpoints in a parallel command group
      */
-    public Stow (Elevator elevator, Arm arm, Wrist wrist) {
+    public MoveToolingToSetpoint(Elevator elevator, Arm arm, Wrist wrist, ElevatorSetpoint elevatorSetpoint, ArmSetpoint armSetpoint, WristSetpoint wristSetpoint) {
         addCommands(
-            new MoveElevatorToSetpoint(elevator, ElevatorSetpoint.STOW),
-            new MoveArmToSetpoint(arm, ArmSetpoint.STOW),
-            new MoveWristToSetpoint(wrist, WristSetpoint.HORIZONTAL)
+            new MoveElevatorToSetpoint(elevator, elevatorSetpoint),
+            new MoveArmToSetpoint(arm, armSetpoint),
+            new MoveWristToSetpoint(wrist, wristSetpoint)
         );
     }
+
+
 }
