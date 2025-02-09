@@ -16,12 +16,14 @@ import frc.robot.subsystems.Wrist;
 public class ScoreCoral extends SequentialCommandGroup {
     
     /**
+     * NOT WORKING
      * Places the coral and drives back to score it
      * @param level the level for coral scoring
      */
-    public ScoreCoral(SwerveSubsystem swerve, Elevator elevator, Arm arm, Wrist wrist, Intake intake, IntSupplier level) {
+    public ScoreCoral(SwerveSubsystem swerve, Elevator elevator, Arm arm, Wrist wrist, Intake intake, int level) {
+
         addCommands(
-            new PlaceCoral(elevator, arm, wrist, intake, level),
+            new PlaceCoralL4(elevator, arm, wrist, intake),
             new ParallelCommandGroup(
                 new SpitCoral(intake),
                 new InstantCommand(() -> swerve.drive(new Translation2d(-2, 0), 0, false)) //drive backwards
