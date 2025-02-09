@@ -10,22 +10,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import frc.robot.commands.MoveToolingToSetpoint;
 import frc.robot.commands.arm.ArmFromSmartDashboard;
-import frc.robot.commands.arm.ArmSetpoints;
-import frc.robot.commands.autos.DriveToNearestReef;
 import frc.robot.commands.autos.FieldLocation;
-import frc.robot.commands.autos.PlaceCoral;
 import frc.robot.commands.elevator.ElevatorFromSmartDashboard;
-import frc.robot.commands.elevator.ElevatorSetpoints;
-import frc.robot.commands.elevator.MoveElevatorToSetpoint;
-import frc.robot.commands.intake.IntakeCoral;
-import frc.robot.commands.intake.RunIntake;
-import frc.robot.commands.intake.SpitCoral;
 import frc.robot.commands.led.FillLEDColor;
 import frc.robot.commands.wrist.WristFromSmartDashboard;
-import frc.robot.commands.wrist.WristSetpoint;
-import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
@@ -96,7 +85,16 @@ public class RobotContainer {
     public void toolBindings() {
         controller1.rightTrigger(.5).onTrue(new InstantCommand(() -> {
                 switch (operatorContol.getSelectedCommand()) {
-                    
+                    case CORAL_L1:
+                        break;
+                    case CORAL_L2:
+                        break;
+                    case CORAL_L3:
+                        break;
+                    case CORAL_L4:
+                        break;
+                    case CORAL_STATION:
+                        break;
                 }
         }));
     }

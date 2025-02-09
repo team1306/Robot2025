@@ -21,18 +21,17 @@ public class DriveToPoseCommand extends Command{
     public DriveToPoseCommand (SwerveSubsystem drivebase, Supplier<Pose2d> poseSupplier){
         this.drivebase = drivebase;
         this.poseSupplier = poseSupplier;
-        addRequirements(drivebase);
     }
 
     @Override
     public void initialize(){
         driveCommand = driveToPose(poseSupplier.get());
-        driveCommand.asProxy().schedule();
+        driveCommand.schedule();
     }
 
     @Override
     public void end(boolean interrupted){
-        System.out.println(drivebase.getSwerveController().lastAngleScalar);
+        if(interrupted) driveCommand.cancel();
         drivebase.getSwerveController().lastAngleScalar = poseSupplier.get().getRotation().getRadians();
     }
 
