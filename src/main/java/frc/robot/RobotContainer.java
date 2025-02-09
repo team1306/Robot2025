@@ -94,14 +94,10 @@ public class RobotContainer {
     }
 
     public void toolBindings() {
-        
         controller1.rightTrigger(.5).onTrue(new InstantCommand(() -> {
                 switch (operatorContol.getSelectedCommand()) {
                     
                 }
-            }));
-
-        
+        }));
     }
-    
 }
