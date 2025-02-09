@@ -10,18 +10,13 @@ import frc.robot.commands.wrist.WristSetpoint;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
-import lombok.Getter;
 
 public class MoveToolingToSetpoint extends ParallelCommandGroup {
-    @Getter
-    private static int lastLevel;
-    public MoveToolingToSetpoint(
-        Arm arm, Elevator elevator, Wrist wrist,
-        ElevatorSetpoint elevatorSetpoint, ArmSetpoint armSetpoint, WristSetpoint wristSetpoint) {
+    public MoveToolingToSetpoint(Arm arm, Elevator elevator, Wrist wrist, ElevatorSetpoint elevatorSetpoint, ArmSetpoint armSetpoint, WristSetpoint wristSetpoint) {
         addCommands(
-            new MoveElevatorToSetpoint(elevator, elevatorSetpoint, false),
-            new MoveArmToSetpoint(arm, armSetpoint, false),
-            new MoveWristToSetpoint(wrist, wristSetpoint, false)
+            new MoveElevatorToSetpoint(elevator, elevatorSetpoint),
+            new MoveArmToSetpoint(arm, armSetpoint),
+            new MoveWristToSetpoint(wrist, wristSetpoint)
         );
     }
 
