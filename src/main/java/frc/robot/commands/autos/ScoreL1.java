@@ -11,7 +11,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Wrist;
 
-public class ScoreL1 extends SequentialCommandGroup {
+public class ScoreL1 extends ParallelCommandGroup {
 
     /**
      * Score on L1
@@ -19,7 +19,7 @@ public class ScoreL1 extends SequentialCommandGroup {
     public ScoreL1(Elevator elevator, Intake intake, Arm arm, Wrist wrist){
         addCommands(
             new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L1, ArmSetpoints.CORAL_L1, WristSetpoints.HORIZONTAL),
-            new SpitCoral(intake)
+            new StartEventCommand(new SpitCoral(intake), elevator::atSetpoint, arm::atSetpoint, wrist::atSetpoint)
         );
     }
 }
