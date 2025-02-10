@@ -12,7 +12,6 @@ public enum ArmSetpoints implements ArmSetpoint {
     CORAL_STATION(Rotation2d.fromDegrees(55)),
 
     STOW(Rotation2d.fromDegrees(70)),
-    HOVER_L1(Rotation2d.fromDegrees(0)),
     HOVER_L2(Rotation2d.fromDegrees(60)),
     HOVER_L4(Rotation2d.fromDegrees(50));
 
