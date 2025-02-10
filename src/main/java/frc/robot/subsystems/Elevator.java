@@ -107,6 +107,10 @@ public class Elevator extends SubsystemBase {
 
         motorGroup.setSpeed(motorOutput);
     }
+    
+    public boolean getLimitSwitch() {
+        return !limitSwitch.get();
+    }
 
     /**
      * Gets whether the elevator is at its setpoint using the PID controller.

@@ -43,10 +43,10 @@ public class MoveToolingToSetpoint extends ParallelCommandGroup {
      * Move elevator, arm, and wrist to setpoints in a parallel command group
      */
     public MoveToolingToSetpoint(Elevator elevator, Arm arm, Wrist wrist, ElevatorSetpoint elevatorSetpoint, ArmSetpoint armSetpoint, WristSetpoint wristSetpoint) {
-        this(elevator, arm, wrist, elevatorSetpoint, armSetpoint, wristSetpoint, RobotContainer.isSafeMode(), false);
+        this(elevator, arm, wrist, elevatorSetpoint, armSetpoint, wristSetpoint, RobotContainer.isOverrideSafeMode(), false);
     }
 
     public MoveToolingToSetpoint(Elevator elevator, Arm arm, Wrist wrist, ElevatorSetpoint elevatorSetpoint, ArmSetpoint armSetpoint, WristSetpoint wristSetpoint, boolean endWhenFinished) {
-        this(elevator, arm, wrist, elevatorSetpoint, armSetpoint, wristSetpoint, RobotContainer.isSafeMode(), endWhenFinished);
+        this(elevator, arm, wrist, elevatorSetpoint, armSetpoint, wristSetpoint, RobotContainer.isOverrideSafeMode(), endWhenFinished);
     }
 }

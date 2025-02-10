@@ -22,6 +22,7 @@ import frc.robot.commands.drive.RotateToRotation;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
+import frc.robot.commands.elevator.ZeroElevatorRoutine;
 import frc.robot.commands.intake.IntakeCoral;
 import frc.robot.commands.intake.SpitCoral;
 import frc.robot.commands.led.FillLEDColor;
@@ -158,7 +159,7 @@ public class RobotContainer {
     private int selectedLevel = 1;
     
     @GetValue @Getter
-    private static boolean safeMode = true;
+    private static boolean overrideSafeMode = false;
 
     public void bindAutomatic(){
         bindCommonControls(fullAutomaticEventLoop);
@@ -198,11 +199,12 @@ public class RobotContainer {
         controller2.pov(0, 180, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 2));
         controller2.pov(0, 270, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 1));
         
-        controller2.back(fullAutomaticEventLoop).toggleOnTrue(new ManualElevatorControl(elevator, controller2::getLeftY));
+        controller2.x(fullAutomaticEventLoop).toggleOnTrue(new ManualElevatorControl(elevator, controller2::getLeftY));
+        controller2.back().whileTrue(new ZeroElevatorRoutine(elevator));
     }
 
     public void bindCommonControls(EventLoop loop){
-        controller1.start(loop).onTrue(new InstantCommand(drivebase::zeroGyro));
+        controller1.start(loop).onTrue(new InstantCommand(drivebase::zeroGyro).ignoringDisable(true));
         controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));
 
         new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(autoChooser.selectedCommandScheduler());
