@@ -11,7 +11,7 @@ public class ManualArmControl extends Command {
     
     private final Arm arm;
     private final DoubleSupplier doubleSupplier;
-    private final double SPEED = 0.01;
+    private final double speed = 0.05;
     
     /**
      * Manual setting of the arm angle for controllers
@@ -26,6 +26,6 @@ public class ManualArmControl extends Command {
 
     @Override
     public void execute() {
-        arm.setTargetAngle(arm.getTargetAngle().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * SPEED)));
+        arm.setTargetAngle(arm.getTargetAngle().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * speed)));
     }
 }

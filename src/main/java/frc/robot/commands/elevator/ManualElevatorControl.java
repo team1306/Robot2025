@@ -11,7 +11,7 @@ public class ManualElevatorControl extends Command {
     
     private final Elevator elevator;
     private final DoubleSupplier doubleSupplier;
-    private final double SPEED = 1;
+    private final double speed = 1;
 
     /**
      * Manual setting of the elevator level by a controller
@@ -20,12 +20,12 @@ public class ManualElevatorControl extends Command {
     public ManualElevatorControl(Elevator elevator, DoubleSupplier doubleSupplier) {
         this.elevator = elevator;
         this.doubleSupplier = doubleSupplier;
-
+        
         addRequirements(elevator);
     }
 
     @Override
     public void execute() {
-        elevator.setTargetHeight(elevator.getTargetHeight().plus(Inches.of(doubleSupplier.getAsDouble() * SPEED)));
+        elevator.setTargetHeight(elevator.getTargetHeight().plus(Inches.of(doubleSupplier.getAsDouble() * speed)));
     }
 }
