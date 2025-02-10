@@ -6,9 +6,7 @@ import frc.robot.subsystems.Wrist;
 import frc.robot.util.Utilities;
 
 public class MoveWristToSetpoint extends Command {
-
-    private final double TOLERANCE = 0.02; //rads
-
+    
     private final Wrist wrist;
     private final Rotation2d targetRotation;
     private final boolean finishWhenDone;
@@ -35,6 +33,6 @@ public class MoveWristToSetpoint extends Command {
 
     @Override
     public boolean isFinished() {
-        return finishWhenDone && Utilities.isEqual(targetRotation.getRadians(), wrist.getCurrentAngle().getRadians(), TOLERANCE);
+        return finishWhenDone && wrist.atSetpoint();
     }
 }

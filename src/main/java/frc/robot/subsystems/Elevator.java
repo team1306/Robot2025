@@ -36,7 +36,7 @@ public class Elevator extends SubsystemBase {
 
     //Max 5 and 1
     private final double MAX_VELOCITY = 2, MAX_ACCELERATION = 1; // placeholder
-    private Distance PID_TOLERANCE = Inches.of(0.2);
+    private Distance TOLERANCE = Inches.of(0.2);
     
     private final ProfiledPIDController pid;
     private ElevatorFeedforward feedforward;
@@ -77,7 +77,7 @@ public class Elevator extends SubsystemBase {
 
         pid = new ProfiledPIDController(kP, kI, kD, 
                 new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
-        pid.setTolerance(PID_TOLERANCE.in(Inches));
+        pid.setTolerance(TOLERANCE.in(Inches));
 
         feedforward = new ElevatorFeedforward(0, kG, kV, 0);
 
@@ -96,6 +96,7 @@ public class Elevator extends SubsystemBase {
 
         currentHeight = getCurrentHeight();
         SmartDashboard.putNumber("Elevator/Current Height", currentHeight.in(Inches));
+        SmartDashboard.putNumber("Elevator/Target Height", targetHeight.in(Inches));
 
         final double target = MathUtil.clamp(targetHeight.in(Inches), baseHeightInches, maxHeightInches);
         targetHeight = Inches.of(target);
@@ -112,7 +113,7 @@ public class Elevator extends SubsystemBase {
      * @return true if the elevator is at its setpoint.
      */
     public boolean atSetpoint() {
-        return pid.atSetpoint();
+        return currentHeight.minus(targetHeight).abs(Inches) < TOLERANCE.in(Inches);
     }
 
     /**

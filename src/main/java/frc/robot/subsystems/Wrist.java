@@ -26,10 +26,7 @@ public class Wrist extends SubsystemBase  {
     private final double MIN_ANGLE = 0, MAX_ANGLE = 100;
 
     private final Rotation2d OFFSET = Rotation2d.fromDegrees(47.08);
-    private final Rotation2d TOLERANCE = Rotation2d.kZero;
-
-    @GetValue
-    public boolean manualOverride = false;
+    private final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0.1);
 
     @Getter @PutValue
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
@@ -83,7 +80,7 @@ public class Wrist extends SubsystemBase  {
      * @return true if the arm is at its setpoint.
      */
     public boolean atSetpoint() {
-        return pidController.atSetpoint();
+        return Math.abs(currentAngle.minus(targetAngle).getDegrees()) < TOLERANCE.getDegrees(); 
     }
 
     /**
