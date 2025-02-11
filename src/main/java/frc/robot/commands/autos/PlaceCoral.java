@@ -11,12 +11,14 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
 
+import java.util.function.BooleanSupplier;
+
 public class PlaceCoral extends SequentialCommandGroup {
     
     /**
      * Places coral on L2, L3 or L4.
      */
-    public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, int level) {
+    public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, int level, BooleanSupplier scoringTrigger) {
         if (level != 2 && level != 3 && level != 4) throw new RuntimeException("Level must be 2, 3, or 4");
         
         ElevatorSetpoint elevatorSetpoint = switch(level){
@@ -33,7 +35,7 @@ public class PlaceCoral extends SequentialCommandGroup {
         addCommands(
             new MoveToolingToSetpoint(elevator, arm, wrist, 
                     elevatorSetpoint, hoverSetpoint, WristSetpoints.VERTICAL, true),
-            new MoveArmToSetpoint(arm, armSetpoint)
+            new StartEventCommand(new MoveArmToSetpoint(arm, armSetpoint), scoringTrigger)
         );
 
     }

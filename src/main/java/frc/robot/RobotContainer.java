@@ -157,6 +157,7 @@ public class RobotContainer {
     
     @PutValue
     private int selectedLevel = 1;
+    private boolean finishScoring = false;
     
     @GetValue @Getter
     private static boolean overrideSafeMode = false;
@@ -167,14 +168,16 @@ public class RobotContainer {
         //You have to wrap the command options in another command because Java compiles conditionals returning values at compile time, not runtime
         //Alternative option would be to decorate 4+ commands with the .onlyIf() and .alongWith() decorators (not great)
         HashMap<Integer, Command> scoringCommands = new HashMap<>();
-        scoringCommands.put(1, new ScoreL1(elevator, intake, arm, wrist));
-        scoringCommands.put(2, new PlaceCoral(elevator, arm, wrist, 2));
-        scoringCommands.put(3, new PlaceCoral(elevator, arm, wrist, 3));
-        scoringCommands.put(4, new PlaceCoral(elevator, arm, wrist, 4));
+        scoringCommands.put(1, new ScoreL1(elevator, intake, arm, wrist, () -> finishScoring));
+        scoringCommands.put(2, new PlaceCoral(elevator, arm, wrist, 2, () -> finishScoring));
+        scoringCommands.put(3, new PlaceCoral(elevator, arm, wrist, 3, () -> finishScoring));
+        scoringCommands.put(4, new PlaceCoral(elevator, arm, wrist, 4, () -> finishScoring));
         
         ConditionalCommandChooser<Integer> wrapper = new ConditionalCommandChooser<>(scoringCommands, () -> selectedLevel);
         controller1.rightBumper(fullAutomaticEventLoop).onTrue(wrapper);
-        
+        controller1.rightTrigger(0.5, fullAutomaticEventLoop)
+                .onTrue(new InstantCommand(() -> finishScoring = true))
+                .onFalse(new InstantCommand(() -> finishScoring = false));
         
         controller1.leftBumper(fullAutomaticEventLoop).onTrue(new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL));
         controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(new SpitCoral(intake));

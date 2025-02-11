@@ -1,6 +1,5 @@
 package frc.robot.commands.autos;
 
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.elevator.ElevatorSetpoints;
@@ -11,15 +10,17 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Wrist;
 
-public class ScoreL1 extends ParallelCommandGroup {
+import java.util.function.BooleanSupplier;
+
+public class ScoreL1 extends SequentialCommandGroup {
 
     /**
      * Score on L1
      */
-    public ScoreL1(Elevator elevator, Intake intake, Arm arm, Wrist wrist){
+    public ScoreL1(Elevator elevator, Intake intake, Arm arm, Wrist wrist, BooleanSupplier scoringTrigger){
         addCommands(
-            new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L1, ArmSetpoints.CORAL_L1, WristSetpoints.HORIZONTAL),
-            new StartEventCommand(new SpitCoral(intake), elevator::atSetpoint, arm::atSetpoint, wrist::atSetpoint)
+            new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L1, ArmSetpoints.CORAL_L1, WristSetpoints.HORIZONTAL, true),
+            new StartEventCommand(new SpitCoral(intake), scoringTrigger)
         );
     }
 }
