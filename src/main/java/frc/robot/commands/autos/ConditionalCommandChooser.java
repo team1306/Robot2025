@@ -23,4 +23,9 @@ public class ConditionalCommandChooser<T> extends Command {
     public void initialize() {
         commandMap.get(supplier.get()).schedule();
     }
+    
+    @Override
+    public boolean isFinished() {
+        return true;
+    }
 }
