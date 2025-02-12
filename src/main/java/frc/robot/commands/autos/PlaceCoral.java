@@ -6,9 +6,11 @@ import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.elevator.ElevatorSetpoint;
 import frc.robot.commands.elevator.ElevatorSetpoints;
+import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Wrist;
 
 import java.util.function.BooleanSupplier;
@@ -18,7 +20,7 @@ public class PlaceCoral extends SequentialCommandGroup {
     /**
      * Places coral on L2, L3 or L4.
      */
-    public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, int level, BooleanSupplier scoringTrigger) {
+    public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, Intake intake, int level, BooleanSupplier scoringTrigger) {
         if (level != 2 && level != 3 && level != 4) throw new RuntimeException("Level must be 2, 3, or 4");
         
         ElevatorSetpoint elevatorSetpoint = switch(level){
@@ -35,7 +37,7 @@ public class PlaceCoral extends SequentialCommandGroup {
         addCommands(
             new MoveToolingToSetpoint(elevator, arm, wrist, 
                     elevatorSetpoint, hoverSetpoint, WristSetpoints.VERTICAL, true),
-            new StartEventCommand(new MoveArmToSetpoint(arm, armSetpoint), scoringTrigger)
+            new StartEventCommand(new MoveArmToSetpoint(arm, armSetpoint).andThen(new RunIntake(intake, () -> -0.2)), scoringTrigger)
         );
 
     }
