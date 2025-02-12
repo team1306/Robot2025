@@ -27,7 +27,7 @@ public class ZeroElevatorRoutine extends Command {
     
     @Override
     public void end(boolean interrupted) {
-        elevator.setTargetHeight(Inches.of(4));
+        elevator.setTargetHeight(ElevatorSetpoints.STOW.getHeight());
     }
 
     @Override
