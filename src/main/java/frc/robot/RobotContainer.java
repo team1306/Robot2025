@@ -26,7 +26,6 @@ import frc.robot.commands.elevator.ZeroElevatorRoutine;
 import frc.robot.commands.intake.IntakeCoral;
 import frc.robot.commands.intake.SpitCoral;
 import frc.robot.commands.led.FillLEDColor;
-import frc.robot.commands.led.LEDPatterns;
 import frc.robot.commands.wrist.ManualWristControl;
 import frc.robot.commands.wrist.MoveWristToSetpoint;
 import frc.robot.commands.wrist.WristSetpoints;
@@ -98,67 +97,99 @@ public class RobotContainer {
 
         SmartDashboard.putData("Controller Binding Chooser", controllerModeChooser);
     }
+    
+    private final EventLoop fullManualEventLoop = new EventLoop();
+    private final EventLoop fullAutomaticEventLoop = new EventLoop();
+    private final EventLoop setpointEventLoop = new EventLoop();
+    private final EventLoop alternativeEventLoop = new EventLoop();
 
-    public void configureBindings(){
-        controller1.start().onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
-        // controller1.a().onTrue(new DriveToNearestReef(drivebase));
-        controller1.a().onTrue(new InstantCommand(() -> elevator.zeroElevatorMotorPositions()).ignoringDisable(true));
-        controller1.b().onTrue(
-            FillLEDColor.flashTwoColors(LEDStrip, Constants.BLUE, Constants.RED, 1)
+    /**
+     * Change these bindings for any testing needed
+     */
+    public void bindAlternative(){
+        bindCommonControls(alternativeEventLoop);
+        
+        controller1.b(alternativeEventLoop).onTrue(
+                FillLEDColor.flashTwoColors(LEDStrip, Constants.BLUE, Constants.RED, 1)
         );
-
+    }
+    
+    public void bindManual(){
+        bindCommonControls(fullManualEventLoop);
+        
+        controller2.back(fullManualEventLoop).toggleOnTrue(new ManualArmControl(arm, controller2::getRightY));
+        controller2.y(fullManualEventLoop).toggleOnTrue(new ManualElevatorControl(elevator, controller2::getLeftY));
+        controller2.x(fullManualEventLoop).toggleOnTrue(new ManualWristControl(wrist, controller2::getLeftX));
+        
+        controller2.a(fullManualEventLoop).onTrue(new IntakeCoral(intake));
+        controller2.b(fullManualEventLoop).onTrue(new SpitCoral(intake));
     }
 
-    public void toolBindings() {
-        controller1.rightTrigger(.5).onTrue(new PlaceCoral(elevator, arm, wrist, intake, () -> MoveElevatorToSetpoint.getLastLevel()));
+    public void bindSetpoint(){
+        bindCommonControls(setpointEventLoop);
 
-        controller2.a().onTrue(
-            new MoveToolingToSetpoint(arm, elevator, wrist,
-                ElevatorSetpoints.STOW,
-                ArmSetpoints.GROUND_CORAL,
-                WristSetpoints.HORIZONTAL
-            )
-            .raceWith(
-                new IntakeCoral(intake)
-            ).andThen(
-                new MoveToolingToSetpoint(arm, elevator, wrist,
-                    ElevatorSetpoints.STOW,
-                    ArmSetpoints.STOW,
-                    WristSetpoints.HORIZONTAL
-                )
-            )
+        controller1.leftStick(setpointEventLoop).onTrue(new RotateToRotation(drivebase, () -> drivebase.getPose().nearest(FieldLocation.reefLocations).getRotation()));
+        controller1.rightStick(setpointEventLoop).onTrue(new RotateToRotation(drivebase, () -> drivebase.getPose().nearest(FieldLocation.coralStationLocations).getRotation()));
+        
+        controller1.a(setpointEventLoop).onTrue(new IntakeCoral(intake));
+        controller1.b(setpointEventLoop).onTrue(new SpitCoral(intake));
+        
+        controller1.pov(0, 0, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L4));
+        controller1.pov(0, 90, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L3));
+        controller1.pov(0, 180, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L2));
+        controller1.pov(0, 270, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L1));
+
+        controller2.pov(0, 0, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L4));
+        controller2.pov(0, 90, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L3));
+        controller2.pov(0, 180, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L2));
+        controller2.pov(0, 270, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L1));
+
+        controller2.pov(0, 45, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.HOVER_L4));
+        controller2.pov(0, 135, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.HOVER_L2));
+        controller2.pov(0, 225, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.GROUND_CORAL));
+        controller2.pov(0, 315, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_STATION));
+        
+        controller2.back(setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.STOW));
+        
+        controller2.rightBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.HORIZONTAL));
+        controller2.leftBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL));
+    }
+    
+    @PutValue
+    private int selectedLevel = 1;
+    private boolean finishScoring = false;
+    
+    @GetValue @Getter
+    private static boolean overrideSafeMode = false;
+
+    public void bindAutomatic(){
+        bindCommonControls(fullAutomaticEventLoop);
+        
+        //You have to wrap the command options in another command because Java compiles conditionals returning values at compile time, not runtime
+        //Alternative option would be to decorate 4+ commands with the .onlyIf() and .alongWith() decorators (not great)
+        HashMap<Integer, Command> scoringCommands = new HashMap<>();
+        scoringCommands.put(1, new ScoreL1(elevator, intake, arm, wrist, () -> finishScoring));
+        scoringCommands.put(2, new PlaceCoral(elevator, arm, wrist, 2, () -> finishScoring));
+        scoringCommands.put(3, new PlaceCoral(elevator, arm, wrist, 3, () -> finishScoring));
+        scoringCommands.put(4, new PlaceCoral(elevator, arm, wrist, 4, () -> finishScoring));
+        
+        ConditionalCommandChooser<Integer> wrapper = new ConditionalCommandChooser<>(scoringCommands, () -> selectedLevel);
+        controller1.rightBumper(fullAutomaticEventLoop).onTrue(wrapper);
+        controller1.rightTrigger(0.5, fullAutomaticEventLoop)
+                .onTrue(new InstantCommand(() -> finishScoring = true))
+                .onFalse(new InstantCommand(() -> finishScoring = false));
+        
+        controller1.leftBumper(fullAutomaticEventLoop).onTrue(new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL));
+        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(new SpitCoral(intake));
+        
+        controller1.a(fullAutomaticEventLoop).onTrue(
+                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL)
+                    .alongWith(new IntakeCoral(intake))
         );
-
-        controller2.x().onTrue(
-            new MoveToolingToSetpoint(arm, elevator, wrist,
-                ElevatorSetpoints.CORAL_STATION,
-                ArmSetpoints.CORAL_STATION,
-                WristSetpoints.HORIZONTAL
-            )
-        );
-
-        controller2.povUp().onTrue(
-            new MoveToolingToSetpoint(arm, elevator, wrist,
-                ElevatorSetpoints.CORAL_L4,
-                ArmSetpoints.CORAL_STATION,
-                WristSetpoints.VERTICAL
-            )
-        );
-
-        controller2.povRight().onTrue(
-            new MoveToolingToSetpoint(arm, elevator, wrist,
-                ElevatorSetpoints.CORAL_L3,
-                ArmSetpoints.CORAL_STATION,
-                WristSetpoints.VERTICAL
-            )
-        );
-
-        controller2.povLeft().onTrue(
-            new MoveToolingToSetpoint(arm, elevator, wrist,
-                ElevatorSetpoints.CORAL_L2,
-                ArmSetpoints.CORAL_STATION,
-                WristSetpoints.VERTICAL
-            )
+        
+        controller1.x(fullAutomaticEventLoop).onTrue(
+                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
+                    .alongWith(new IntakeCoral(intake))
         );
         
         controller1.leftStick(fullAutomaticEventLoop).onTrue(new RotateToRotation(drivebase, () -> drivebase.getPose().nearest(FieldLocation.reefLocations).getRotation()));
