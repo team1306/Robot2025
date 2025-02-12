@@ -20,7 +20,7 @@ import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
 import frc.robot.commands.intake.IntakeCoral;
 import frc.robot.commands.intake.SpitCoral;
-import frc.robot.commands.led.FillLEDColor;
+import frc.robot.commands.led.LEDPatterns;
 import frc.robot.commands.wrist.WristFromSmartDashboard;
 import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.Arm;
@@ -84,10 +84,18 @@ public class RobotContainer {
         controller1.start().onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
         // controller1.a().onTrue(new DriveToNearestReef(drivebase));
         controller1.a().onTrue(new InstantCommand(() -> elevator.zeroElevatorMotorPositions()).ignoringDisable(true));
-        controller1.b().onTrue(
-            FillLEDColor.flashTwoColors(LEDStrip, Constants.BLUE, Constants.RED, 1)
-        );
-
+        try {
+        controller2.y().onTrue(
+            // FillLEDColor.flashTwoColors(LEDStrip, Constants.BLUE, Constants.RED, 1),
+            LEDPatterns.setRainbowEffect(LEDStrip)
+            );
+        } catch (Exception error) {
+            System.out.println("\n\n\n\n\n\n\n\n\n");
+            System.out.println(error.getMessage());
+            System.out.println(error);
+            System.out.println("\n\n");
+        }
+ 
     }
 
     public void toolBindings() {
