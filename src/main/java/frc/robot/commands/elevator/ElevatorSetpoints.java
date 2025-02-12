@@ -6,7 +6,7 @@ import edu.wpi.first.units.measure.Distance;
 import frc.robot.Constants;
 
 public enum ElevatorSetpoints implements ElevatorSetpoint {
-    //Todo tune to find proper positions for elevator to drop coral
+
     CORAL_L1(Inches.of(2)),
     CORAL_L2(Inches.of(17)),
     CORAL_L3(Inches.of(34)),
