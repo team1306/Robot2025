@@ -35,7 +35,7 @@ public class Elevator extends SubsystemBase {
     private double kG = 0.02, kV = 0; 
 
     //Max 5 and 1
-    private final double MAX_VELOCITY = 2, MAX_ACCELERATION = 1; // placeholder
+    private final double MAX_VELOCITY = 100, MAX_ACCELERATION = 100; // placeholder
     private Distance TOLERANCE = Inches.of(0.2);
     
     private final ProfiledPIDController pid;
@@ -50,7 +50,7 @@ public class Elevator extends SubsystemBase {
     private double conversionFactor = 54.75 / 575.87;
 
     @GetValue
-    private double maxHeightInches = 55, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
+    private double maxHeightInches = 53, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
     
     @Setter @Getter
     private Distance targetHeight = Inches.of(0);
@@ -68,8 +68,8 @@ public class Elevator extends SubsystemBase {
     public Elevator() {
         DashboardHelpers.addUpdateClass(this);
         
-        leftMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Brake);
-        rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
+        leftMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast);
+        rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast, InvertedValue.CounterClockwise_Positive);
         leftMotor.setPosition(Rotations.of(0));
         rightMotor.setPosition(Rotations.of(0));
 

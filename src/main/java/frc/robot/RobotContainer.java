@@ -24,6 +24,7 @@ import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
 import frc.robot.commands.elevator.ZeroElevatorRoutine;
 import frc.robot.commands.intake.IntakeCoral;
+import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.intake.SpitCoral;
 import frc.robot.commands.led.FillLEDColor;
 import frc.robot.commands.wrist.ManualWristControl;
@@ -56,7 +57,7 @@ public class RobotContainer {
     private final SwerveInputStream driveAngularVelocity =
             SwerveInputStream.of(drivebase.getSwerveDrive(), () -> -controller1.getLeftY(), () -> -controller1.getLeftX())
                     .withControllerRotationAxis(() -> -controller1.getRightX()).deadband(Constants.LEFT_X_DEADBAND)
-                    .scaleTranslation(0.01).allianceRelativeControl(true);
+                    .scaleTranslation(0.1).allianceRelativeControl(true);
 
     /**
      * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
@@ -66,13 +67,15 @@ public class RobotContainer {
 
 
     private final Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
+    private final Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+
 
     private final AutoChooser autoChooser;
     private final SendableChooser<EventLoop> controllerModeChooser = new SendableChooser<>();
 
     public RobotContainer() {
         DashboardHelpers.addUpdateClass(this);
-        drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
+        drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         
         //Autos
         Autos autos = new Autos(drivebase);
@@ -123,6 +126,8 @@ public class RobotContainer {
         
         controller2.a(fullManualEventLoop).onTrue(new IntakeCoral(intake));
         controller2.b(fullManualEventLoop).onTrue(new SpitCoral(intake));
+        controller1.a(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.2));
+        controller1.b(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.2));
     }
 
     public void bindSetpoint(){
@@ -138,6 +143,9 @@ public class RobotContainer {
         controller1.pov(0, 90, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L3));
         controller1.pov(0, 180, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L2));
         controller1.pov(0, 270, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L1));
+
+        controller2.a(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.2));
+        controller2.b(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.2));
 
         controller2.pov(0, 0, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L4));
         controller2.pov(0, 90, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L3));
@@ -203,6 +211,10 @@ public class RobotContainer {
         controller2.pov(0, 270, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 1));
         
         controller2.x(fullAutomaticEventLoop).toggleOnTrue(new ManualElevatorControl(elevator, controller2::getLeftY));
+
+        controller2.a(fullAutomaticEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.2));
+        controller2.b(fullAutomaticEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.2));
+
         controller2.back().whileTrue(new ZeroElevatorRoutine(elevator));
     }
 

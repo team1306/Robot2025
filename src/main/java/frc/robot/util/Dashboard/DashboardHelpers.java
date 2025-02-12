@@ -119,7 +119,6 @@ public class DashboardHelpers {
             Rotation2d rotationDefault = (Rotation2d) getField.defaultValue;
             
             field.set(getField.instance, Rotation2d.fromDegrees(SmartDashboard.getNumber(getField.key, rotationDefault == null ? 0 : rotationDefault.getDegrees())));
-        
         } else {
             throw new RuntimeException("Unsupported getValue type: " + type + "\nName of offender: " + getField.key);
         }
@@ -143,6 +142,9 @@ public class DashboardHelpers {
     public static void putValue(String key, Object value) {
         if (value instanceof Double) {
             SmartDashboard.putNumber(key, (double) value);
+        
+        } else if (value instanceof Integer) {
+            SmartDashboard.putNumber(key, (int)value);
         
         } else if (value instanceof String) {
             SmartDashboard.putString(key, (String) value);

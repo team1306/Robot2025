@@ -7,10 +7,10 @@ import frc.robot.Constants;
 
 public enum ElevatorSetpoints implements ElevatorSetpoint {
     //Todo tune to find proper positions for elevator to drop coral
-    CORAL_L1(Inches.of(18 - Constants.ELEVATOR_STARTING_HEIGHT)),
-    CORAL_L2(Inches.of(31.875 - Constants.ELEVATOR_STARTING_HEIGHT)),
-    CORAL_L3(Inches.of(47.625 - Constants.ELEVATOR_STARTING_HEIGHT)),
-    CORAL_L4(Inches.of(72 - Constants.ELEVATOR_STARTING_HEIGHT)),
+    CORAL_L1(Inches.of(2)),
+    CORAL_L2(Inches.of(17)),
+    CORAL_L3(Inches.of(34)),
+    CORAL_L4(Inches.of(53)),
     
     CORAL_STATION(Inches.of(2)),
 
