@@ -107,6 +107,9 @@ public class DashboardHelpers {
         if (type.equals(double.class)) {
             field.set(getField.instance, SmartDashboard.getNumber(getField.key, (double) getField.defaultValue));
         
+        } else if (type.equals(int.class)) {
+            field.set(getField.instance, (int) Math.round(SmartDashboard.getNumber(getField.key, (int) getField.defaultValue)));
+
         } else if (type.equals(String.class)) {
             String stringDefault = (String) getField.defaultValue;
             
