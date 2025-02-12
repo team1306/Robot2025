@@ -23,18 +23,15 @@ import static frc.robot.Constants.*;
 public class Arm extends SubsystemBase  {
     
     @GetValue public double kP = 0.011, kI = 0, kD = 0.00028; 
-    @GetValue public double kG = 0.04, kV = 0; 
-
-    @GetValue
-    public boolean manualOverride = false;
+    @GetValue public double kG = 0.04, kV = 0;
     
     private final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
     
     private final double MIN_ANGLE = -65, MAX_ANGLE = 80;
 
-    private final Rotation2d OFFSET = Rotation2d.fromDegrees(52.3), TOLERANCE = Rotation2d.kZero;
+    private final Rotation2d OFFSET = Rotation2d.fromDegrees(52.3), TOLERANCE = Rotation2d.fromDegrees(0.1);
 
-    @Getter
+    @Getter @PutValue
     private Rotation2d targetAngle = Rotation2d.kZero;
 
     @PutValue
@@ -65,8 +62,8 @@ public class Arm extends SubsystemBase  {
         feedforward = new ArmFeedforward(0, kG, kV, 0);
         profiledPIDController = new ProfiledPIDController(kP, kI, kD, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
 
-        profiledPIDController.setTolerance(TOLERANCE.getRadians());
-        setTargetAngle(getCurrentAngle());
+        profiledPIDController.setTolerance(TOLERANCE.getDegrees());
+        setTargetAngle(Rotation2d.kZero);
     }
 
     @Override
@@ -81,9 +78,6 @@ public class Arm extends SubsystemBase  {
         double motorOutput = pidOutput + feedforwardOutput;
 
         currentAngle = getCurrentAngle();
-
-        if((currentAngle.getDegrees() < MIN_ANGLE || currentAngle.getDegrees() > MAX_ANGLE) && !manualOverride)
-            motorOutput = 0;
         
         motorGroup.setSpeed(motorOutput);
     }
@@ -93,7 +87,7 @@ public class Arm extends SubsystemBase  {
      * @return true if the arm is at its setpoint (with a tolerance of course).
      */
     public boolean atSetpoint() {
-        return Math.abs(getCurrentAngle().minus(targetAngle).getDegrees()) < TOLERANCE.getDegrees();
+        return Math.abs(currentAngle.minus(targetAngle).getDegrees()) < TOLERANCE.getDegrees();
     }
 
     /**

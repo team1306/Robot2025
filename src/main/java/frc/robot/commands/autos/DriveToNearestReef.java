@@ -11,8 +11,8 @@ public class DriveToNearestReef extends SequentialCommandGroup {
     public DriveToNearestReef(SwerveSubsystem swerve) {
         
         addCommands(
-            new DriveToPoseCommand(swerve, () -> FieldLocation.getIntermediatePoseFromFinal(swerve.getPose().nearest(FieldLocation.reefLocations))),
-            new DriveToPoseCommand(swerve, () -> swerve.getPose().nearest(FieldLocation.reefLocations))
+            new DriveToPose(swerve, () -> FieldLocation.getIntermediatePoseFromFinal(swerve.getPose().nearest(FieldLocation.reefLocations))),
+            new DriveToPose(swerve, () -> swerve.getPose().nearest(FieldLocation.reefLocations))
         );
     }
 

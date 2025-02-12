@@ -13,8 +13,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import lombok.Getter;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -42,18 +40,22 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.util.LimelightHelpers;
+import frc.robot.util.LimelightHelpers.PoseEstimate;
 import frc.robot.util.Utilities;
 import frc.robot.util.Dashboard.DashboardHelpers;
-import frc.robot.util.LimelightHelpers.PoseEstimate;
+import frc.robot.util.Dashboard.GetValue;
+import lombok.Getter;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
 import swervelib.math.SwerveMath;
+import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -92,14 +94,11 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.setAutoCenteringModules(false);
 
         headingController.enableContinuousInput(-Math.PI, Math.PI);
-        //swerveDrive.swerveController.thetaController.setTolerance(0);
-        //limit the amount of instantaneous movement
-        // swerveDrive.swerveController.angleLimiter = new SlewRateLimiter(3);
 
-        swerveDrive.getModules()[0].setFeedforward(new SimpleMotorFeedforward(0, 2.2629, 0.1113));
-        swerveDrive.getModules()[1].setFeedforward(new SimpleMotorFeedforward(0.09, 2.228, 0.043304));
-        swerveDrive.getModules()[2].setFeedforward(new SimpleMotorFeedforward(0.05159, 2.2674, 0.1307));
-        swerveDrive.getModules()[3].setFeedforward(new SimpleMotorFeedforward(0.037985, 2.2677, 0.23622));
+        // swerveDrive.getModules()[0].setFeedforward(new SimpleMotorFeedforward(0, 2.2629, 0.1113));
+        // swerveDrive.getModules()[1].setFeedforward(new SimpleMotorFeedforward(0.09, 2.228, 0.043304));
+        // swerveDrive.getModules()[2].setFeedforward(new SimpleMotorFeedforward(0.05159, 2.2674, 0.1307));
+        // swerveDrive.getModules()[3].setFeedforward(new SimpleMotorFeedforward(0.037985, 2.2677, 0.23622));
 
         setupPathPlanner();
     }
@@ -119,9 +118,19 @@ public class SwerveSubsystem extends SubsystemBase {
         driveFieldOriented(speeds);
     }
 
+    public boolean pushPID = false;
+
+    @GetValue
+    public double kP = 0.0301306, kI, kD = 1.541306;
+
     @Override
     public void periodic() {
        addVisionMeasurement();
+        if(pushPID){
+            for(SwerveModule module : swerveDrive.getModules()){
+                module.setAnglePIDF(new PIDFConfig(kP, kI, kD));
+            }
+        }
     }
 
     public void addVisionMeasurement(){

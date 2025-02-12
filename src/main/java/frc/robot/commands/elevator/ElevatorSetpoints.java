@@ -12,9 +12,9 @@ public enum ElevatorSetpoints implements ElevatorSetpoint {
     CORAL_L3(Inches.of(47.625 - Constants.ELEVATOR_STARTING_HEIGHT)),
     CORAL_L4(Inches.of(72 - Constants.ELEVATOR_STARTING_HEIGHT)),
     
-    CORAL_STATION(Inches.of(0)),
+    CORAL_STATION(Inches.of(2)),
 
-    STOW(Inches.of(Constants.ELEVATOR_STARTING_HEIGHT));
+    STOW(Inches.of(2));
 
     private final Distance height;
 
@@ -29,10 +29,5 @@ public enum ElevatorSetpoints implements ElevatorSetpoint {
     @Override
     public Distance getHeight() {
         return height;
-    }
-
-    @Override
-    public int getLevel() {
-        return (this.name().contains("CORAL_L")) ? Character.valueOf(this.name().charAt(7)) : 1;
     }
 }

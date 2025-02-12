@@ -1,42 +1,41 @@
 package frc.robot.commands.autos;
 
-import static edu.wpi.first.units.Units.Inches;
-
-import java.util.function.IntSupplier;
-
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.commands.arm.ArmSetpoint;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.arm.MoveArmToSetpoint;
+import frc.robot.commands.elevator.ElevatorSetpoint;
 import frc.robot.commands.elevator.ElevatorSetpoints;
-import frc.robot.commands.elevator.MoveElevatorToSetpoint;
-import frc.robot.commands.wrist.MoveWristToSetpoint;
 import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Wrist;
 
-public class PlaceCoral extends ParallelCommandGroup {
+import java.util.function.BooleanSupplier;
+
+public class PlaceCoral extends SequentialCommandGroup {
     
     /**
-     * Places the coral on the reef
-     * @param level the level for coral scoring. Must be between 1 and 4
+     * Places coral on L2, L3 or L4.
      */
-    public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, Intake intake, IntSupplier level) {
+    public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, int level, BooleanSupplier scoringTrigger) {
+        if (level != 2 && level != 3 && level != 4) throw new RuntimeException("Level must be 2, 3, or 4");
+        
+        ElevatorSetpoint elevatorSetpoint = switch(level){
+            case 3 -> ElevatorSetpoints.CORAL_L3;
+            case 4 -> ElevatorSetpoints.CORAL_L4;
+
+            default -> ElevatorSetpoints.CORAL_L2;
+        };
+
+        ArmSetpoint hoverSetpoint = level == 4 ? ArmSetpoints.HOVER_L4 : ArmSetpoints.HOVER_L2;
+        ArmSetpoint armSetpoint = level == 4 ? ArmSetpoints.CORAL_L4 : ArmSetpoints.CORAL_L2;
+
+
         addCommands(
-            new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.values()[level.getAsInt() - 1]),
-            new SequentialCommandGroup(
-                new MoveArmToSetpoint(arm, ArmSetpoints.HOVER),
-                new MoveWristToSetpoint(wrist, (level.getAsInt() > 1) ? WristSetpoints.VERTICAL : WristSetpoints.HORIZONTAL)
-            ),
-            new WaitUntilCommand(()-> elevator.getCurrentHeight().gt(elevator.getTargetHeight().minus(Inches.of(4))))
-            .andThen(
-                new ParallelCommandGroup(
-                    new MoveArmToSetpoint(arm, ArmSetpoints.values()[level.getAsInt()])
-            ))
-            
+            new MoveToolingToSetpoint(elevator, arm, wrist, 
+                    elevatorSetpoint, hoverSetpoint, WristSetpoints.VERTICAL, true),
+            new StartEventCommand(new MoveArmToSetpoint(arm, armSetpoint), scoringTrigger)
         );
 
     }

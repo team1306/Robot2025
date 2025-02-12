@@ -38,6 +38,6 @@ public class MoveArmToSetpoint extends Command {
 
     @Override
     public boolean isFinished() {
-        return finishWhenDone && Utilities.isEqual(targetRotation.getRadians(), arm.getCurrentAngle().getRadians(), TOLERANCE);
+        return finishWhenDone && arm.atSetpoint();
     }
 }

@@ -26,12 +26,9 @@ public class Wrist extends SubsystemBase  {
     private final double MIN_ANGLE = 0, MAX_ANGLE = 100;
 
     private final Rotation2d OFFSET = Rotation2d.fromDegrees(47.08);
-    private final Rotation2d TOLERANCE = Rotation2d.kZero;
+    private final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0.1);
 
-    @GetValue
-    public boolean manualOverride = false;
-
-    @Getter
+    @Getter @PutValue
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
 
     @PutValue
@@ -57,8 +54,8 @@ public class Wrist extends SubsystemBase  {
 
         pidController = new PIDController(kP, kI, kD);
         pidController.setTolerance(TOLERANCE.getRadians());
-
-        setTargetAngle(getCurrentAngle());
+        
+        setTargetAngle(Rotation2d.kZero);
     }
 
     @Override
@@ -66,9 +63,6 @@ public class Wrist extends SubsystemBase  {
         pidController.setPID(kP, kI, kD);
         double pidOutput = pidController.calculate(getCurrentAngle().getRadians(), targetAngle.getRadians());
         currentAngle = getCurrentAngle();
-
-        if((currentAngle.getDegrees() < MIN_ANGLE || currentAngle.getDegrees() > MAX_ANGLE) && !manualOverride)
-            pidOutput = 0;
 
         motorGroup.setSpeed(pidOutput);
     }
@@ -86,7 +80,7 @@ public class Wrist extends SubsystemBase  {
      * @return true if the arm is at its setpoint.
      */
     public boolean atSetpoint() {
-        return pidController.atSetpoint();
+        return Math.abs(currentAngle.minus(targetAngle).getDegrees()) < TOLERANCE.getDegrees(); 
     }
 
     /**

@@ -10,7 +10,7 @@ public class ManualWristControl extends Command {
      
     private final Wrist wrist;
     private final DoubleSupplier doubleSupplier;
-    private final double SPEED = 0.01;
+    private final double speed = 0.05;
 
     /**
     * Manual setting of the wrist angle by a controller
@@ -25,6 +25,6 @@ public class ManualWristControl extends Command {
 
     @Override
     public void execute() {
-        wrist.setTargetAngle(wrist.getTargetAngle().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * SPEED)));
+        wrist.setTargetAngle(wrist.getTargetAngle().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * speed)));
     }
 }
