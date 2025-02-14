@@ -28,7 +28,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-    }
+        robotContainer.disableLEDs();
+      }
 
     @Override
     public void disabledPeriodic() {
