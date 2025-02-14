@@ -27,6 +27,7 @@ import frc.robot.commands.intake.IntakeCoral;
 import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.intake.SpitCoral;
 import frc.robot.commands.led.FillLEDColor;
+import frc.robot.commands.led.LEDPatterns;
 import frc.robot.commands.wrist.ManualWristControl;
 import frc.robot.commands.wrist.MoveWristToSetpoint;
 import frc.robot.commands.wrist.WristSetpoints;
@@ -112,10 +113,6 @@ public class RobotContainer {
      */
     public void bindAlternative(){
         bindCommonControls(alternativeEventLoop);
-        
-        controller1.b(alternativeEventLoop).onTrue(
-                FillLEDColor.flashTwoColors(LEDStrip, Constants.BLUE, Constants.RED, 1)
-        );
     }
     
     public void bindManual(){
@@ -228,6 +225,10 @@ public class RobotContainer {
 
         new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(autoChooser.selectedCommandScheduler());
         new Trigger(loop, DriverStation::isDisabled).onChange(new InstantCommand(FieldLocation::calculateReefPositions));
+
+        controller1.y(alternativeEventLoop).onTrue( // temporary LED test code. if you need the button comment out this code.
+                LEDPatterns.elevatorHeightRainbowMask(LEDStrip, elevator)
+        );
     }
     
     public void changeEventLoop(EventLoop loop){
