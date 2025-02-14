@@ -26,16 +26,15 @@ import frc.robot.commands.elevator.ZeroElevatorRoutine;
 import frc.robot.commands.intake.IntakeCoral;
 import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.intake.SpitCoral;
-import frc.robot.commands.led.FillLEDColor;
 import frc.robot.commands.led.LEDPatterns;
 import frc.robot.commands.wrist.ManualWristControl;
 import frc.robot.commands.wrist.MoveWristToSetpoint;
 import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.*;
+import frc.robot.util.Utilities;
 import frc.robot.util.Dashboard.DashboardHelpers;
 import frc.robot.util.Dashboard.GetValue;
 import frc.robot.util.Dashboard.PutValue;
-import frc.robot.util.Utilities;
 import lombok.Getter;
 import swervelib.SwerveInputStream;
 
@@ -59,7 +58,7 @@ public class RobotContainer {
     private final SwerveInputStream driveAngularVelocity =
             SwerveInputStream.of(drivebase.getSwerveDrive(), () -> -controller1.getLeftY(), () -> -controller1.getLeftX())
                     .withControllerRotationAxis(() -> -controller1.getRightX()).deadband(Constants.LEFT_X_DEADBAND)
-                    .scaleTranslation(0.1).allianceRelativeControl(true);
+                    .scaleTranslation(0.25).allianceRelativeControl(true);
 
     /**
      * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
@@ -216,9 +215,9 @@ public class RobotContainer {
         controller1.start(loop).onTrue(new InstantCommand(drivebase::zeroGyro).ignoringDisable(true));
         controller1.back(loop).onTrue(new InstantCommand(() -> {
             Utilities.removeAndCancelDefaultCommand(drivebase);
+            useAngularVelocity = !useAngularVelocity;
             drivebase.setDefaultCommand(useAngularVelocity ? driveFieldOrientedAngularVelocity : driveFieldOrientedDirectAngle);
             drivebase.getSwerveDrive().setHeadingCorrection(!useAngularVelocity);
-            useAngularVelocity = !useAngularVelocity;
         }));
         
         controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));

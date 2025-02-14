@@ -122,7 +122,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public boolean pushPID = false;
 
     @GetValue
-    public double kP = 0.0301306, kI, kD = 1.541306;
+    public double kP = 0.06, kI, kD = 1.6;
 
     @Override
     public void periodic() {
@@ -132,7 +132,6 @@ public class SwerveSubsystem extends SubsystemBase {
                 module.setAnglePIDF(new PIDFConfig(kP, kI, kD));
             }
         }
-        SmartDashboard.putNumber("Power", swerveDrive.getModules()[3].getAngleMotor().getAppliedOutput());
     }
 
     public void addVisionMeasurement(){
