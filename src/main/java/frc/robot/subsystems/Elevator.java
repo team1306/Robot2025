@@ -30,13 +30,13 @@ public class Elevator extends SubsystemBase {
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
     @GetValue
-    private double kP = 0.15, kI = 0, kD = 0.01;
+    private double kP = 0.27, kI = 0, kD = 0.007;
     @GetValue
     private double kG = 0.02, kV = 0; 
 
     //Max 5 and 1
-    private final double MAX_VELOCITY = 100, MAX_ACCELERATION = 100; // placeholder
-    private Distance TOLERANCE = Inches.of(0.2);
+    private final double MAX_VELOCITY = 1e+9, MAX_ACCELERATION = 700; // placeholder
+    private Distance TOLERANCE = Inches.of(0.05);
     
     private final ProfiledPIDController pid;
     private ElevatorFeedforward feedforward;

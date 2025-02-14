@@ -38,6 +38,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -121,7 +122,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public boolean pushPID = false;
 
     @GetValue
-    public double kP = 0.0301306, kI, kD = 1.541306;
+    public double kP = 0.06, kI, kD = 1.6;
 
     @Override
     public void periodic() {
