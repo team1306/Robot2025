@@ -26,6 +26,7 @@ import frc.robot.commands.elevator.ZeroElevatorRoutine;
 import frc.robot.commands.intake.IntakeCoral;
 import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.intake.SpitCoral;
+import frc.robot.commands.led.FillLEDColor;
 import frc.robot.commands.led.LEDPatterns;
 import frc.robot.commands.wrist.ManualWristControl;
 import frc.robot.commands.wrist.MoveWristToSetpoint;
@@ -239,5 +240,5 @@ public class RobotContainer {
 
     public void disableLEDs() {
         FillLEDColor.fillColor(LEDStrip, Constants.LED_OFF).schedule();
-      }
+    }
 }
