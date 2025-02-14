@@ -112,6 +112,9 @@ public class RobotContainer {
      */
     public void bindAlternative(){
         bindCommonControls(alternativeEventLoop);
+        controller2.rightStick().onTrue(
+            LEDPatterns.elevatorHeightRainbowMask(LEDStrip, elevator)
+          );
     }
     
     public void bindManual(){
@@ -233,4 +236,8 @@ public class RobotContainer {
     public void changeEventLoop(EventLoop loop){
         CommandScheduler.getInstance().setActiveButtonLoop(loop);
     }
+
+    public void disableLEDs() {
+        FillLEDColor.fillColor(LEDStrip, Constants.LED_OFF).schedule();
+      }
 }
