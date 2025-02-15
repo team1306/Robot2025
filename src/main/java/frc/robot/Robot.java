@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-        robotContainer.disableLEDs();
+        robotContainer.disabledLEDs();
       }
 
     @Override
@@ -59,6 +59,7 @@ public class Robot extends TimedRobot {
             autonomousCommand.cancel();
         }
         // robotContainer.drivebase.pushPID = true;
+        robotContainer.enableLEDs();
     }
 
     @Override

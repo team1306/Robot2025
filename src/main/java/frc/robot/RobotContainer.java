@@ -234,10 +234,6 @@ public class RobotContainer {
         new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(autoChooser.selectedCommandScheduler());
         new Trigger(loop, DriverStation::isDisabled).onChange(new InstantCommand(FieldLocation::calculateReefPositions));
 
-        controller1.y(loop).onTrue( // temporary LED test code. if you need the button comment out this code.
-            LEDPatterns.elevatorHeightRainbowMask(LEDStrip, elevator)
-        );
-
 //        controller1.rightBumper(loop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
 //        controller1.leftBumper(loop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
     }
@@ -246,7 +242,11 @@ public class RobotContainer {
         CommandScheduler.getInstance().setActiveButtonLoop(loop);
     }
 
-    public void disableLEDs() {
-        FillLEDColor.fillColor(LEDStrip, Constants.LED_OFF).schedule();
+    public void disabledLEDs() {
+        // FillLEDColor.fillColor(LEDStrip, Constants.LED_OFF).schedule();
+        FillLEDColor.fillColor(LEDStrip, Utilities.isRedAlliance() ? Constants.RED : Constants.BLUE);
+    }
+    public void enableLEDs() {
+        LEDPatterns.elevatorHeightRainbowMask(LEDStrip, elevator);
     }
 }
