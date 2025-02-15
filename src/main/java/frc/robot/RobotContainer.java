@@ -18,6 +18,8 @@ import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.autos.*;
+import frc.robot.commands.climber.RunClimber;
+import frc.robot.commands.climber.RunClimberFromSmartDashboard;
 import frc.robot.commands.drive.RotateToRotation;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
@@ -41,6 +43,8 @@ import swervelib.SwerveInputStream;
 
 import java.util.HashMap;
 
+import static frc.robot.Constants.*;
+
 public class RobotContainer {
 
     private final CommandXboxController controller1 = new CommandXboxController(0);
@@ -52,6 +56,7 @@ public class RobotContainer {
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
+    private final Climber climber = new Climber();
     
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -101,6 +106,8 @@ public class RobotContainer {
         controllerModeChooser.onChange(this::changeEventLoop);
 
         SmartDashboard.putData("Controller Binding Chooser", controllerModeChooser);
+
+        climber.setDefaultCommand(new RunClimberFromSmartDashboard(climber));
     }
     
     private final EventLoop fullManualEventLoop = new EventLoop();
@@ -229,9 +236,12 @@ public class RobotContainer {
         new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(autoChooser.selectedCommandScheduler());
         new Trigger(loop, DriverStation::isDisabled).onChange(new InstantCommand(FieldLocation::calculateReefPositions));
 
-        controller1.y(alternativeEventLoop).onTrue( // temporary LED test code. if you need the button comment out this code.
-                LEDPatterns.elevatorHeightRainbowMask(LEDStrip, elevator)
+        controller1.y(loop).onTrue( // temporary LED test code. if you need the button comment out this code.
+            LEDPatterns.elevatorHeightRainbowMask(LEDStrip, elevator)
         );
+
+        controller1.rightBumper(loop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
+        controller1.leftBumper(loop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
     }
     
     public void changeEventLoop(EventLoop loop){
