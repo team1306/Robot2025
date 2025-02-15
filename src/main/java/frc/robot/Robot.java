@@ -18,6 +18,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         FieldLocation.calculateReefPositions();
         robotContainer = new RobotContainer();
+        robotContainer.disabledLEDs();
     }
 
     @Override
@@ -29,7 +30,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         robotContainer.disabledLEDs();
-      }
+    }
 
     @Override
     public void disabledPeriodic() {

@@ -244,7 +244,7 @@ public class RobotContainer {
 
     public void disabledLEDs() {
         // FillLEDColor.fillColor(LEDStrip, Constants.LED_OFF).schedule();
-        FillLEDColor.fillColor(LEDStrip, Utilities.isRedAlliance() ? Constants.RED : Constants.BLUE);
+        FillLEDColor.fillColor(LEDStrip, Utilities.isRedAlliance() ? Constants.RED : Constants.BLUE).ignoringDisable(true).schedule();
     }
     public void enableLEDs() {
         LEDPatterns.elevatorHeightRainbowMask(LEDStrip, elevator);
