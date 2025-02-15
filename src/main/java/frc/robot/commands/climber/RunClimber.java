@@ -20,7 +20,7 @@ public class RunClimber extends Command {
 
     @Override
     public void execute() {
-        climber.setSpeed(speed);
+        climber.setTargetSpeed(speed);
     }
 
     @Override
@@ -30,6 +30,6 @@ public class RunClimber extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        climber.setSpeed(0);
+        climber.setTargetSpeed(0);
     }
 }

@@ -5,6 +5,7 @@
 package frc.robot;
 
 import choreo.auto.AutoChooser;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -14,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.Direction;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
@@ -36,10 +38,11 @@ import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.*;
 import frc.robot.util.Utilities;
 import frc.robot.util.Dashboard.DashboardHelpers;
-import frc.robot.util.Dashboard.GetValue;
 import frc.robot.util.Dashboard.PutValue;
 import lombok.Getter;
 import swervelib.SwerveInputStream;
+
+import static edu.wpi.first.units.Units.Inches;
 
 import java.util.HashMap;
 
@@ -105,7 +108,13 @@ public class RobotContainer {
 
         SmartDashboard.putData("Controller Binding Chooser", controllerModeChooser);
 
-//        climber.setDefaultCommand(new RunClimberFromSmartDashboard(climber));
+        // climber.setDefaultCommand(new RunClimberFromSmartDashboard(climber));
+    }
+
+    public void zeroTargetPositions(){
+        elevator.setTargetHeight(Inches.of(0));
+        wrist.setTargetAngle(Rotation2d.kZero);
+        arm.setTargetAngle(Rotation2d.kZero);
     }
     
     private final EventLoop fullManualEventLoop = new EventLoop();
@@ -130,8 +139,15 @@ public class RobotContainer {
         controller2.y(fullManualEventLoop).toggleOnTrue(new ManualElevatorControl(elevator, controller2::getLeftY));
         controller2.x(fullManualEventLoop).toggleOnTrue(new ManualWristControl(wrist, controller2::getLeftX));
 
-        controller1.a(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.2));
-        controller1.b(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.2));
+        controller1.a(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.5));
+        controller1.b(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.5));
+
+        controller2.leftBumper(fullManualEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.HORIZONTAL));
+        controller2.rightBumper(fullManualEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL));
+
+        // controller1.rightBumper(fullManualEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
+        // controller1.leftBumper(fullManualEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
+
     }
 
     public void bindSetpoint(){
@@ -145,8 +161,8 @@ public class RobotContainer {
         controller1.pov(0, 180, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L2));
         controller1.pov(0, 270, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L1));
 
-        controller1.a(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.2));
-        controller1.b(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.2));
+        controller1.a(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.5));
+        controller1.b(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.5));
 
         controller2.pov(0, 0, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L4));
         controller2.pov(0, 90, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L3));
@@ -162,13 +178,16 @@ public class RobotContainer {
         
         controller2.rightBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.HORIZONTAL));
         controller2.leftBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL));
+
+        // controller1.rightBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
+        // controller1.leftBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
     }
     
     @PutValue
     private int selectedLevel = 1;
-    private boolean finishScoring = false;
     
-    @GetValue @Getter
+    //Make sure to implement correctly (use a supplier in an init method)
+    @Getter
     private static boolean overrideSafeMode = false;
 
     public void bindAutomatic(){
@@ -176,22 +195,28 @@ public class RobotContainer {
         
         //You have to wrap the command options in another command because Java compiles conditionals returning values at compile time, not runtime
         //Alternative option would be to decorate 4+ commands with the .onlyIf() and .alongWith() decorators (not great)
+        HashMap<Integer, Command> placingCommands = new HashMap<>();
+        placingCommands.put(1, new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L1, ArmSetpoints.CORAL_L1, WristSetpoints.HORIZONTAL, true));
+        placingCommands.put(2, new PlaceCoral(elevator, arm, wrist, intake, 2));
+        placingCommands.put(3, new PlaceCoral(elevator, arm, wrist, intake, 3));
+        placingCommands.put(4, new PlaceCoral(elevator, arm, wrist, intake, 4));
+        
+        ConditionalCommandChooser<Integer> placeWrapper = new ConditionalCommandChooser<>(placingCommands, () -> selectedLevel);
+        controller1.rightBumper(fullAutomaticEventLoop).onTrue(placeWrapper);
+        
         HashMap<Integer, Command> scoringCommands = new HashMap<>();
-        scoringCommands.put(1, new ScoreL1(elevator, intake, arm, wrist, () -> finishScoring));
-        scoringCommands.put(2, new PlaceCoral(elevator, arm, wrist, intake, 2, () -> finishScoring));
-        scoringCommands.put(3, new PlaceCoral(elevator, arm, wrist, intake, 3, () -> finishScoring));
-        scoringCommands.put(4, new PlaceCoral(elevator, arm, wrist, intake,4, () -> finishScoring));
+        scoringCommands.put(1, new RunIntake(intake, () -> 0.5));
+        scoringCommands.put(2, new DropCoral(elevator, arm, wrist, 2));
+        scoringCommands.put(3, new DropCoral(elevator, arm, wrist, 3));
+        scoringCommands.put(4, new DropCoral(elevator, arm, wrist, 4));
         
-        ConditionalCommandChooser<Integer> wrapper = new ConditionalCommandChooser<>(scoringCommands, () -> selectedLevel);
-        controller1.rightBumper(fullAutomaticEventLoop).onTrue(wrapper);
-        controller1.rightTrigger(0.5, fullAutomaticEventLoop)
-                .onTrue(new InstantCommand(() -> finishScoring = true))
-                .onFalse(new InstantCommand(() -> finishScoring = false));
-        
+        ConditionalCommandChooser<Integer> scoreWrapper = new ConditionalCommandChooser<>(scoringCommands, () -> selectedLevel);
+
+        controller1.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(scoreWrapper);        
         controller1.leftBumper(fullAutomaticEventLoop).onTrue(new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL));
         
         controller1.a(fullAutomaticEventLoop).onTrue(
-                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL)
+                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL)
                     .alongWith(new IntakeCoral(intake))
         );
         
@@ -212,10 +237,13 @@ public class RobotContainer {
         
         controller2.x(fullAutomaticEventLoop).toggleOnTrue(new ManualElevatorControl(elevator, controller2::getLeftY));
 
-        controller2.a(fullAutomaticEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.2));
-        controller2.b(fullAutomaticEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.2));
+        controller2.a(fullAutomaticEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.5));
+        controller2.b(fullAutomaticEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.5));
 
         controller2.back().whileTrue(new ZeroElevatorRoutine(elevator));
+
+        // controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
+        // controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
     }
 
     private boolean useAngularVelocity = true;
@@ -233,9 +261,6 @@ public class RobotContainer {
 
         new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(autoChooser.selectedCommandScheduler());
         new Trigger(loop, DriverStation::isDisabled).onChange(new InstantCommand(FieldLocation::calculateReefPositions));
-
-//        controller1.rightBumper(loop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
-//        controller1.leftBumper(loop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
     }
     
     public void changeEventLoop(EventLoop loop){

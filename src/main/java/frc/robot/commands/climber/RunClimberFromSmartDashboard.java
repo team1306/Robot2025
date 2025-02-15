@@ -19,11 +19,11 @@ public class RunClimberFromSmartDashboard extends Command {
 
     @Override
     public void execute() {
-        climber.setSpeed(speed);
+        climber.setTargetSpeed(speed);
     }
 
     @Override
     public void end(boolean interrupted) {
-        climber.setSpeed(0);
+        climber.setTargetSpeed(0);
     }
 }

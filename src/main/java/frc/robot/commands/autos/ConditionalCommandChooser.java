@@ -21,7 +21,9 @@ public class ConditionalCommandChooser<T> extends Command {
     
     @Override
     public void initialize() {
-        commandMap.get(supplier.get()).schedule();
+        Command command = commandMap.get(supplier.get());
+        if(command.isScheduled()) command.cancel();
+        command.schedule();
     }
     
     @Override

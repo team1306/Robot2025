@@ -38,7 +38,6 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -56,7 +55,6 @@ import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
 import swervelib.math.SwerveMath;
-import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -127,11 +125,11 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
        addVisionMeasurement();
-        if(pushPID){
-            for(SwerveModule module : swerveDrive.getModules()){
-                module.setAnglePIDF(new PIDFConfig(kP, kI, kD));
-            }
-        }
+        // if(pushPID){
+        //     for(SwerveModule module : swerveDrive.getModules()){
+        //         module.setAnglePIDF(new PIDFConfig(kP, kI, kD));
+        //     }
+        // }
     }
 
     public void addVisionMeasurement(){

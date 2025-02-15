@@ -36,7 +36,7 @@ public class Elevator extends SubsystemBase {
 
     //Max 5 and 1
     private final double MAX_VELOCITY = 1e+9, MAX_ACCELERATION = 700; // placeholder
-    private Distance TOLERANCE = Inches.of(0.05);
+    private Distance TOLERANCE = Inches.of(0.2);
     
     private final ProfiledPIDController pid;
     private ElevatorFeedforward feedforward;
@@ -50,7 +50,7 @@ public class Elevator extends SubsystemBase {
     private double conversionFactor = 54.75 / 565.1;
 
     @GetValue
-    private double maxHeightInches = 53, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
+    private double maxHeightInches = 55, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
     
     @Setter @Getter
     private Distance targetHeight = Inches.of(0);
