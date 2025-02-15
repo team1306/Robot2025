@@ -247,6 +247,6 @@ public class RobotContainer {
         FillLEDColor.fillColor(LEDStrip, Utilities.isRedAlliance() ? Constants.RED : Constants.BLUE);
     }
     public void enableLEDs() {
-        LEDPatterns.elevatorHeightRainbowMask(LEDStrip, elevator);
+        LEDPatterns.setRainbowEffect(LEDStrip);
     }
 }
