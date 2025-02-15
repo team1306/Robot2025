@@ -1,22 +1,25 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.utils.TalonFXGroup;
 import frc.robot.util.Dashboard.DashboardHelpers;
 import frc.robot.util.Dashboard.GetValue;
+import frc.robot.util.Dashboard.PutValue;
+import frc.robot.util.MotorUtil;
 import lombok.Getter;
 import lombok.Setter;
 
 import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.Constants.*;
-
+import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
 
 public class Climber extends SubsystemBase {
     private final TalonFX motor;
+    private final TalonFXGroup motorGroup;
+    
     private final static double RATIO = 20D;
 
     @GetValue
@@ -28,28 +31,35 @@ public class Climber extends SubsystemBase {
     @GetValue
     private static double MAX_SPEED;
 
-    @Getter
-    @Setter
+    @Getter @Setter
     private double speed;
 
+    @PutValue
     private double motorPosition;
 
     public Climber() {
         DashboardHelpers.addUpdateClass(this);
-        motor = new TalonFX(CLIMB_MOTOR_ID);
+        
+        motor = MotorUtil.initTalonFX(CLIMB_MOTOR_ID, NeutralModeValue.Brake);
+        motorGroup = new TalonFXGroup(new TalonData(motor));
 
-        final CurrentLimitsConfigs currentsConfig = new CurrentLimitsConfigs();
-        currentsConfig.StatorCurrentLimit = 80;
-        currentsConfig.StatorCurrentLimitEnable = true;
-        currentsConfig.SupplyCurrentLimitEnable = false;
+        // Following previous style guidelines, all of these should be configured in TunerX.
+        // This may be changed for the future, but for now we should stay consistent
+        // TODO should double check that creating the motor in code doesn't reset config
+//        final CurrentLimitsConfigs currentsConfig = new CurrentLimitsConfigs();
+//        currentsConfig.StatorCurrentLimit = 80;
+//        currentsConfig.StatorCurrentLimitEnable = true;
+//        currentsConfig.SupplyCurrentLimitEnable = false;
+//
+//        final FeedbackConfigs feedbackConfigs = new FeedbackConfigs();
+//        feedbackConfigs.SensorToMechanismRatio = RATIO;
+//
+//        TalonFXConfigurator configurator = motor.getConfigurator();
+//        configurator.apply(feedbackConfigs);
+//        configurator.apply(currentsConfig);
 
-        final FeedbackConfigs feedbackConfigs = new FeedbackConfigs();
-        feedbackConfigs.SensorToMechanismRatio = RATIO;
-
-        TalonFXConfigurator configurator = motor.getConfigurator();
-        configurator.apply(feedbackConfigs);
-        configurator.apply(currentsConfig);
-
+        //Todo if the climber starts down, the motor position should definitely not be 0
+        //Todo otherwise the min and max positions need to be readjusted
         motor.setPosition(0);
     }
     
@@ -61,12 +71,16 @@ public class Climber extends SubsystemBase {
         return enforceMinPosition && motorPosition < minPosition;
     }
 
+    @Override
     public void periodic() {
         motorPosition = motor.getPosition().getValue().in(Rotations);
-        motor.set(switch ((int) Math.signum(speed)) {
-            case -1 -> (!isPastMin()) ? speed : 0;
-            case 1 -> (!isPastMax()) ? speed : 0;
-            default -> 0;
-        });
+        double motorSpeed = 
+            switch ((int) Math.signum(speed)) {
+                case -1 -> isPastMin() ? 0 : speed;
+                case 1 -> isPastMax() ? 0 : speed;
+                default -> 0;
+        };
+        
+        motorGroup.setSpeed(motorSpeed * MAX_SPEED);
     }
 }

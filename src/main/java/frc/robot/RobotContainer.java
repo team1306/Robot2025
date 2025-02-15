@@ -43,8 +43,6 @@ import swervelib.SwerveInputStream;
 
 import java.util.HashMap;
 
-import static frc.robot.Constants.*;
-
 public class RobotContainer {
 
     private final CommandXboxController controller1 = new CommandXboxController(0);
@@ -56,7 +54,7 @@ public class RobotContainer {
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
-    private final Climber climber = new Climber();
+//    private final Climber climber = new Climber();
     
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -107,7 +105,7 @@ public class RobotContainer {
 
         SmartDashboard.putData("Controller Binding Chooser", controllerModeChooser);
 
-        climber.setDefaultCommand(new RunClimberFromSmartDashboard(climber));
+//        climber.setDefaultCommand(new RunClimberFromSmartDashboard(climber));
     }
     
     private final EventLoop fullManualEventLoop = new EventLoop();
@@ -240,8 +238,8 @@ public class RobotContainer {
             LEDPatterns.elevatorHeightRainbowMask(LEDStrip, elevator)
         );
 
-        controller1.rightBumper(loop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
-        controller1.leftBumper(loop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
+//        controller1.rightBumper(loop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
+//        controller1.leftBumper(loop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
     }
     
     public void changeEventLoop(EventLoop loop){
