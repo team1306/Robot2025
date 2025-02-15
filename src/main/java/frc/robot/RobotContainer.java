@@ -267,7 +267,7 @@ public class RobotContainer {
         CommandScheduler.getInstance().setActiveButtonLoop(loop);
     }
 
-    public void disabledLEDs() {
+    public void alianceLEDs() {
         // FillLEDColor.fillColor(LEDStrip, Constants.LED_OFF).schedule();
         FillLEDColor.fillColor(LEDStrip, Utilities.isRedAlliance() ? Constants.RED : Constants.BLUE).ignoringDisable(true).schedule();
     }

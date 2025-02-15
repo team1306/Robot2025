@@ -20,7 +20,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         FieldLocation.calculateReefPositions();
         robotContainer = new RobotContainer();
-        robotContainer.disabledLEDs();
+        robotContainer.alianceLEDs();
     }
 
     @Override
@@ -31,7 +31,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-        robotContainer.disabledLEDs();
+        robotContainer.alianceLEDs();
         new WaitCommand(2).andThen(new InstantCommand(robotContainer::zeroTargetPositions)).ignoringDisable(true).schedule();
     }
 
