@@ -28,7 +28,6 @@ public class RunClimber extends Command {
         return direction == Direction.FORWARD ? climber.isPastMax() : climber.isPastMin();
     }
 
-
     @Override
     public void end(boolean interrupted) {
         climber.setSpeed(0);
