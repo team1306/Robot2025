@@ -47,7 +47,7 @@ public class Elevator extends SubsystemBase {
     private final DigitalInput limitSwitch;
 
     @GetValue
-    private double conversionFactor = 54.75 / 575.87;
+    private double conversionFactor = 54.75 / 565.1;
 
     @GetValue
     private double maxHeightInches = 53, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
