@@ -13,6 +13,7 @@ public final class Constants {
     public static final int         WRIST_MOTOR_ID                  = 20;
     public static final int         ELEVATOR_LEFT_MOTOR_ID          = 40;
     public static final int         ELEVATOR_RIGHT_MOTOR_ID         = 41;
+    public static final int         CLIMB_MOTOR_ID                  = 50;
 
     public static final int         ARM_ENCODER_ID                  = 2;
     public static final int         WRIST_ENCODER_ID                = 1;
@@ -26,7 +27,6 @@ public final class Constants {
 
     public static final String      LIMELIGHT_NAME                  = "limelight";
     
-
     public static final double      MAX_SPEED                       = 5D; // temp value, m/s
     public static final double      LEFT_X_DEADBAND                 = 0.02;
     public static final double      LEFT_Y_DEADBAND                 = 0;
@@ -42,4 +42,8 @@ public final class Constants {
     public static final Color8Bit BLUE = new Color8Bit(0,0,255);
     public static final Color8Bit LED_OFF = new Color8Bit(0,0,0);
 
+    public enum Direction {
+        FORWARD,
+        REVERSE
+    }
 }
