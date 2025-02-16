@@ -87,6 +87,7 @@ public class RobotContainer {
         autoChooser = new AutoChooser();
         autoChooser.addRoutine("Test Path", autos::getTestDriveRoutine);
         autoChooser.addRoutine("1 Coral A", autos::get1CoralDriveRoutine);
+        autoChooser.addRoutine("Leave Red 2", autos::getLeaveRoutine);
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         //Controller Chooser

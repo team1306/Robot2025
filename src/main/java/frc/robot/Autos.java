@@ -34,6 +34,19 @@ public class Autos {
                 .bind("Score L4", new InstantCommand(() -> System.out.println("AutoL4")))
                 .bind("Collect Coral", new InstantCommand(() -> System.out.println("AutoCollect")));
     }
+    
+    public AutoRoutine getLeaveRoutine() {
+        AutoRoutine routine = autoFactory.newRoutine("DriveRoutine");
+        AutoTrajectory path = routine.trajectory("Leave Red 2");
+
+        routine.active().onTrue(
+                Commands.sequence(
+                        path.resetOdometry(),
+                        path.cmd()
+                ));
+
+        return routine;
+    }
 
     public AutoRoutine getTestDriveRoutine(){
         AutoRoutine routine = autoFactory.newRoutine("DriveRoutine");
