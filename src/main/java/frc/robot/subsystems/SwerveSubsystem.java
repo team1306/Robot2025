@@ -383,6 +383,12 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.driveFieldOriented(velocity);
     }
 
+    private double swerveSpeed = 1;
+
+    public Command changeSwerveSpeed(double speed){
+        return new InstantCommand(() -> this.swerveSpeed = speed);
+    }
+
     /**
      * Drive the robot given a chassis field oriented velocity.
      *
@@ -390,7 +396,7 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command driveFieldOriented(Supplier<ChassisSpeeds> velocity) {
         return run(() -> {
-            swerveDrive.driveFieldOriented(velocity.get());
+            swerveDrive.driveFieldOriented(velocity.get().times(swerveSpeed));
         });
     }
 

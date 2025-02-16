@@ -21,15 +21,12 @@ import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.autos.*;
 import frc.robot.commands.climber.RunClimber;
-import frc.robot.commands.climber.RunClimberFromSmartDashboard;
 import frc.robot.commands.drive.RotateToRotation;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
 import frc.robot.commands.elevator.ZeroElevatorRoutine;
-import frc.robot.commands.intake.IntakeCoral;
 import frc.robot.commands.intake.RunIntake;
-import frc.robot.commands.intake.SpitCoral;
 import frc.robot.commands.led.FillLEDColor;
 import frc.robot.commands.led.LEDPatterns;
 import frc.robot.commands.wrist.ManualWristControl;
@@ -65,7 +62,7 @@ public class RobotContainer {
     private final SwerveInputStream driveAngularVelocity =
             SwerveInputStream.of(drivebase.getSwerveDrive(), () -> -controller1.getLeftY(), () -> -controller1.getLeftX())
                     .withControllerRotationAxis(() -> -controller1.getRightX()).deadband(Constants.LEFT_X_DEADBAND)
-                    .scaleTranslation(0.25).allianceRelativeControl(true);
+                    .scaleTranslation(1).allianceRelativeControl(true);
 
     /**
      * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
@@ -86,11 +83,15 @@ public class RobotContainer {
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         
         //Autos
-        Autos autos = new Autos(drivebase);
+        Autos autos = new Autos(drivebase, arm, elevator, intake, wrist);
         autoChooser = new AutoChooser();
         autoChooser.addRoutine("Test Path", autos::getTestDriveRoutine);
         autoChooser.addRoutine("1 Coral A", autos::get1CoralDriveRoutine);
         autoChooser.addRoutine("Leave Red 2", autos::getLeaveRoutine);
+        autoChooser.addRoutine("Leave Red 2 with Stow ", autos::getLeaveWithStowRoutine);
+
+        autoChooser.addRoutine("L4 Score ", autos::getCoralL4Routine);
+
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         //Controller Chooser
@@ -108,8 +109,6 @@ public class RobotContainer {
         controllerModeChooser.onChange(this::changeEventLoop);
 
         SmartDashboard.putData("Controller Binding Chooser", controllerModeChooser);
-
-        climber.setDefaultCommand(new RunClimberFromSmartDashboard(climber));
     }
 
     public void zeroTargetPositions(){
@@ -198,9 +197,9 @@ public class RobotContainer {
         //Alternative option would be to decorate 4+ commands with the .onlyIf() and .alongWith() decorators (not great)
         HashMap<Integer, Command> placingCommands = new HashMap<>();
         placingCommands.put(1, new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L1, ArmSetpoints.CORAL_L1, WristSetpoints.HORIZONTAL, true));
-        placingCommands.put(2, new PlaceCoral(elevator, arm, wrist, intake, 2));
-        placingCommands.put(3, new PlaceCoral(elevator, arm, wrist, intake, 3));
-        placingCommands.put(4, new PlaceCoral(elevator, arm, wrist, intake, 4));
+        placingCommands.put(2, new PlaceCoral(elevator, arm, wrist, 2));
+        placingCommands.put(3, new PlaceCoral(elevator, arm, wrist, 3));
+        placingCommands.put(4, new PlaceCoral(elevator, arm, wrist, 4));
         
         ConditionalCommandChooser<Integer> placeWrapper = new ConditionalCommandChooser<>(placingCommands, () -> selectedLevel);
         controller1.rightBumper(fullAutomaticEventLoop).onTrue(placeWrapper);
@@ -218,18 +217,16 @@ public class RobotContainer {
         
         controller1.a(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL)
-                    .alongWith(new IntakeCoral(intake))
         );
         
         controller1.x(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
-                    .alongWith(new IntakeCoral(intake))
         );
         
         controller1.leftStick(fullAutomaticEventLoop).onTrue(new RotateToRotation(drivebase, () -> drivebase.getPose().nearest(FieldLocation.reefLocations).getRotation()));
         controller1.rightStick(fullAutomaticEventLoop).onTrue(new RotateToRotation(drivebase, () -> drivebase.getPose().nearest(FieldLocation.coralStationLocations).getRotation()));
         
-        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(new SpitCoral(intake));
+        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.25)).onFalse(drivebase.changeSwerveSpeed(1));
 
         controller2.pov(0, 0, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 4));
         controller2.pov(0, 90, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 3));

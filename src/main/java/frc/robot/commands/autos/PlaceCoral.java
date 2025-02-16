@@ -16,7 +16,7 @@ public class PlaceCoral extends ParallelCommandGroup {
     /**
      * Places coral on L2, L3 or L4.
      */
-    public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, Intake intake, int level) {
+    public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, int level) {
         if (level != 2 && level != 3 && level != 4) throw new RuntimeException("Level must be 2, 3, or 4");
         
         ElevatorSetpoint elevatorSetpoint = switch(level){
