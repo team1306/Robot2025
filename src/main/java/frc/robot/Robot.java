@@ -7,6 +7,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.autos.FieldLocation;
 import frc.robot.util.Dashboard.DashboardHelpers;
 
@@ -30,6 +32,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         robotContainer.alianceLEDs();
+        new WaitCommand(2).andThen(new InstantCommand(robotContainer::zeroTargetPositions)).ignoringDisable(true).schedule();
     }
 
     @Override
