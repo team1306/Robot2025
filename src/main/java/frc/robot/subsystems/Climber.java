@@ -29,10 +29,10 @@ public class Climber extends SubsystemBase {
     private double minPosition = -100, maxPosition = 100; // placeholder, pos = further into robot
 
     @GetValue
-    private static double MAX_SPEED;
+    private static double MAX_SPEED = 1;
 
     @Getter @Setter
-    private double speed;
+    private double targetSpeed;
 
     @PutValue
     private double motorPosition;
@@ -74,13 +74,13 @@ public class Climber extends SubsystemBase {
     @Override
     public void periodic() {
         motorPosition = motor.getPosition().getValue().in(Rotations);
-        double motorSpeed = 
-            switch ((int) Math.signum(speed)) {
-                case -1 -> isPastMin() ? 0 : speed;
-                case 1 -> isPastMax() ? 0 : speed;
-                default -> 0;
-        };
+        // double motorSpeed = 
+        //     switch ((int) Math.signum(speed)) {
+        //         case -1 -> isPastMin() ? 0 : speed;
+        //         case 1 -> isPastMax() ? 0 : speed;
+        //         default -> 0;
+        // };
         
-        motorGroup.setSpeed(motorSpeed * MAX_SPEED);
+        motorGroup.setSpeed(targetSpeed * MAX_SPEED);
     }
 }

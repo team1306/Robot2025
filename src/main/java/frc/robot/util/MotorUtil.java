@@ -3,7 +3,8 @@ package frc.robot.util;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -34,11 +35,15 @@ public class MotorUtil {
     }
 
     public static TalonFX initTalonFX(int motorId, NeutralModeValue idleMode, InvertedValue inverted){
-        TalonFX motor = new TalonFX(motorId);
-        TalonFXConfiguration config = new TalonFXConfiguration();
-        config.MotorOutput.withInverted(inverted);
-        config.MotorOutput.withNeutralMode(idleMode);
-        motor.getConfigurator().apply(config);
+        final TalonFX motor = new TalonFX(motorId);
+        final TalonFXConfigurator configurator = motor.getConfigurator();
+
+        final MotorOutputConfigs motorOutputConfig = new MotorOutputConfigs();
+
+        motorOutputConfig.Inverted = inverted;
+        motorOutputConfig.NeutralMode = idleMode;
+   
+        configurator.apply(motorOutputConfig);
 
         return motor;
     }

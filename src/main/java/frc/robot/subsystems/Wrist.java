@@ -5,6 +5,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -21,7 +22,7 @@ import static frc.robot.Constants.*;
 public class Wrist extends SubsystemBase  {
 
     @GetValue 
-    public double kP = 0.4, kI = 0.0, kD = 0.01;
+    public double kP = 0.4, kI = 0.005, kD = 0.01, kG = 0.02;
 
     private final double MIN_ANGLE = 0, MAX_ANGLE = 100;
 
@@ -39,6 +40,8 @@ public class Wrist extends SubsystemBase  {
 
     private final DutyCycleEncoder encoder;
     private final PIDController pidController;
+
+    private ArmFeedforward feedforward;
 
     /**
      * The wrist is mounted on the arm and rotates the intake to place and pick up coral.
@@ -60,11 +63,15 @@ public class Wrist extends SubsystemBase  {
 
     @Override
     public void periodic() {
+        feedforward = new ArmFeedforward(0, kG, 0, 0);
         pidController.setPID(kP, kI, kD);
-        double pidOutput = pidController.calculate(getCurrentAngle().getRadians(), targetAngle.getRadians());
+        
         currentAngle = getCurrentAngle();
+        double pidOutput = pidController.calculate(currentAngle.getRadians(), targetAngle.getRadians());
+        double feedforwardOutput = feedforward.calculate(currentAngle.getRadians(), 0);
 
-        motorGroup.setSpeed(pidOutput);
+        double motorOutput = pidOutput + feedforwardOutput;
+        motorGroup.setSpeed(motorOutput);
     }
 
     /**

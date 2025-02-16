@@ -4,8 +4,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 public enum WristSetpoints implements WristSetpoint {
 
-    HORIZONTAL(Rotation2d.fromDegrees(90)),
-    VERTICAL(Rotation2d.fromDegrees(0));
+    HORIZONTAL(Rotation2d.fromDegrees(0)),
+    VERTICAL(Rotation2d.fromDegrees(90));
 
     private final Rotation2d rotation;
 
