@@ -54,7 +54,7 @@ public class RobotContainer {
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
-    private final Climber climber = new Climber();
+    // private final Climber climber = new Climber();
     
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -139,14 +139,14 @@ public class RobotContainer {
         controller2.y(fullManualEventLoop).toggleOnTrue(new ManualElevatorControl(elevator, controller2::getLeftY));
         controller2.x(fullManualEventLoop).toggleOnTrue(new ManualWristControl(wrist, controller2::getLeftX));
 
-        controller1.a(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.5));
-        controller1.b(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.5));
+        controller1.a(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.4));
+        controller1.b(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.4));
 
         controller2.leftBumper(fullManualEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.HORIZONTAL));
         controller2.rightBumper(fullManualEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL));
 
-        controller1.rightBumper(fullManualEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
-        controller1.leftBumper(fullManualEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
+        // controller1.rightBumper(fullManualEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
+        // controller1.leftBumper(fullManualEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
 
     }
 
@@ -161,8 +161,8 @@ public class RobotContainer {
         controller1.pov(0, 180, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L2));
         controller1.pov(0, 270, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L1));
 
-        controller1.a(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.5));
-        controller1.b(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.5));
+        controller1.a(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.4));
+        controller1.b(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.4));
 
         controller2.pov(0, 0, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L4));
         controller2.pov(0, 90, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L3));
@@ -179,8 +179,8 @@ public class RobotContainer {
         controller2.rightBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.HORIZONTAL));
         controller2.leftBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL));
 
-        controller1.rightBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
-        controller1.leftBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
+        // controller1.rightBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
+        // controller1.leftBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
     }
     
     @PutValue
@@ -235,13 +235,13 @@ public class RobotContainer {
         
         controller2.x(fullAutomaticEventLoop).toggleOnTrue(new ManualElevatorControl(elevator, controller2::getLeftY));
 
-        controller2.a(fullAutomaticEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.5));
-        controller2.b(fullAutomaticEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.5));
+        controller2.a(fullAutomaticEventLoop).toggleOnTrue(new RunIntake(intake, () -> 0.4));
+        controller2.b(fullAutomaticEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.4));
 
         controller2.back().whileTrue(new ZeroElevatorRoutine(elevator));
 
-        controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
-        controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
+        // controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
+        // controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
     }
 
     private boolean useAngularVelocity = true;

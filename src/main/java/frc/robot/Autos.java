@@ -35,7 +35,6 @@ public class Autos {
                 true, // If alliance flipping should be enabled 
                 drivebase // The drive subsystem
         )
-                .bind("ScoreL4", new ScoreL4(drivebase, elevator, wrist, arm))
                 .bind("Collect Coral", new InstantCommand(() -> System.out.println("AutoCollect")));
     }
     
@@ -59,8 +58,7 @@ public class Autos {
         routine.active().onTrue(
                 Commands.sequence(
                         path.resetOdometry(),
-                        new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL),
-                        path.cmd()
+                        path.cmd().alongWith(new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL)                        )
                 ));
 
         return routine;
@@ -73,7 +71,9 @@ public class Autos {
         routine.active().onTrue(
                 Commands.sequence(
                         path.resetOdometry(),
-                        path.cmd()
+                        new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL),
+                        path.cmd(),
+                        new ScoreL4(drivebase, elevator, wrist, arm)
                 ));
 
         return routine;
