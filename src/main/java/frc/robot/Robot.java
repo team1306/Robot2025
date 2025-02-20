@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.autos.FieldLocation;
+import frc.robot.dashboardv2.Dashboard;
 import frc.robot.util.Dashboard.DashboardHelpers;
 
 public class Robot extends TimedRobot {
@@ -27,6 +28,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         DashboardHelpers.update();
+        Dashboard.update();
     }
 
     @Override
@@ -46,7 +48,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-
+        robotContainer.alianceLEDs();
     }
 
     @Override
@@ -63,7 +65,7 @@ public class Robot extends TimedRobot {
             autonomousCommand.cancel();
         }
         // robotContainer.drivebase.pushPID = true;
-        robotContainer.enableLEDs();
+        robotContainer.alianceLEDs();
     }
 
     @Override
