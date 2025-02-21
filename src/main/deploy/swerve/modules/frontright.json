@@ -10,7 +10,7 @@
     "canbus": "rio"
   },
   "angle": {
-    "type": "sparkmax",
+    "type": "talonfx",
     "id": 6,
     "canbus": "rio"
   },
