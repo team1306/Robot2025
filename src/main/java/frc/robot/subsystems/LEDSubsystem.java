@@ -8,8 +8,8 @@ import frc.robot.util.LEDSegment;
 public class LEDSubsystem extends SubsystemBase {
     protected final LEDSegment leds;
 
-    public LEDSubsystem(int firstLED, int ledCount) {
-        leds = new LEDSegment(firstLED, ledCount);
+    public LEDSubsystem(int pwmPin, int firstLED, int ledCount) {
+        leds = new LEDSegment(pwmPin, firstLED, ledCount);
     }
 
     public void setColor(Color8Bit color, int index) {

@@ -22,6 +22,7 @@ public class Robot extends TimedRobot {
         FieldLocation.calculateReefPositions();
         robotContainer = new RobotContainer();
         robotContainer.alianceLEDs();
+        robotContainer.chainLeds();
     }
 
     @Override

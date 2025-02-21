@@ -4,11 +4,11 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import frc.robot.Constants;
 
 /** Add your docs here. */
 public class LEDSegment {
 
+  private final int ledPin;
   private final int firstLED;
   private final int ledCount;
 
@@ -31,18 +31,19 @@ public class LEDSegment {
     0xd7, 0xda, 0xdc, 0xdf, 0xe1, 0xe4, 0xe7, 0xe9, 0xec, 0xef, 0xf1, 0xf4, 0xf7, 0xf9, 0xfc, 0xff
   };
 
-  private static final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(Constants.LED_COUNT);
+  private static final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(ledCount);
   private static final AddressableLED leds = createAddressableLED(ledBuffer);
 
   private static AddressableLED createAddressableLED(AddressableLEDBuffer buffer) {
-    AddressableLED led = new AddressableLED(Constants.LED_PORT);
-    led.setLength(Constants.LED_COUNT);
+    AddressableLED led = new AddressableLED(ledPin);
+    led.setLength(ledCount);
     led.setData(buffer);
     led.start();
     return led;
   }
 
-  public LEDSegment(int firstLED, int ledCount) {
+  public LEDSegment(int ledPin, int firstLED, int ledCount) {
+    this.ledPin = ledPin;
     this.firstLED = firstLED;
     this.ledCount = ledCount;
   }

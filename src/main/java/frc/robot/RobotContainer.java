@@ -49,7 +49,8 @@ public class RobotContainer {
     private final CommandXboxController controller2 = new CommandXboxController(1);
     
     public final SwerveSubsystem drivebase = new SwerveSubsystem();
-    private final LEDSubsystem LEDStrip = new LEDSubsystem(0, Constants.LED_COUNT);
+    private final LEDSubsystem LEDStrip = new LEDSubsystem(Constants.LED_PIN, 0, Constants.LED_COUNT);
+    private final LEDSubsystem chainLEDStrip = new LEDSubsystem(Constants.CHAIN_LED_PORT, 0, Constants.CHAIN_LED_COUNT);
     private final Wrist wrist = new Wrist();
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
@@ -271,5 +272,8 @@ public class RobotContainer {
     }
     public void enableLEDs() {
         LEDPatterns.setRainbowEffect(LEDStrip);
+    }
+    public void chainLeds() {
+        LEDPattenrs.setRainbowEffect(chainLEDStrip);
     }
 }
