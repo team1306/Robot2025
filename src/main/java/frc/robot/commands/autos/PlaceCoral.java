@@ -8,7 +8,6 @@ import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Wrist;
 
 public class PlaceCoral extends ParallelCommandGroup {

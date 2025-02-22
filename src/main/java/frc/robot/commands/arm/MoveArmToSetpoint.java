@@ -3,12 +3,8 @@ package frc.robot.commands.arm;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
-import frc.robot.util.Utilities;
 
 public class MoveArmToSetpoint extends Command {
-    
-    private final double TOLERANCE = 0.02; //radians
-
     private final Arm arm;
     private final Rotation2d targetRotation;
 

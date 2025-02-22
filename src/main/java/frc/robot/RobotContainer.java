@@ -15,12 +15,10 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.Direction;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.autos.*;
-import frc.robot.commands.climber.RunClimber;
 import frc.robot.commands.drive.RotateToRotation;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
@@ -274,6 +272,6 @@ public class RobotContainer {
         LEDPatterns.setRainbowEffect(LEDStrip);
     }
     public void chainLeds() {
-        LEDPattenrs.setRainbowEffect(chainLEDStrip);
+        LEDPatterns.setRainbowEffect(chainLEDStrip);
     }
 }
