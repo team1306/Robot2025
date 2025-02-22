@@ -55,6 +55,7 @@ import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
 import swervelib.math.SwerveMath;
+import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -125,11 +126,12 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
        addVisionMeasurement();
-        // if(pushPID){
-        //     for(SwerveModule module : swerveDrive.getModules()){
-        //         module.setAnglePIDF(new PIDFConfig(kP, kI, kD));
-        //     }
-        // }
+        if(pushPID){
+            for(SwerveModule module : swerveDrive.getModules()){
+                module.setAnglePIDF(new PIDFConfig(kP, kI, kD));
+            }
+            pushPID = false;
+        }
     }
 
     public void addVisionMeasurement(){

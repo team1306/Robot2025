@@ -65,7 +65,7 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
-        // robotContainer.drivebase.pushPID = true;
+        robotContainer.drivebase.pushPID = true;
         robotContainer.alianceLEDs();
     }
 

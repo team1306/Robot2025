@@ -20,6 +20,7 @@ import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.autos.*;
 import frc.robot.commands.drive.RotateToRotation;
+import frc.robot.commands.elevator.ElevatorFromSmartDashboard;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
@@ -47,8 +48,8 @@ public class RobotContainer {
     private final CommandXboxController controller2 = new CommandXboxController(1);
     
     public final SwerveSubsystem drivebase = new SwerveSubsystem();
-    private final LEDSubsystem LEDStrip = new LEDSubsystem(Constants.LED_PIN, 0, Constants.LED_COUNT);
-    private final LEDSubsystem chainLEDStrip = new LEDSubsystem(Constants.CHAIN_LED_PORT, 0, Constants.CHAIN_LED_COUNT);
+    // private final LEDSubsystem LEDStrip = new LEDSubsystem(Constants.LED_PORT, 0, Constants.LED_COUNT);
+    // private final LEDSubsystem chainLEDStrip = new LEDSubsystem(Constants.CHAIN_LED_PORT, 0, Constants.CHAIN_LED_COUNT);
     private final Wrist wrist = new Wrist();
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
@@ -108,6 +109,8 @@ public class RobotContainer {
         controllerModeChooser.onChange(this::changeEventLoop);
 
         SmartDashboard.putData("Controller Binding Chooser", controllerModeChooser);
+
+        elevator.setDefaultCommand(new ElevatorFromSmartDashboard(elevator));
     }
 
     public void zeroTargetPositions(){
@@ -126,9 +129,6 @@ public class RobotContainer {
      */
     public void bindAlternative(){
         bindCommonControls(alternativeEventLoop);
-        controller2.rightStick().onTrue(
-            LEDPatterns.elevatorHeightRainbowMask(LEDStrip, elevator)
-          );
     }
     
     public void bindManual(){
@@ -266,12 +266,12 @@ public class RobotContainer {
 
     public void alianceLEDs() {
         // FillLEDColor.fillColor(LEDStrip, Constants.LED_OFF).schedule();
-        FillLEDColor.fillColor(LEDStrip, Utilities.isRedAlliance() ? Constants.RED : Constants.BLUE).ignoringDisable(true).schedule();
+        // FillLEDColor.fillColor(LEDStrip, Utilities.isRedAlliance() ? Constants.RED : Constants.BLUE).ignoringDisable(true).schedule();
     }
     public void enableLEDs() {
-        LEDPatterns.setRainbowEffect(LEDStrip);
+        // LEDPatterns.setRainbowEffect(LEDStrip);
     }
     public void chainLeds() {
-        LEDPatterns.setRainbowEffect(chainLEDStrip);
+        // LEDPatterns.setRainbowEffect(chainLEDStrip);
     }
 }
