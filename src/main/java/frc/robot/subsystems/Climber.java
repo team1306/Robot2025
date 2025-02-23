@@ -23,7 +23,7 @@ public class Climber extends SubsystemBase {
     private final TalonFXGroup motorGroup;
     private final LaserCan laser;
     
-    private static final double CLIMBER_PIVOT_HEIGHT_MM = 80.9879;
+    private static final double SENSOR_PIVOT_DISTANCE_MM = 80.9879;
 
     @GetValue
     private boolean enforceMaxPosition = false, enforceMinPosition = false;
@@ -64,7 +64,7 @@ public class Climber extends SubsystemBase {
     public void periodic() {
         final LaserCan.Measurement measurement = laser.getMeasurement();
         distance = measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
-                ? 90 - Math.toDegrees(Math.atan(CLIMBER_PIVOT_HEIGHT_MM/measurement.distance_mm))
+                ? 90 - Math.toDegrees(Math.atan(SENSOR_PIVOT_DISTANCE_MM/measurement.distance_mm))
                 : distance;
         motorGroup.setSpeed(
             switch ((int) Math.signum(targetSpeed)) {
