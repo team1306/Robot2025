@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import au.grapplerobotics.LaserCan;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.utils.TalonFXGroup;
@@ -13,19 +15,21 @@ import frc.robot.util.MotorUtil;
 import lombok.Getter;
 import lombok.Setter;
 
-import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.Constants.*;
 import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
 
 public class Climber extends SubsystemBase {
     private final TalonFX motor;
     private final TalonFXGroup motorGroup;
+    private final LaserCan laser;
     
+    private static final double CLIMBER_PIVOT_HEIGHT_MM = 80.9879;
+
     @GetValue
     private boolean enforceMaxPosition = false, enforceMinPosition = false;
 
     @GetValue
-    private double minPosition = -100, maxPosition = 100; // placeholder, pos = further into robot
+    private double minPosition = 0, maxPosition = 100; // placeholder, pos = further into robot
 
     @GetValue
     private static double MAX_SPEED = 1;
@@ -34,64 +38,40 @@ public class Climber extends SubsystemBase {
     private double targetSpeed;
 
     @PutValue
-    private double motorPosition;
+    private double distance = -1D;
 
     @Getter @Setter @PutValue
-    private double motorSetpoint;
-
-    @GetValue
-    private double kP, kI, kD;
-
-    private PIDController pidController;
+    private double distanceSetpoint;
 
     public Climber() {
         DashboardHelpers.addUpdateClass(this);
         
         motor = MotorUtil.initTalonFX(CLIMB_MOTOR_ID, NeutralModeValue.Brake);
+
         motorGroup = new TalonFXGroup(new TalonData(motor));
-
-        // Following previous style guidelines, all of these should be configured in TunerX.
-        // This may be changed for the future, but for now we should stay consistent
-        // TODO should double check that creating the motor in code doesn't reset config
-//        final CurrentLimitsConfigs currentsConfig = new CurrentLimitsConfigs();
-//        currentsConfig.StatorCurrentLimit = 80;
-//        currentsConfig.StatorCurrentLimitEnable = true;
-//        currentsConfig.SupplyCurrentLimitEnable = false;
-//
-//        final FeedbackConfigs feedbackConfigs = new FeedbackConfigs();
-//        feedbackConfigs.SensorToMechanismRatio = RATIO;
-//
-//        TalonFXConfigurator configurator = motor.getConfigurator();
-//        configurator.apply(feedbackConfigs);
-//        configurator.apply(currentsConfig);
-
-        //Todo if the climber starts down, the motor position should definitely not be 0
-        //Todo otherwise the min and max positions need to be readjusted
-        pidController = new PIDController(kP, kI, kD);
-        motor.setPosition(0);
+        laser = new LaserCan(CLIMBER_LASER_CAN_ID);
     }
     
     public boolean isPastMax() {
-        return enforceMaxPosition && motorPosition > maxPosition;
+        return enforceMaxPosition && distance > maxPosition;
     }
 
     public boolean isPastMin() {
-        return enforceMinPosition && motorPosition < minPosition;
+        return enforceMinPosition && distance < minPosition;
     }
 
     @Override
     public void periodic() {
-        motorPosition = motor.getPosition().getValue().in(Rotations);
-        pidController.setPID(kP, kI, kD);
-        double output = pidController.calculate(motorPosition, motorSetpoint);
-        
-        // double motorSpeed = 
-        //     switch ((int) Math.signum(speed)) {
-        //         case -1 -> isPastMin() ? 0 : speed;
-        //         case 1 -> isPastMax() ? 0 : speed;
-        //         default -> 0;
-        // };
-        
-        motorGroup.setSpeed(targetSpeed * MAX_SPEED);
+        final LaserCan.Measurement measurement = laser.getMeasurement();
+        distance = measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
+                ? 90 - Math.toDegrees(Math.atan(CLIMBER_PIVOT_HEIGHT_MM/measurement.distance_mm))
+                : distance;
+        motorGroup.setSpeed(
+            switch ((int) Math.signum(targetSpeed)) {
+                case -1 -> isPastMin() ? 0 : targetSpeed;
+                case 1 -> isPastMax() ? 0 : targetSpeed;
+                default -> 0;
+            } * MAX_SPEED
+        );
     }
 }

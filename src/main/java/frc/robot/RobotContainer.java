@@ -274,8 +274,8 @@ public class RobotContainer {
 
         controller2.back().whileTrue(new ZeroElevatorRoutine(elevator));
 
-        controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
-        controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
+        controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
+        controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
     }
 
     private boolean useAngularVelocity = true;
