@@ -158,7 +158,7 @@ public class RobotContainer {
         // controller1.b(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> -0.4));
 
         // controller2.leftBumper(fullManualEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.HORIZONTAL));
-        // controller2.rightBumper(fullManualEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL));
+        // controller2.rightBumper(fullManualEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL_L));
 
         // controller1.rightBumper(fullManualEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
         // controller1.leftBumper(fullManualEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
@@ -192,14 +192,16 @@ public class RobotContainer {
         // controller2.back(setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.STOW));
         
         // controller2.rightBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.HORIZONTAL));
-        // controller2.leftBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL));
+        // controller2.leftBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL_L));
 
         controller1.rightBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
         controller1.leftBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
     }
     
+    private LevelSelectorKey selectedLevel = LevelSelectorKey.CORAL_L1;
+
     @PutValue
-    private int selectedLevel = 1;
+    private boolean wristLeft = true;
     
     //Make sure to implement correctly (use a supplier in an init method)
     @Getter
@@ -210,22 +212,28 @@ public class RobotContainer {
         
         //You have to wrap the command options in another command because Java compiles conditionals returning values at compile time, not runtime
         //Alternative option would be to decorate 4+ commands with the .onlyIf() and .alongWith() decorators (not great)
-        // HashMap<Integer, Command> placingCommands = new HashMap<>();
-        // placingCommands.put(1, new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L1, ArmSetpoints.CORAL_L1, WristSetpoints.HORIZONTAL, true));
-        // placingCommands.put(2, new PlaceCoral(elevator, arm, wrist, 2));
-        // placingCommands.put(3, new PlaceCoral(elevator, arm, wrist, 3));
-        // placingCommands.put(4, new PlaceCoral(elevator, arm, wrist, 4));
+        // HashMap<LevelSelectorKey, Command> placingCommands = new HashMap<>();
+        // placingCommands.put(LevelSelectorKey.CORAL_L1, new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L1, ArmSetpoints.CORAL_L1, WristSetpoints.HORIZONTAL, true));
+        // placingCommands.put(LevelSelectorKey.CORAL_L2_L, new PlaceCoral(elevator, arm, wrist, 2, WristSetpoints.VERTICAL_L));
+        // placingCommands.put(LevelSelectorKey.CORAL_L2_R, new PlaceCoral(elevator, arm, wrist, 2, WristSetpoints.VERTICAL_R));
+        // placingCommands.put(LevelSelectorKey.CORAL_L3_L, new PlaceCoral(elevator, arm, wrist, 3, WristSetpoints.VERTICAL_L));
+        // placingCommands.put(LevelSelectorKey.CORAL_L3_R, new PlaceCoral(elevator, arm, wrist, 3, WristSetpoints.VERTICAL_R));
+        // placingCommands.put(LevelSelectorKey.CORAL_L4_L, new PlaceCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_L));
+        // placingCommands.put(LevelSelectorKey.CORAL_L4_R, new PlaceCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_R));
         
-        // ConditionalCommandChooser<Integer> placeWrapper = new ConditionalCommandChooser<>(placingCommands, () -> selectedLevel);
+        // ConditionalCommandChooser<LevelSelectorKey> placeWrapper = new ConditionalCommandChooser<>(placingCommands, () -> selectedLevel);
         // controller1.rightBumper(fullAutomaticEventLoop).onTrue(placeWrapper);
         
-        // HashMap<Integer, Command> scoringCommands = new HashMap<>();
-        // scoringCommands.put(1, new RunIntake(intake, () -> 0.5));
-        // scoringCommands.put(2, new DropCoral(elevator, arm, wrist, 2));
-        // scoringCommands.put(3, new DropCoral(elevator, arm, wrist, 3));
-        // scoringCommands.put(4, new DropCoral(elevator, arm, wrist, 4));
-        
-        // ConditionalCommandChooser<Integer> scoreWrapper = new ConditionalCommandChooser<>(scoringCommands, () -> selectedLevel);
+        // HashMap<LevelSelectorKey, Command> scoringCommands = new HashMap<>();
+        // scoringCommands.put(LevelSelectorKey.CORAL_L1, new RunIntake(intake, () -> 0.5));
+        // scoringCommands.put(LevelSelectorKey.CORAL_L2_L, new DropCoral(elevator, arm, wrist, 2, WristSetpoints.VERTICAL_L));
+        // scoringCommands.put(LevelSelectorKey.CORAL_L2_R, new DropCoral(elevator, arm, wrist, 2, WristSetpoints.VERTICAL_R));
+        // scoringCommands.put(LevelSelectorKey.CORAL_L3_L, new DropCoral(elevator, arm, wrist, 3, WristSetpoints.VERTICAL_L));
+        // scoringCommands.put(LevelSelectorKey.CORAL_L3_R, new DropCoral(elevator, arm, wrist, 3, WristSetpoints.VERTICAL_R));
+        // scoringCommands.put(LevelSelectorKey.CORAL_L4_L, new DropCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_L));
+        // scoringCommands.put(LevelSelectorKey.CORAL_L4_R, new DropCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_R));
+
+        // ConditionalCommandChooser<LevelSelectorKey> scoreWrapper = new ConditionalCommandChooser<>(scoringCommands, () -> selectedLevel);
 
         // controller1.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(scoreWrapper);        
         // controller1.leftBumper(fullAutomaticEventLoop).onTrue(new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL));
@@ -243,10 +251,13 @@ public class RobotContainer {
         // //slow mode
         // controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.1)).onFalse(drivebase.changeSwerveSpeed(1));
 
-        // controller2.pov(0, 0, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 4));
-        // controller2.pov(0, 90, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 3));
-        // controller2.pov(0, 180, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 2));
-        // controller2.pov(0, 270, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 1));
+        // controller2.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = true));
+        // controller2.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = false));
+
+        // controller2.pov(0, 0, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = wristLeft ? LevelSelectorKey.CORAL_L4_L : LevelSelectorKey.CORAL_L4_R));
+        // controller2.pov(0, 90, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = wristLeft ? LevelSelectorKey.CORAL_L3_L : LevelSelectorKey.CORAL_L3_R));
+        // controller2.pov(0, 180, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = wristLeft ? LevelSelectorKey.CORAL_L2_L : LevelSelectorKey.CORAL_L2_R));
+        // controller2.pov(0, 270, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = LevelSelectorKey.CORAL_L1));
         
         // controller2.x(fullAutomaticEventLoop).toggleOnTrue(new ManualElevatorControl(elevator, controller2::getLeftY));
 

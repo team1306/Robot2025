@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.autos.DropCoral;
 import frc.robot.commands.autos.PlaceCoral;
+import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -15,8 +16,8 @@ import frc.robot.subsystems.Wrist;
 public class AutoScoreL4 extends SequentialCommandGroup{
     public AutoScoreL4(SwerveSubsystem swerveDrive, Elevator elevator, Wrist wrist, Arm arm){
         addCommands(
-            new PlaceCoral(elevator, arm, wrist, 4).raceWith(new WaitCommand(3)),
-            new DropCoral(elevator, arm, wrist, 4).raceWith(new WaitCommand(3)),
+            new PlaceCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_L).raceWith(new WaitCommand(3)),
+            new DropCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_R).raceWith(new WaitCommand(3)),
             new RepeatCommand(
                 new InstantCommand(() -> swerveDrive.drive(new ChassisSpeeds(-3, 0, 0))))
                 .raceWith(new WaitCommand(1))

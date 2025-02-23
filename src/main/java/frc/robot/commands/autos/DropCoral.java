@@ -15,7 +15,7 @@ public class DropCoral extends ParallelCommandGroup {
     /**
      * Places coral on L2, L3 or L4.
      */
-    public DropCoral(Elevator elevator, Arm arm, Wrist wrist, int level) {
+    public DropCoral(Elevator elevator, Arm arm, Wrist wrist, int level, WristSetpoints wristSetpoint) {
         if (level != 2 && level != 3 && level != 4) throw new RuntimeException("Level must be 2, 3, or 4");
         
         ElevatorSetpoint elevatorSetpoint = switch(level){
@@ -29,7 +29,7 @@ public class DropCoral extends ParallelCommandGroup {
 
         addCommands(
             new MoveToolingToSetpoint(elevator, arm, wrist, 
-                    elevatorSetpoint, armSetpoint, WristSetpoints.VERTICAL, true)
+                    elevatorSetpoint, armSetpoint, wristSetpoint, true)
         );
 
     }

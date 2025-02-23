@@ -5,7 +5,7 @@ import frc.robot.commands.arm.ArmSetpoint;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.elevator.ElevatorSetpoint;
 import frc.robot.commands.elevator.ElevatorSetpoints;
-import frc.robot.commands.wrist.WristSetpoints;
+import frc.robot.commands.wrist.WristSetpoint;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
@@ -15,7 +15,7 @@ public class PlaceCoral extends ParallelCommandGroup {
     /**
      * Places coral on L2, L3 or L4.
      */
-    public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, int level) {
+    public PlaceCoral(Elevator elevator, Arm arm, Wrist wrist, int level, WristSetpoint wristSetpoint) {
         if (level != 2 && level != 3 && level != 4) throw new RuntimeException("Level must be 2, 3, or 4");
         
         ElevatorSetpoint elevatorSetpoint = switch(level){
@@ -29,7 +29,7 @@ public class PlaceCoral extends ParallelCommandGroup {
 
         addCommands(
             new MoveToolingToSetpoint(elevator, arm, wrist, 
-                    elevatorSetpoint, hoverSetpoint, WristSetpoints.VERTICAL, true)
+                    elevatorSetpoint, hoverSetpoint, wristSetpoint, true)
         );
 
     }
