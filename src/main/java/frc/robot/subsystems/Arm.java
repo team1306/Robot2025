@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.utils.TalonFXGroup;
 import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
@@ -72,13 +73,13 @@ public class Arm extends SubsystemBase  {
         feedforward = new ArmFeedforward(0, kG, kV, 0);
 
         double pidOutput = profiledPIDController.calculate(getCurrentAngle().getDegrees(), getTargetAngle().getDegrees());
-
         final State state = profiledPIDController.getSetpoint();
         double feedforwardOutput = feedforward.calculate(getCurrentAngle().getRadians(), Math.toRadians(state.velocity));
         double motorOutput = pidOutput + feedforwardOutput;
 
         currentAngle = getCurrentAngle();
-        
+        SmartDashboard.putNumber("arm output", motorOutput);
+
         motorGroup.setSpeed(motorOutput);
     }
 

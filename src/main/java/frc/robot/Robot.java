@@ -23,6 +23,7 @@ public class Robot extends TimedRobot {
         robotContainer = new RobotContainer();
         robotContainer.alianceLEDs();
         robotContainer.chainLeds();
+        System.gc();
     }
 
     @Override
@@ -65,7 +66,7 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
-        robotContainer.drivebase.pushPID = true;
+        // robotContainer.drivebase.pushPID = true;
         robotContainer.alianceLEDs();
     }
 

@@ -1,5 +1,5 @@
 {
- "name":"Blue 2 to B",
+ "name":"Blue 2 to H",
  "version":1,
  "snapshot":{
   "waypoints":[
@@ -57,5 +57,5 @@
   "splits":[0]
  },
  "events":[
-   {"name":"Score L4", "from":{"target":1, "targetTimestamp":0.80439, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"AutoL4"}}}]
+   {"name":"L4", "from":{"target":1, "targetTimestamp":0.80439, "offset":{"exp":"0 s", "val":0.0}}, "event":null}]
 }

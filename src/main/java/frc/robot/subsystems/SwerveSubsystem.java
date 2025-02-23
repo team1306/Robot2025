@@ -126,19 +126,21 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
        addVisionMeasurement();
-        if(pushPID){
-            for(SwerveModule module : swerveDrive.getModules()){
-                module.setAnglePIDF(new PIDFConfig(kP, kI, kD));
-            }
-            pushPID = false;
-        }
+        // if(pushPID){
+        //     for(SwerveModule module : swerveDrive.getModules()){
+        //         module.setAnglePIDF(new PIDFConfig(kP, kI, kD));
+        //     }
+        //     pushPID = false;
+        // }
     }
 
     public void addVisionMeasurement(){
         LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, swerveDrive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
         PoseEstimate poseEstimateMT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT_NAME);
         if(poseEstimateMT2 == null) return;
-        if(poseEstimateMT2.tagCount >= 1) swerveDrive.addVisionMeasurement(poseEstimateMT2.pose, poseEstimateMT2.timestampSeconds); 
+
+        Pose2d pose = new Pose2d(poseEstimateMT2.pose.getTranslation(), swerveDrive.getPose().getRotation());
+        if(poseEstimateMT2.tagCount >= 1) swerveDrive.addVisionMeasurement(pose, poseEstimateMT2.timestampSeconds); 
     }
 
     public Command setModuleAngleSetpoint(Rotation2d angle){

@@ -12,11 +12,11 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Wrist;
 
-public class ScoreL4 extends SequentialCommandGroup{
-    public ScoreL4(SwerveSubsystem swerveDrive, Elevator elevator, Wrist wrist, Arm arm){
+public class AutoScoreL4 extends SequentialCommandGroup{
+    public AutoScoreL4(SwerveSubsystem swerveDrive, Elevator elevator, Wrist wrist, Arm arm){
         addCommands(
-            new PlaceCoral(elevator, arm, wrist, 4).raceWith(new WaitCommand(5)),
-            new DropCoral(elevator, arm, wrist, 4),
+            new PlaceCoral(elevator, arm, wrist, 4).raceWith(new WaitCommand(3)),
+            new DropCoral(elevator, arm, wrist, 4).raceWith(new WaitCommand(3)),
             new RepeatCommand(
                 new InstantCommand(() -> swerveDrive.drive(new ChassisSpeeds(-3, 0, 0))))
                 .raceWith(new WaitCommand(1))

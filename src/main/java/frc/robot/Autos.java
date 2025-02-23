@@ -4,9 +4,10 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.arm.ArmSetpoints;
-import frc.robot.commands.auto.ScoreL4;
+import frc.robot.commands.auto.AutoCollectCoral;
+import frc.robot.commands.auto.AutoScoreL1;
+import frc.robot.commands.auto.AutoScoreL4;
 import frc.robot.commands.autos.MoveToolingToSetpoint;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.wrist.WristSetpoints;
@@ -35,7 +36,9 @@ public class Autos {
                 true, // If alliance flipping should be enabled 
                 drivebase // The drive subsystem
         )
-                .bind("Collect Coral", new InstantCommand(() -> System.out.println("AutoCollect")));
+                .bind("Collect Coral", new AutoCollectCoral(drivebase, elevator, wrist, arm, intake))
+                .bind("L4", new AutoScoreL4(drivebase, elevator, wrist, arm))
+                .bind("L1", new AutoScoreL1(drivebase, elevator, wrist, arm, intake));
     }
     
     public AutoRoutine getLeaveRoutine() {
@@ -73,7 +76,7 @@ public class Autos {
                         path.resetOdometry(),
                         new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL),
                         path.cmd(),
-                        new ScoreL4(drivebase, elevator, wrist, arm)
+                        new AutoScoreL4(drivebase, elevator, wrist, arm)
                 ));
 
         return routine;

@@ -49,5 +49,5 @@
   "splits":[0]
  },
  "events":[
-   {"name":"Score L4", "from":{"target":1, "targetTimestamp":0.6705, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"AutoL4"}}}]
+   {"name":"L4", "from":{"target":1, "targetTimestamp":0.6705, "offset":{"exp":"0 s", "val":0.0}}, "event":null}]
 }
