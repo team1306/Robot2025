@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.autos.FieldLocation;
 import frc.robot.dashboardv2.Dashboard;
+import frc.robot.subsystems.Wrist;
 import frc.robot.util.Dashboard.DashboardHelpers;
 
 public class Robot extends TimedRobot {

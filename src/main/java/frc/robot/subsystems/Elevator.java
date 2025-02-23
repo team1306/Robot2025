@@ -30,9 +30,9 @@ public class Elevator extends SubsystemBase {
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
     @GetValue
-    private double kP = 0.27, kI = 0, kD = 0.0015;
+    private double kP = 0.2, kI = 0, kD = 0.0033;
     @GetValue
-    private double kG = 0.03, kV = 0; 
+    private double kG = 0.032, kV = 0; 
 
     private final double MAX_VELOCITY = 1e+9, MAX_ACCELERATION = 700; // placeholder
     private Distance TOLERANCE = Inches.of(0.2);
@@ -49,7 +49,7 @@ public class Elevator extends SubsystemBase {
     private double conversionFactor = 54.75 / 344.69;
 
     @GetValue
-    private double maxHeightInches = 54.75, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
+    private double maxHeightInches = 54, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
     
     @Setter @Getter
     private Distance targetHeight = Inches.of(0);

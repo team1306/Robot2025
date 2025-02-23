@@ -5,7 +5,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -22,11 +21,11 @@ import static frc.robot.Constants.*;
 public class Wrist extends SubsystemBase  {
 
     @GetValue 
-    public double kP = 0.4, kI = 0.005, kD = 0.01, kG = 0.02;
+    public double kP = 0.4, kI = 0.005, kD = 0.01;
 
     private final double MIN_ANGLE = -100, MAX_ANGLE = 100;
 
-    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-57.2);
+    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-57.2-23-27);
     private final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0.1);
 
     @Getter @PutValue
@@ -35,13 +34,11 @@ public class Wrist extends SubsystemBase  {
     @PutValue
     public Rotation2d currentAngle;
 
-    private final TalonFX motor;
-    private final TalonFXGroup motorGroup;
+    private  TalonFX motor;
+    private  TalonFXGroup motorGroup;
 
-    private final DutyCycleEncoder encoder;
-    private final PIDController pidController;
-
-    private ArmFeedforward feedforward;
+    private  DutyCycleEncoder encoder;
+    private  PIDController pidController;
 
     /**
      * The wrist is mounted on the arm and rotates the intake to place and pick up coral.
@@ -61,16 +58,17 @@ public class Wrist extends SubsystemBase  {
         setTargetAngle(Rotation2d.kZero);
     }
 
+    @PutValue
+    private double motorOutput;
+
     @Override
     public void periodic() {
-        feedforward = new ArmFeedforward(0, kG, 0, 0);
         pidController.setPID(kP, kI, kD);
         
         currentAngle = getCurrentAngle();
         double pidOutput = pidController.calculate(currentAngle.getRadians(), targetAngle.getRadians());
-        double feedforwardOutput = feedforward.calculate(currentAngle.getRadians(), 0);
 
-        double motorOutput = pidOutput + feedforwardOutput;
+        motorOutput = pidOutput;
         motorGroup.setSpeed(motorOutput);
     }
 

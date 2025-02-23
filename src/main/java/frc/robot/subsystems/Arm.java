@@ -23,14 +23,14 @@ import static frc.robot.Constants.*;
 
 public class Arm extends SubsystemBase  {
     
-    @GetValue public double kP = 0.011, kI = 0, kD = 0.00028; 
-    @GetValue public double kG = 0.04, kV = 0;
+    @GetValue public double kP = 0.015, kI = 0, kD = 0.0002; 
+    @GetValue public double kG = 0.033, kV = 0;
     
     private final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
     
-    private final double MIN_ANGLE = -65, MAX_ANGLE = 80;
+    private final double MIN_ANGLE = -30, MAX_ANGLE = 90;
 
-    private final Rotation2d OFFSET = Rotation2d.fromDegrees(52.3), TOLERANCE = Rotation2d.fromDegrees(0.1);
+    private final Rotation2d OFFSET = Rotation2d.fromDegrees(52.3 + 2.8), TOLERANCE = Rotation2d.fromDegrees(0.1);
 
     @Getter @PutValue
     private Rotation2d targetAngle = Rotation2d.kZero;

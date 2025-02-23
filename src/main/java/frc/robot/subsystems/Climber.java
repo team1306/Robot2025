@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.utils.TalonFXGroup;
 import frc.robot.util.Dashboard.DashboardHelpers;
@@ -20,8 +21,6 @@ public class Climber extends SubsystemBase {
     private final TalonFX motor;
     private final TalonFXGroup motorGroup;
     
-    private final static double RATIO = 20D;
-
     @GetValue
     private boolean enforceMaxPosition = false, enforceMinPosition = false;
 
@@ -36,6 +35,14 @@ public class Climber extends SubsystemBase {
 
     @PutValue
     private double motorPosition;
+
+    @Getter @Setter @PutValue
+    private double motorSetpoint;
+
+    @GetValue
+    private double kP, kI, kD;
+
+    private PIDController pidController;
 
     public Climber() {
         DashboardHelpers.addUpdateClass(this);
@@ -60,6 +67,7 @@ public class Climber extends SubsystemBase {
 
         //Todo if the climber starts down, the motor position should definitely not be 0
         //Todo otherwise the min and max positions need to be readjusted
+        pidController = new PIDController(kP, kI, kD);
         motor.setPosition(0);
     }
     
@@ -74,6 +82,9 @@ public class Climber extends SubsystemBase {
     @Override
     public void periodic() {
         motorPosition = motor.getPosition().getValue().in(Rotations);
+        pidController.setPID(kP, kI, kD);
+        double output = pidController.calculate(motorPosition, motorSetpoint);
+        
         // double motorSpeed = 
         //     switch ((int) Math.signum(speed)) {
         //         case -1 -> isPastMin() ? 0 : speed;
