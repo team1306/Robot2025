@@ -5,11 +5,8 @@
 package frc.robot;
 
 import choreo.auto.AutoChooser;
-import choreo.auto.AutoRoutine;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSource;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
@@ -21,30 +18,21 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Direction;
-import frc.robot.commands.arm.ArmFromSmartDashboard;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.autos.*;
 import frc.robot.commands.climber.RunClimber;
-import frc.robot.commands.drive.RotateToRotation;
-import frc.robot.commands.elevator.ElevatorFromSmartDashboard;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
 import frc.robot.commands.elevator.ZeroElevatorRoutine;
 import frc.robot.commands.intake.RunIntake;
-import frc.robot.commands.led.FillLEDColor;
-import frc.robot.commands.led.LEDPatterns;
-import frc.robot.commands.wrist.ManualWristControl;
 import frc.robot.commands.wrist.MoveWristToSetpoint;
-import frc.robot.commands.wrist.WristFromSmartDashboard;
-import frc.robot.commands.wrist.WristSetpoint;
 import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.*;
 import frc.robot.util.Utilities;
 import frc.robot.util.Dashboard.DashboardHelpers;
-import frc.robot.util.Dashboard.PutValue;
 import lombok.Getter;
 import swervelib.SwerveInputStream;
 
@@ -91,19 +79,19 @@ public class RobotContainer {
     public RobotContainer() {
         DashboardHelpers.addUpdateClass(this);
         UsbCamera camera = CameraServer.startAutomaticCapture();
-        // camera.setFPS(10);
-        // camera.setResolution(100, 100);
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         
         //Autos
         Autos autos = new Autos(drivebase, arm, elevator, intake, wrist);
         autoChooser = new AutoChooser();
-        autoChooser.addRoutine("1 Coral A", () -> {
-            AutoRoutine routine = autos.get1CoralDriveRoutine();
-            Robot.runnable = () -> drivebase.resetOdometry(autos.coralPath.getInitialPose().get());
-            return routine;
-        });
-        autoChooser.addRoutine("Leave Red 2", autos::getLeaveRoutine);
+        
+        autoChooser.addRoutine("1 - Blue 1 -> H-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Blue 1 H"));
+        autoChooser.addRoutine("1 - Blue 2 -> H-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Blue 2 H"));
+        autoChooser.addRoutine("1 - Blue 3 -> A-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Blue 3 A"));
+        autoChooser.addRoutine("1 - Mid -> B-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Mid B"));
+        autoChooser.addRoutine("1 - Red 1 -> B-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Red 1 B"));
+        autoChooser.addRoutine("1 - Red 2 -> C-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Red 2 C"));
+        autoChooser.addRoutine("1 - Red 3 -> C-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Red 3 C"));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
 

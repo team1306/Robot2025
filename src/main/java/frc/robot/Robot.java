@@ -4,11 +4,9 @@
 
 package frc.robot;
 
-import au.grapplerobotics.CanBridge;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -16,11 +14,11 @@ import frc.robot.commands.autos.FieldLocation;
 import frc.robot.dashboardv2.Dashboard;
 import frc.robot.util.Dashboard.DashboardHelpers;
 import frc.robot.util.Dashboard.GetValue;
+import frc.robot.util.Elastic;
 
 public class Robot extends TimedRobot {
-    private Command autonomousCommand;
     private RobotContainer robotContainer;
-    private Timer gcTimer = new Timer();
+    private final Timer gcTimer = new Timer();
 
     @Override
     public void robotInit() {
@@ -51,13 +49,17 @@ public class Robot extends TimedRobot {
     @GetValue
     public static boolean run;
     public static Runnable runnable;
+    
+    private final Elastic.Notification notification = new Elastic.Notification(
+            Elastic.Notification.NotificationLevel.INFO, "Reset Odometry", "Odometry has been reset to the current path's initial pose");
 
     @Override
     public void disabledPeriodic() {
         if(run && runnable != null){
             runnable.run();
-            //TODO MAKE SURE TO DISABLE IN SMART DASHBOARD
             run = false;
+            SmartDashboard.putBoolean("Robot/run", false);
+            Elastic.sendNotification(notification);
         }
     }
 
@@ -81,9 +83,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        if (autonomousCommand != null) {
-            autonomousCommand.cancel();
-        }
         // robotContainer.drivebase.pushPID = true;
         robotContainer.alianceLEDs();
     }
