@@ -31,7 +31,7 @@ public class Climber extends SubsystemBase {
     private boolean enforceMaxPosition = true, enforceMinPosition = true;
 
     @GetValue
-    private double minPosition = 0, maxPosition = 26.5; // placeholder, pos = further into robot
+    private double minPosition = 1, maxPosition = 26.5; // placeholder, pos = further into robot
 
     @GetValue
     private static double MAX_SPEED = 1;
@@ -69,7 +69,7 @@ public class Climber extends SubsystemBase {
     @Override
     public void periodic() {
         final LaserCan.Measurement measurement = laser.getMeasurement();
-        distance = measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT 
+        distance = measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT && measurement.distance_mm != 0D 
                 ? 90 - Math.toDegrees(Math.atan(SENSOR_PIVOT_DISTANCE_MM/measurement.distance_mm))
                 : distance;
         motorGroup.setSpeed(
