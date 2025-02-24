@@ -5,8 +5,11 @@
 package frc.robot;
 
 import choreo.auto.AutoChooser;
+import choreo.auto.AutoRoutine;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSource;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
@@ -82,26 +85,27 @@ public class RobotContainer {
     private final Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
 
-    // private final AutoChooser autoChooser;
+    private final AutoChooser autoChooser;
     private final SendableChooser<EventLoop> controllerModeChooser = new SendableChooser<>();
 
     public RobotContainer() {
         DashboardHelpers.addUpdateClass(this);
-        CameraServer.startAutomaticCapture();
-
+        UsbCamera camera = CameraServer.startAutomaticCapture();
+        // camera.setFPS(10);
+        // camera.setResolution(100, 100);
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         
         //Autos
-        // Autos autos = new Autos(drivebase, arm, elevator, intake, wrist);
-        // autoChooser = new AutoChooser();
-        // autoChooser.addRoutine("Test Path", autos::getTestDriveRoutine);
-        // autoChooser.addRoutine("1 Coral A", autos::get1CoralDriveRoutine);
-        // autoChooser.addRoutine("Leave Red 2", autos::getLeaveRoutine);
-        // autoChooser.addRoutine("Leave Red 2 with Stow ", autos::getLeaveWithStowRoutine);
+        Autos autos = new Autos(drivebase, arm, elevator, intake, wrist);
+        autoChooser = new AutoChooser();
+        autoChooser.addRoutine("1 Coral A", () -> {
+            AutoRoutine routine = autos.get1CoralDriveRoutine();
+            Robot.runnable = () -> drivebase.resetOdometry(autos.coralPath.getInitialPose().get());
+            return routine;
+        });
+        autoChooser.addRoutine("Leave Red 2", autos::getLeaveRoutine);
 
-        // autoChooser.addRoutine("L4 Score ", autos::getCoralL4Routine);
-
-        // SmartDashboard.putData("Auto Chooser", autoChooser);
+        SmartDashboard.putData("Auto Chooser", autoChooser);
 
         //Controller Chooser
         bindAlternative();
@@ -110,11 +114,11 @@ public class RobotContainer {
         bindSetpoint();
         changeEventLoop(alternativeEventLoop);
 
-        controllerModeChooser.addOption("Full Auto", fullAutomaticEventLoop);
+        controllerModeChooser.setDefaultOption("Full Auto", fullAutomaticEventLoop);
         controllerModeChooser.addOption("Setpoints", setpointEventLoop);
         controllerModeChooser.addOption("Manual", fullManualEventLoop);
 
-        controllerModeChooser.setDefaultOption("Alternative", alternativeEventLoop);
+        controllerModeChooser.addOption("Alternative", alternativeEventLoop);
         controllerModeChooser.onChange(this::changeEventLoop);
 
         SmartDashboard.putData("Controller Binding Chooser", controllerModeChooser);
@@ -201,13 +205,11 @@ public class RobotContainer {
         controller2.leftTrigger(0.5, setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL_L));
         controller2.leftBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.HORIZONTAL));
 
-        controller1.rightBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
-        controller1.leftBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
+        // controller1.rightBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
+        // controller1.leftBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
     }
     
-    private LevelSelectorKey selectedLevel = LevelSelectorKey.CORAL_L1;
-
-    @PutValue
+    private int selectedLevel = 1;
     private boolean wristLeft = true;
     
     //Make sure to implement correctly (use a supplier in an init method)
@@ -228,7 +230,7 @@ public class RobotContainer {
         placingCommands.put(LevelSelectorKey.CORAL_L4_L, new PlaceCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_L));
         placingCommands.put(LevelSelectorKey.CORAL_L4_R, new PlaceCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_R));
         
-        ConditionalCommandChooser<LevelSelectorKey> placeWrapper = new ConditionalCommandChooser<>(placingCommands, () -> selectedLevel);
+        ConditionalCommandChooser<LevelSelectorKey> placeWrapper = new ConditionalCommandChooser<>(placingCommands, this::getLevelSelectorKey);
         controller1.rightBumper(fullAutomaticEventLoop).onTrue(placeWrapper);
         
         HashMap<LevelSelectorKey, Command> scoringCommands = new HashMap<>();
@@ -240,7 +242,7 @@ public class RobotContainer {
         scoringCommands.put(LevelSelectorKey.CORAL_L4_L, new DropCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_L));
         scoringCommands.put(LevelSelectorKey.CORAL_L4_R, new DropCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_R));
 
-        ConditionalCommandChooser<LevelSelectorKey> scoreWrapper = new ConditionalCommandChooser<>(scoringCommands, () -> selectedLevel);
+        ConditionalCommandChooser<LevelSelectorKey> scoreWrapper = new ConditionalCommandChooser<>(scoringCommands, this::getLevelSelectorKey);
 
         controller1.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(scoreWrapper);        
         controller1.leftBumper(fullAutomaticEventLoop).onTrue(new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL));
@@ -257,25 +259,37 @@ public class RobotContainer {
         // controller1.rightStick(fullAutomaticEventLoop).onTrue(new RotateToRotation(drivebase, () -> drivebase.getPose().nearest(FieldLocation.coralStationLocations).getRotation()));
         
         //slow mode
-        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.1)).onFalse(drivebase.changeSwerveSpeed(1));
+        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.25)).onFalse(drivebase.changeSwerveSpeed(1));
 
         controller2.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = true));
         controller2.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = false));
 
-        controller2.pov(0, 0, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = wristLeft ? LevelSelectorKey.CORAL_L4_L : LevelSelectorKey.CORAL_L4_R));
-        controller2.pov(0, 90, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = wristLeft ? LevelSelectorKey.CORAL_L3_L : LevelSelectorKey.CORAL_L3_R));
-        controller2.pov(0, 180, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = wristLeft ? LevelSelectorKey.CORAL_L2_L : LevelSelectorKey.CORAL_L2_R));
-        controller2.pov(0, 270, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = LevelSelectorKey.CORAL_L1));
+        controller2.pov(0, 0, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 4));
+        controller2.pov(0, 90, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 3));
+        controller2.pov(0, 180, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 2));
+        controller2.pov(0, 270, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 1));
         
-        controller2.x(fullAutomaticEventLoop).toggleOnTrue(new ManualElevatorControl(elevator, controller2::getLeftY));
+        controller2.x(fullAutomaticEventLoop).toggleOnTrue(new ManualArmControl(arm, () -> -controller2.getRightY()));
 
-        controller2.a(fullAutomaticEventLoop).toggleOnTrue(new RunIntake(intake, () -> 1));
-        controller2.b(fullAutomaticEventLoop).toggleOnTrue(new RunIntake(intake, () -> -1));
+        controller2.a(fullAutomaticEventLoop).whileTrue(new RunIntake(intake, () -> 1));
+        controller2.b(fullAutomaticEventLoop).whileTrue(new RunIntake(intake, () -> -1));
 
         controller2.back().whileTrue(new ZeroElevatorRoutine(elevator));
-
         controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
         controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
+    }
+
+    private LevelSelectorKey getLevelSelectorKey(){
+        switch(selectedLevel){
+            default:
+                return LevelSelectorKey.CORAL_L1;
+            case 2:
+                return wristLeft ? LevelSelectorKey.CORAL_L2_L : LevelSelectorKey.CORAL_L2_R;
+            case 3:
+                return wristLeft ? LevelSelectorKey.CORAL_L3_L : LevelSelectorKey.CORAL_L3_R;
+            case 4:
+                return wristLeft ? LevelSelectorKey.CORAL_L4_L : LevelSelectorKey.CORAL_L4_R;
+        }
     }
 
     private boolean useAngularVelocity = true;
@@ -289,9 +303,9 @@ public class RobotContainer {
             drivebase.getSwerveDrive().setHeadingCorrection(!useAngularVelocity);
         }));
         
-        // controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));
+        controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));
 
-        // new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(autoChooser.selectedCommandScheduler());
+        new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(autoChooser.selectedCommandScheduler());
         new Trigger(loop, DriverStation::isDisabled).onChange(new InstantCommand(FieldLocation::calculateReefPositions));
     }
     

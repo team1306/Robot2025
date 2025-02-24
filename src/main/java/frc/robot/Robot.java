@@ -4,22 +4,27 @@
 
 package frc.robot;
 
+import au.grapplerobotics.CanBridge;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.autos.FieldLocation;
 import frc.robot.dashboardv2.Dashboard;
-import frc.robot.subsystems.Wrist;
 import frc.robot.util.Dashboard.DashboardHelpers;
+import frc.robot.util.Dashboard.GetValue;
 
 public class Robot extends TimedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
+    private Timer gcTimer = new Timer();
 
     @Override
     public void robotInit() {
+        DashboardHelpers.addUpdateClass(this);
         FieldLocation.calculateReefPositions();
         robotContainer = new RobotContainer();
         robotContainer.alianceLEDs();
@@ -32,6 +37,9 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         DashboardHelpers.update();
         Dashboard.update();
+        if (gcTimer.advanceIfElapsed(5)) {
+            System.gc();
+        }
     }
 
     @Override
@@ -40,8 +48,17 @@ public class Robot extends TimedRobot {
         new WaitCommand(2).andThen(new InstantCommand(robotContainer::zeroTargetPositions)).ignoringDisable(true).schedule();
     }
 
+    @GetValue
+    public static boolean run;
+    public static Runnable runnable;
+
     @Override
     public void disabledPeriodic() {
+        if(run && runnable != null){
+            runnable.run();
+            //TODO MAKE SURE TO DISABLE IN SMART DASHBOARD
+            run = false;
+        }
     }
 
     @Override

@@ -71,10 +71,10 @@ public class SwerveSubsystem extends SubsystemBase {
     @Getter
     private final SwerveDrive swerveDrive;
 
-    private final PIDController xController = new PIDController(0.1, 0, 0);
-    private final PIDController yController = new PIDController(0.1, 0, 0);
+    private final PIDController xController = new PIDController(10, 0, 0);
+    private final PIDController yController = new PIDController(10, 0, 0);
 
-    private final PIDController headingController = new PIDController(0.1, 0, 0.0);
+    private final PIDController headingController = new PIDController(7.5, 0, 0.0);
 
     public SwerveSubsystem() {
         DashboardHelpers.addUpdateClass(this);

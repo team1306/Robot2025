@@ -7,7 +7,7 @@ public enum ArmSetpoints implements ArmSetpoint {
     CORAL_L1(Rotation2d.fromDegrees(-20)),
     CORAL_L2(Rotation2d.fromDegrees(30)),
     CORAL_L3(Rotation2d.fromDegrees(30)),
-    CORAL_L4(Rotation2d.fromDegrees(20)),
+    CORAL_L4(Rotation2d.fromDegrees(0)),
 
     CORAL_STATION(Rotation2d.fromDegrees(45)),
     BUMPER_CORAL_STATION(Rotation2d.fromDegrees(75)),

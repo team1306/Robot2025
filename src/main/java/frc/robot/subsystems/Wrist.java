@@ -25,8 +25,8 @@ public class Wrist extends SubsystemBase  {
 
     private final double MIN_ANGLE = -100, MAX_ANGLE = 100;
 
-    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-57.2-23-27);
-    private final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0.1);
+    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-57.2-23-27+15);
+    private final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0);
 
     @Getter @PutValue
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);

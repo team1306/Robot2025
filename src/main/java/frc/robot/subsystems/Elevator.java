@@ -30,9 +30,9 @@ public class Elevator extends SubsystemBase {
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
     @GetValue
-    private double kP = 0.2, kI = 0, kD = 0.0033;
+    private double kP = 0.2, kI = 0, kD = 0.0045;
     @GetValue
-    private double kG = 0.032, kV = 0; 
+    private double kG = 0.028, kV = 0; 
 
     private final double MAX_VELOCITY = 1e+9, MAX_ACCELERATION = 700; // placeholder
     private Distance TOLERANCE = Inches.of(0.2);

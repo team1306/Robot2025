@@ -8,7 +8,7 @@ public enum ElevatorSetpoints implements ElevatorSetpoint {
 
     CORAL_L1(Inches.of(18)),
     CORAL_L2(Inches.of(8)),
-    CORAL_L3(Inches.of(30)),
+    CORAL_L3(Inches.of(26)),
     CORAL_L4(Inches.of(54)),
     
     CORAL_STATION(Inches.of(8)),

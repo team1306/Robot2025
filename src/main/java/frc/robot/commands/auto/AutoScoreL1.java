@@ -19,7 +19,7 @@ public class AutoScoreL1 extends SequentialCommandGroup{
             new MoveToolingToSetpoint(
                 elevator, arm, wrist, ElevatorSetpoints.CORAL_L1, ArmSetpoints.CORAL_L1, WristSetpoints.HORIZONTAL)
                 .raceWith(new WaitCommand(2)),
-            new RunIntake(intake, () -> -1).raceWith(new WaitCommand(2))
+            new RunIntake(intake, () -> 1).raceWith(new WaitCommand(2))
         );
     }
 }

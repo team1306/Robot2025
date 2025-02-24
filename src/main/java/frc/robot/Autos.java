@@ -4,6 +4,8 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.auto.AutoCollectCoral;
 import frc.robot.commands.auto.AutoScoreL1;
@@ -37,24 +39,11 @@ public class Autos {
                 drivebase // The drive subsystem
         )
                 .bind("Collect Coral", new AutoCollectCoral(drivebase, elevator, wrist, arm, intake))
-                .bind("L4", new AutoScoreL4(drivebase, elevator, wrist, arm))
-                .bind("L1", new AutoScoreL1(drivebase, elevator, wrist, arm, intake));
+                // .bind("L1", new AutoScoreL4(drivebase, elevator, wrist, arm))
+                .bind("L4", new AutoScoreL1(drivebase, elevator, wrist, arm, intake));
     }
-    
+
     public AutoRoutine getLeaveRoutine() {
-        AutoRoutine routine = autoFactory.newRoutine("DriveRoutine");
-        AutoTrajectory path = routine.trajectory("Leave Red 2");
-
-        routine.active().onTrue(
-                Commands.sequence(
-                        path.resetOdometry(),
-                        path.cmd()
-                ));
-
-        return routine;
-    }
-
-    public AutoRoutine getLeaveWithStowRoutine() {
         AutoRoutine routine = autoFactory.newRoutine("DriveRoutine");
         AutoTrajectory path = routine.trajectory("Leave Red 2");
 
@@ -75,34 +64,24 @@ public class Autos {
                 Commands.sequence(
                         path.resetOdometry(),
                         new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL),
-                        path.cmd(),
-                        new AutoScoreL4(drivebase, elevator, wrist, arm)
+                        path.cmd()
                 ));
 
         return routine;
     }
 
-    public AutoRoutine getTestDriveRoutine(){
-        AutoRoutine routine = autoFactory.newRoutine("DriveRoutine");
-        AutoTrajectory pickupTraj = routine.trajectory("TestPath");
-
-        routine.active().onTrue(
-                Commands.sequence(
-                        pickupTraj.resetOdometry(),
-                        pickupTraj.cmd()
-                ));
-
-        return routine;
-    }
+    public AutoTrajectory coralPath;
     
     public AutoRoutine get1CoralDriveRoutine(){
         AutoRoutine routine = autoFactory.newRoutine("1 Coral Mid A");
-        AutoTrajectory coralPath = routine.trajectory("Middle to A");
+        coralPath = routine.trajectory("Middle to A");
 
         routine.active().onTrue(
                 Commands.sequence(
                         coralPath.resetOdometry(),
-                        coralPath.cmd()
+                        coralPath.cmd().alongWith(
+                                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL))
+                        
                 ));
 
         return routine;

@@ -25,7 +25,7 @@ public class RunClimber extends Command {
 
     @Override
     public boolean isFinished() {
-        return direction == Direction.FORWARD ? climber.isPastMax() : climber.isPastMin();
+        return false;
     }
 
     @Override
