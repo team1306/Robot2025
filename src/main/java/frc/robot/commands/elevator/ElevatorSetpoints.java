@@ -18,6 +18,9 @@ public enum ElevatorSetpoints implements ElevatorSetpoint {
     ALGAE_L2_REMOVE(Inches.of(19)),
     ALGAE_L3_REMOVE(Inches.of(27)),
 
+    ALGAE_L2_REMOVE_END(Inches.of(24)),
+    ALGAE_L3_REMOVE_END(Inches.of(32)),
+    
     STOW(Inches.of(0));
 
     private final Distance height;

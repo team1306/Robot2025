@@ -7,5 +7,7 @@ public enum LevelSelectorKey {
     CORAL_L3_R,
     CORAL_L3_L,
     CORAL_L4_R,
-    CORAL_L4_L;
+    CORAL_L4_L,
+    ALGAE_REMOVE_L2,
+    ALGAE_REMOVE_L3,
 }

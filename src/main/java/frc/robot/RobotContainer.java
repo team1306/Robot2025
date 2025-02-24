@@ -229,6 +229,8 @@ public class RobotContainer {
         placingCommands.put(LevelSelectorKey.CORAL_L3_R, new PlaceCoral(elevator, arm, wrist, 3, WristSetpoints.VERTICAL_R));
         placingCommands.put(LevelSelectorKey.CORAL_L4_L, new PlaceCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_L));
         placingCommands.put(LevelSelectorKey.CORAL_L4_R, new PlaceCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_R));
+        placingCommands.put(LevelSelectorKey.ALGAE_REMOVE_L2, new StageRemoveAlgae(elevator, arm, wrist, 2));
+        placingCommands.put(LevelSelectorKey.ALGAE_REMOVE_L3, new StageRemoveAlgae(elevator, arm, wrist, 3));
         
         ConditionalCommandChooser<LevelSelectorKey> placeWrapper = new ConditionalCommandChooser<>(placingCommands, this::getLevelSelectorKey);
         controller1.rightBumper(fullAutomaticEventLoop).onTrue(placeWrapper);
@@ -241,7 +243,9 @@ public class RobotContainer {
         scoringCommands.put(LevelSelectorKey.CORAL_L3_R, new DropCoral(elevator, arm, wrist, 3, WristSetpoints.VERTICAL_R));
         scoringCommands.put(LevelSelectorKey.CORAL_L4_L, new DropCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_L));
         scoringCommands.put(LevelSelectorKey.CORAL_L4_R, new DropCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_R));
-
+        scoringCommands.put(LevelSelectorKey.ALGAE_REMOVE_L2, new RemoveAlgae(elevator, arm, wrist, 2));
+        scoringCommands.put(LevelSelectorKey.ALGAE_REMOVE_L3, new RemoveAlgae(elevator, arm, wrist, 3));
+        
         ConditionalCommandChooser<LevelSelectorKey> scoreWrapper = new ConditionalCommandChooser<>(scoringCommands, this::getLevelSelectorKey);
 
         controller1.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(scoreWrapper);        
@@ -264,6 +268,8 @@ public class RobotContainer {
         controller2.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = true));
         controller2.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = false));
 
+        controller2.leftStick(fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 6));
+        controller2.rightStick(fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 5));
         controller2.pov(0, 0, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 4));
         controller2.pov(0, 90, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 3));
         controller2.pov(0, 180, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 2));
@@ -280,16 +286,14 @@ public class RobotContainer {
     }
 
     private LevelSelectorKey getLevelSelectorKey(){
-        switch(selectedLevel){
-            default:
-                return LevelSelectorKey.CORAL_L1;
-            case 2:
-                return wristLeft ? LevelSelectorKey.CORAL_L2_L : LevelSelectorKey.CORAL_L2_R;
-            case 3:
-                return wristLeft ? LevelSelectorKey.CORAL_L3_L : LevelSelectorKey.CORAL_L3_R;
-            case 4:
-                return wristLeft ? LevelSelectorKey.CORAL_L4_L : LevelSelectorKey.CORAL_L4_R;
-        }
+        return switch (selectedLevel) {
+            case 2 -> wristLeft ? LevelSelectorKey.CORAL_L2_L : LevelSelectorKey.CORAL_L2_R;
+            case 3 -> wristLeft ? LevelSelectorKey.CORAL_L3_L : LevelSelectorKey.CORAL_L3_R;
+            case 4 -> wristLeft ? LevelSelectorKey.CORAL_L4_L : LevelSelectorKey.CORAL_L4_R;
+            case 5 -> LevelSelectorKey.ALGAE_REMOVE_L2;
+            case 6 -> LevelSelectorKey.ALGAE_REMOVE_L3;
+            default -> LevelSelectorKey.CORAL_L1;
+        };
     }
 
     private boolean useAngularVelocity = true;
