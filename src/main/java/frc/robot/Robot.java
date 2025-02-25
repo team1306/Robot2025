@@ -43,7 +43,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         robotContainer.alianceLEDs();
-        new WaitCommand(2).andThen(new InstantCommand(robotContainer::zeroTargetPositions)).ignoringDisable(true).schedule();
+        new WaitCommand(2).andThen(new InstantCommand(robotContainer::resetTargetPositions)).ignoringDisable(true).schedule();
     }
 
     @GetValue

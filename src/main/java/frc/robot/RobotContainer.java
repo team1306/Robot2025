@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Direction;
+import frc.robot.commands.arm.ArmFromSmartDashboard;
+import frc.robot.commands.arm.ArmSetpoint;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
@@ -60,7 +62,7 @@ public class RobotContainer {
     private final SwerveInputStream driveAngularVelocity =
             SwerveInputStream.of(drivebase.getSwerveDrive(), () -> -controller1.getLeftY(), () -> -controller1.getLeftX())
                     .withControllerRotationAxis(() -> -controller1.getRightX()).deadband(Constants.LEFT_X_DEADBAND)
-                    .scaleTranslation(0.5).allianceRelativeControl(true);
+                    .scaleTranslation(0.4).scaleRotation(0.75).allianceRelativeControl(true);
 
     /**
      * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
@@ -93,6 +95,9 @@ public class RobotContainer {
         autoChooser.addRoutine("1 - Red 2 -> C-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Red 2 C"));
         autoChooser.addRoutine("1 - Red 3 -> C-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Red 3 C"));
 
+        autoChooser.addRoutine("1 - Blue 2 -> H-L1", () -> autos.get1CoralL1DriveRoutine("1 Coral Blue 2 H"));
+        autoChooser.addRoutine("1 - Mid -> B-L1", () -> autos.get1CoralL1DriveRoutine("1 Coral Mid B"));
+
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         //Controller Chooser
@@ -123,9 +128,9 @@ public class RobotContainer {
     }
 
     public void resetTargetPositions(){
-        // elevator.setTargetHeight(elevator.getCurrentHeight());
-        // wrist.setTargetAngle(wrist.getCurrentAngle());
-        // arm.setTargetAngle(arm.getCurrentAngle());
+        elevator.setTargetHeight(Inches.of(0));
+        wrist.setTargetAngle(Rotation2d.kZero);
+        arm.setTargetAngle(ArmSetpoints.STOW.getAngle());
     }
     
     private final EventLoop fullManualEventLoop = new EventLoop();
@@ -246,6 +251,11 @@ public class RobotContainer {
         controller1.x(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
         );
+
+        controller1.y().onTrue(new InstantCommand(() -> arm.setTargetAngle(arm.getCurrentAngle().plus(Rotation2d.fromDegrees(5))), arm));
+
+        controller1.b().onTrue(new InstantCommand(() -> arm.setTargetAngle(arm.getCurrentAngle().minus(Rotation2d.fromDegrees(5))), arm));
+
         
         // controller1.leftStick(fullAutomaticEventLoop).onTrue(new RotateToRotation(drivebase, () -> drivebase.getPose().nearest(FieldLocation.reefLocations).getRotation()));
         // controller1.rightStick(fullAutomaticEventLoop).onTrue(new RotateToRotation(drivebase, () -> drivebase.getPose().nearest(FieldLocation.coralStationLocations).getRotation()));
@@ -253,8 +263,8 @@ public class RobotContainer {
         //slow mode
         controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.25)).onFalse(drivebase.changeSwerveSpeed(1));
 
-        controller2.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = true));
-        controller2.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = false));
+        controller2.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = false));
+        controller2.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = true));
 
         controller2.leftStick(fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 6));
         controller2.rightStick(fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 5));

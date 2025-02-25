@@ -4,12 +4,14 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.auto.AutoScoreL1;
 import frc.robot.commands.auto.AutoScoreL4;
 import frc.robot.commands.autos.MoveToolingToSetpoint;
 import frc.robot.commands.elevator.ElevatorSetpoints;
+import frc.robot.commands.wrist.WristSetpoint;
 import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.*;
 
@@ -47,7 +49,13 @@ public class Autos {
         
         Robot.runnable = () -> drivebase.resetOdometry(coralPath.getInitialPose().get());
         
-        coralPath.atTime("Score").onTrue(new AutoScoreL4(drivebase, elevator, wrist, arm, intake));
+        coralPath.atTime("Hover").onTrue(
+                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L4, ArmSetpoints.HOVER_L4, WristSetpoints.VERTICAL_L)
+        );
+        coralPath.atTime("Score").onTrue(
+                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L4, ArmSetpoints.CORAL_L4, WristSetpoints.VERTICAL_L)
+                .raceWith(new WaitCommand(3))
+        );
         
         routine.active().onTrue(
                 Commands.sequence(
@@ -63,7 +71,7 @@ public class Autos {
         AutoTrajectory coralPath = routine.trajectory(name);
 
         Robot.runnable = () -> drivebase.resetOdometry(coralPath.getInitialPose().get());
-
+        
         coralPath.atTime("Score").onTrue(new AutoScoreL1(drivebase, elevator, wrist, arm, intake));
 
         routine.active().onTrue(

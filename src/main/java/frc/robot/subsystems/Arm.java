@@ -23,7 +23,7 @@ import static frc.robot.Constants.*;
 
 public class Arm extends SubsystemBase  {
     
-    @GetValue public double kP = 0.015, kI = 0, kD = 0.0002; 
+    @GetValue public double kP = 0.015, kI = 0, kD = 0.0008; 
     @GetValue public double kG = 0.033, kV = 0;
     
     private final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
