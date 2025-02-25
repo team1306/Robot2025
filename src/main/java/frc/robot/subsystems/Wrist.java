@@ -59,7 +59,7 @@ public class Wrist extends SubsystemBase  {
     }
 
     @PutValue
-    private double motorOutput;
+    private double motorOutput, pidError;
 
     @Override
     public void periodic() {
@@ -68,6 +68,7 @@ public class Wrist extends SubsystemBase  {
         currentAngle = getCurrentAngle();
         double pidOutput = pidController.calculate(currentAngle.getRadians(), targetAngle.getRadians());
 
+        pidError = pidController.getError();
         motorOutput = pidOutput;
         motorGroup.setSpeed(motorOutput);
     }
