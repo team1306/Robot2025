@@ -7,13 +7,16 @@ import edu.wpi.first.units.measure.Distance;
 public enum ElevatorSetpoints implements ElevatorSetpoint {
 
     CORAL_L1(Inches.of(18)),
-    CORAL_L2(Inches.of(8)),
-    CORAL_L3(Inches.of(26)),
-    CORAL_L4(Inches.of(54)),
+    CORAL_L2(Inches.of(6)),
+    CORAL_L3(Inches.of(20)),
+    CORAL_L4(Inches.of(53.75)),
+
+    CORAL_HOVER_L2(Inches.of(10)),
+    CORAL_HOVER_L3(Inches.of(26)),
     
     CORAL_STATION(Inches.of(8)),
     BUMPER_CORAL_STATION(Inches.of(4)),
-    GROUND_CORAL(Inches.of(0.5)),
+    GROUND_CORAL(Inches.of(0.1)),
 
     ALGAE_L2_REMOVE(Inches.of(19)),
     ALGAE_L3_REMOVE(Inches.of(27)),

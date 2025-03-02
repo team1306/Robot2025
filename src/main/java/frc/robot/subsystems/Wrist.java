@@ -21,11 +21,15 @@ import static frc.robot.Constants.*;
 public class Wrist extends SubsystemBase  {
 
     @GetValue 
-    public double kP = 0.4, kI = 0.005, kD = 0.01;
+    public double kP = 0.5, kI = 0.005, kD = 0.015;
 
     private final double MIN_ANGLE = -100, MAX_ANGLE = 100;
 
-    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-57.2-23-27+15);
+    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-57.2-23-27+15+62.5+176.2+126-6);
+    
+    @GetValue
+    private double offsetRight = 0D;
+
     private final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0);
 
     @Getter @PutValue
@@ -78,7 +82,7 @@ public class Wrist extends SubsystemBase  {
      * @return the rotation of the wrist.
      */
     public Rotation2d getCurrentAngle() {
-        return Rotation2d.fromRotations((encoder.get())).minus(OFFSET).unaryMinus();
+        return Rotation2d.fromRotations((encoder.get())).minus(OFFSET).unaryMinus().plus(Rotation2d.fromDegrees(offsetRight));
     }
 
     /**

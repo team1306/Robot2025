@@ -31,7 +31,7 @@ public class Climber extends SubsystemBase {
     private boolean enforceMaxPosition = true, enforceMinPosition = true;
 
     @GetValue
-    private double minPosition = 1, maxPosition = 26.5; // placeholder, pos = further into robot
+    private double minPosition = 2.5, maxPosition = 26.25; // placeholder, pos = further into robot
 
     @GetValue
     private static double MAX_SPEED = 1;

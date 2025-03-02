@@ -19,6 +19,7 @@ import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Dashboard.DashboardHelpers;
 import frc.robot.util.Dashboard.GetValue;
+import frc.robot.util.Dashboard.PutValue;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,9 +31,9 @@ public class Elevator extends SubsystemBase {
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
     @GetValue
-    private double kP = 0.2, kI = 0, kD = 0.0045;
+    private double kP = 0.22, kI = 0, kD = 0.008;
     @GetValue
-    private double kG = 0.028, kV = 0; 
+    private double kG = 0.075, kV = 0; 
 
     private final double MAX_VELOCITY = 1e+9, MAX_ACCELERATION = 700; // placeholder
     private Distance TOLERANCE = Inches.of(0.2);
@@ -41,9 +42,12 @@ public class Elevator extends SubsystemBase {
     private ElevatorFeedforward feedforward;
 
     private final TalonFXGroup motorGroup;
-    private final TalonFX leftMotor, rightMotor;
+    private final TalonFX leftMotor;//, rightMotor;
 
     private final DigitalInput limitSwitch;
+
+    @PutValue
+    private double statorCurrent, supplyCurrent;
 
     @GetValue
     private double conversionFactor = 54.75 / 344.69;
@@ -68,11 +72,11 @@ public class Elevator extends SubsystemBase {
         DashboardHelpers.addUpdateClass(this);
         
         leftMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast);
-        rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast, InvertedValue.CounterClockwise_Positive);
+        // rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast, InvertedValue.CounterClockwise_Positive);
         leftMotor.setPosition(Rotations.of(0));
-        rightMotor.setPosition(Rotations.of(0));
+        // rightMotor.setPosition(Rotations.of(0));
 
-        motorGroup = new TalonFXGroup(new TalonData(leftMotor), new TalonData(rightMotor));
+        motorGroup = new TalonFXGroup(new TalonData(leftMotor));//, new TalonData(rightMotor));
 
         pid = new ProfiledPIDController(kP, kI, kD, 
                 new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
@@ -105,6 +109,9 @@ public class Elevator extends SubsystemBase {
         double motorOutput = pidOutput + feedforwardOutput;
 
         motorGroup.setSpeed(motorOutput);
+
+        statorCurrent = leftMotor.getStatorCurrent().getValueAsDouble();
+        supplyCurrent = leftMotor.getSupplyCurrent().getValueAsDouble();
     }
     
     public boolean getLimitSwitch() {
@@ -136,23 +143,23 @@ public class Elevator extends SubsystemBase {
      * @return the rotation of the motors
      */
     public Rotation2d getCurrentElevatorMotorPositions(){
-        return Rotation2d.fromRadians((getLeftElevatorPosition().getRadians() + getRightElevatorPosition().getRadians()) / 2D);
+        return Rotation2d.fromRadians((getLeftElevatorPosition().getRadians() + getLeftElevatorPosition().getRadians()) / 2D);
     }
 
     public Rotation2d getLeftElevatorPosition(){
         return Rotation2d.fromRadians(leftMotor.getPosition().getValue().in(Radian));
     }
 
-    public Rotation2d getRightElevatorPosition(){
-        return Rotation2d.fromRadians(rightMotor.getPosition().getValue().in(Radian));
-    }
+    // public Rotation2d getRightElevatorPosition(){
+    //     return Rotation2d.fromRadians(rightMotor.getPosition().getValue().in(Radian));
+    // }
     
     /**
      * Sets the elevator motor positions to zero
      */
     public void zeroElevatorMotorPositions(){
         leftMotor.setPosition(Rotations.of(0));
-        rightMotor.setPosition(Rotations.of(0));
+        // rightMotor.setPosition(Rotations.of(0));
     }
 
     /**

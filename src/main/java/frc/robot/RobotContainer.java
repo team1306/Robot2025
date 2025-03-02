@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Direction;
@@ -23,18 +24,23 @@ import frc.robot.commands.arm.ArmSetpoint;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
+import frc.robot.commands.auto.CustomWaitCommand;
 import frc.robot.commands.autos.*;
 import frc.robot.commands.climber.RunClimber;
+import frc.robot.commands.elevator.ElevatorFromSmartDashboard;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
 import frc.robot.commands.elevator.ZeroElevatorRoutine;
 import frc.robot.commands.intake.RunIntake;
+import frc.robot.commands.wrist.ManualWristControl;
 import frc.robot.commands.wrist.MoveWristToSetpoint;
+import frc.robot.commands.wrist.WristFromSmartDashboard;
 import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.*;
 import frc.robot.util.Utilities;
 import frc.robot.util.Dashboard.DashboardHelpers;
+import frc.robot.util.Dashboard.GetValue;
 import lombok.Getter;
 import swervelib.SwerveInputStream;
 
@@ -62,7 +68,7 @@ public class RobotContainer {
     private final SwerveInputStream driveAngularVelocity =
             SwerveInputStream.of(drivebase.getSwerveDrive(), () -> -controller1.getLeftY(), () -> -controller1.getLeftX())
                     .withControllerRotationAxis(() -> -controller1.getRightX()).deadband(Constants.LEFT_X_DEADBAND)
-                    .scaleTranslation(0.4).scaleRotation(0.75).allianceRelativeControl(true);
+                    .scaleTranslation(1).scaleRotation(0.75).allianceRelativeControl(true);
 
     /**
      * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
@@ -74,19 +80,24 @@ public class RobotContainer {
     private final Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
     private final Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
-
     private final AutoChooser autoChooser;
     private final SendableChooser<EventLoop> controllerModeChooser = new SendableChooser<>();
 
+    @GetValue
+    private double autoWaitTime = 0;
+
     public RobotContainer() {
         DashboardHelpers.addUpdateClass(this);
-        UsbCamera camera = CameraServer.startAutomaticCapture();
+        // UsbCamera camera = CameraServer.startAutomaticCapture();
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         
         //Autos
         Autos autos = new Autos(drivebase, arm, elevator, intake, wrist);
         autoChooser = new AutoChooser();
-        
+
+        autoChooser.addRoutine("2 - Blue 2 -> H, I", () -> autos.get2CoralL4DriveRoutine("2 Coral Blue 2 H I"));
+        autoChooser.addRoutine("2 - Red 2 -> C, F", () -> autos.get2CoralL4DriveRoutine("2 Coral Red 2 C F"));
+
         autoChooser.addRoutine("1 - Blue 1 -> H-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Blue 1 H"));
         autoChooser.addRoutine("1 - Blue 2 -> H-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Blue 2 H"));
         autoChooser.addRoutine("1 - Blue 3 -> A-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Blue 3 A"));
@@ -156,9 +167,9 @@ public class RobotContainer {
         controller1.pov(0, 90, fullManualEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL_R));
         controller1.pov(0, 270, fullManualEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL_L));
 
-        // controller2.back(fullManualEventLoop).toggleOnTrue(new ManualArmControl(arm, controller2::getRightY));
+        controller2.back(fullManualEventLoop).toggleOnTrue(new ManualArmControl(arm, controller2::getRightY));
         controller2.y(fullManualEventLoop).toggleOnTrue(new ManualElevatorControl(elevator, controller2::getLeftY));
-        // controller2.x(fullManualEventLoop).toggleOnTrue(new ManualWristControl(wrist, controller2::getLeftX));
+        controller2.x(fullManualEventLoop).toggleOnTrue(new ManualWristControl(wrist, controller2::getLeftX));
 
         // controller1.a(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> 1));
         // controller1.b(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> -1));
@@ -307,7 +318,7 @@ public class RobotContainer {
         
         controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));
 
-        new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(autoChooser.selectedCommandScheduler());
+        new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(new CustomWaitCommand(() -> autoWaitTime).andThen(autoChooser.selectedCommandScheduler()));
         new Trigger(loop, DriverStation::isDisabled).onChange(new InstantCommand(FieldLocation::calculateReefPositions));
     }
     

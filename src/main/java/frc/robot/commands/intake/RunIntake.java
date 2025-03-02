@@ -25,6 +25,11 @@ public class RunIntake extends Command {
     }
 
     @Override
+    public boolean isFinished(){
+        return false;
+    }
+
+    @Override
     public void end(boolean interrupted) {
         intake.setTargetSpeed(0);
     }

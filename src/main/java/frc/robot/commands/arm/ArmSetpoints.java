@@ -5,8 +5,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public enum ArmSetpoints implements ArmSetpoint {
     GROUND_CORAL(Rotation2d.fromDegrees(-25)),
     CORAL_L1(Rotation2d.fromDegrees(-20)),
-    CORAL_L2(Rotation2d.fromDegrees(30)),
-    CORAL_L3(Rotation2d.fromDegrees(30)),
+    CORAL_L2(Rotation2d.fromDegrees(25)),
+    CORAL_L3(Rotation2d.fromDegrees(25)),
     CORAL_L4(Rotation2d.fromDegrees(0)),
 
     CORAL_STATION(Rotation2d.fromDegrees(45)),
@@ -16,7 +16,7 @@ public enum ArmSetpoints implements ArmSetpoint {
     ALGAE_L3_REMOVE(Rotation2d.fromDegrees(0)),
 
     STOW(Rotation2d.fromDegrees(82)),
-    HOVER_L2(Rotation2d.fromDegrees(55)),
+    HOVER_L2(Rotation2d.fromDegrees(57)),
     HOVER_L4(Rotation2d.fromDegrees(43));
 
 

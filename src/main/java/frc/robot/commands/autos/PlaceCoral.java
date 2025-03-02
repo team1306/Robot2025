@@ -19,10 +19,10 @@ public class PlaceCoral extends ParallelCommandGroup {
         if (level != 2 && level != 3 && level != 4) throw new RuntimeException("Level must be 2, 3, or 4");
         
         ElevatorSetpoint elevatorSetpoint = switch(level){
-            case 3 -> ElevatorSetpoints.CORAL_L3;
+            case 3 -> ElevatorSetpoints.CORAL_HOVER_L3;
             case 4 -> ElevatorSetpoints.CORAL_L4;
 
-            default -> ElevatorSetpoints.CORAL_L2;
+            default -> ElevatorSetpoints.CORAL_HOVER_L2;
         };
 
         ArmSetpoint hoverSetpoint = level == 4 ? ArmSetpoints.HOVER_L4 : ArmSetpoints.HOVER_L2;
