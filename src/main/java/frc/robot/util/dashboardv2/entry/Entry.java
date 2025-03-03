@@ -1,4 +1,4 @@
-package frc.robot.dashboardv2.entry;
+package frc.robot.util.dashboardv2.entry;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,7 +22,7 @@ public @interface Entry {
 
     /**
      * Any config options needed for transforming a field into a valid NetworkTables type. 
-     * @see frc.robot.dashboardv2.networktables.DashboardMappings
+     * @see frc.robot.util.dashboardv2.networktables.DashboardMappings
      * @return any config options. Defaults to none
      */
     ConfigOptions config() default ConfigOptions.NONE;

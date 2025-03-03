@@ -1,11 +1,11 @@
-package frc.robot.dashboardv2.entry;
+package frc.robot.util.dashboardv2.entry;
 
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
 
 /**
- * Internal class used by {@link frc.robot.dashboardv2.Dashboard}
+ * Internal class used by {@link frc.robot.util.dashboardv2.Dashboard}
  */
 public record CachedEntry(Field field, Entry entry, Object classObject) {
     public Class<?> getFieldType() {

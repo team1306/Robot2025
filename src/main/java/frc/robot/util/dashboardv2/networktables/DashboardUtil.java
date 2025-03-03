@@ -1,6 +1,6 @@
-package frc.robot.dashboardv2.networktables;
+package frc.robot.util.dashboardv2.networktables;
 
-import frc.robot.dashboardv2.entry.ConfigOptions;
+import frc.robot.util.dashboardv2.entry.ConfigOptions;
 
 import java.util.Arrays;
 

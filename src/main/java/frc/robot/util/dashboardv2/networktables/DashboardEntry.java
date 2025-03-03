@@ -1,4 +1,4 @@
-package frc.robot.dashboardv2.networktables;
+package frc.robot.util.dashboardv2.networktables;
 
 public interface DashboardEntry {
     void update();

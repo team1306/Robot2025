@@ -1,11 +1,11 @@
-package frc.robot.dashboardv2.networktables;
+package frc.robot.util.dashboardv2.networktables;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
-import frc.robot.dashboardv2.Dashboard;
-import frc.robot.dashboardv2.entry.CachedEntry;
+import frc.robot.util.dashboardv2.Dashboard;
+import frc.robot.util.dashboardv2.entry.CachedEntry;
 
 public class DashboardSendable implements DashboardEntry {
 
@@ -21,6 +21,7 @@ public class DashboardSendable implements DashboardEntry {
         builder.setTable(dataTable);
         SendableRegistry.publish(sendable, builder);
         builder.startListeners();
+        
         dataTable.getEntry(".name").setString(entry.getKey());
     }
 
