@@ -1,4 +1,4 @@
-package frc.robot.util.dashboardv2.entry;
+package frc.robot.util.dashboardv3.entry;
 
 public enum EntryType {
     Publisher,

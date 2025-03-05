@@ -1,4 +1,4 @@
-package frc.robot.util.dashboardv2.entry;
+package frc.robot.util.dashboardv3.entry;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target({ElementType.FIELD})
 public @interface Entry {
     /**
      * The key used for the entry in NetworkTables
@@ -19,12 +19,5 @@ public @interface Entry {
      * @return the type
      */
     EntryType type();
-
-    /**
-     * Any config options needed for transforming a field into a valid NetworkTables type. 
-     * @see frc.robot.util.dashboardv2.networktables.DashboardMappings
-     * @return any config options. Defaults to none
-     */
-    ConfigOptions config() default ConfigOptions.NONE;
 }
 
