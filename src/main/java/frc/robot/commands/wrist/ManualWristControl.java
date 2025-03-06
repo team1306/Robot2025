@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Wrist;
 
 public class ManualWristControl extends Command {
-     
     private final Wrist wrist;
     private final DoubleSupplier doubleSupplier;
     private final double speed = 0.05;
@@ -25,6 +24,6 @@ public class ManualWristControl extends Command {
 
     @Override
     public void execute() {
-        wrist.setTargetAngle(wrist.getTargetAngle().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * speed)));
+        wrist.setTargetAngle(Wrist.getTargetAngle().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * speed)));
     }
 }

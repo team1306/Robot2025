@@ -11,15 +11,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.utils.TalonFXGroup;
 import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
 import frc.robot.util.MotorUtil;
-import frc.robot.util.Dashboard.DashboardHelpers;
-import frc.robot.util.Dashboard.GetValue;
-import frc.robot.util.Dashboard.PutValue;
+import frc.robot.util.dashboardv3.entry.Config;
+import frc.robot.util.dashboardv3.entry.Entry;
+import frc.robot.util.dashboardv3.entry.EntryType;
+import frc.robot.util.dashboardv3.networktables.mappings.UnitMappings;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,35 +30,34 @@ public class Elevator extends SubsystemBase {
     
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
-    @GetValue
-    private double kP = 0.22, kI = 0, kD = 0.008;
-    @GetValue
-    private double kG = 0.075, kV = 0; 
+    @Entry(type = EntryType.Subscriber)
+    private static double kG = 0.075, kV = 0; 
 
     private final double MAX_VELOCITY = 1e+9, MAX_ACCELERATION = 700; // placeholder
     private Distance TOLERANCE = Inches.of(0.2);
     
-    private final ProfiledPIDController pid;
+    private final ProfiledPIDController pid = new ProfiledPIDController(0.22, 0, 0.008,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private ElevatorFeedforward feedforward;
 
     private final TalonFXGroup motorGroup;
-    private final TalonFX leftMotor;//, rightMotor;
+    private final TalonFX leftMotor, rightMotor;
 
     private final DigitalInput limitSwitch;
 
-    @PutValue
-    private double statorCurrent, supplyCurrent;
+    @Entry(type = EntryType.Subscriber)
+    private static double conversionFactor = 54.75 / 344.69;
 
-    @GetValue
-    private double conversionFactor = 54.75 / 344.69;
-
-    @GetValue
-    private double maxHeightInches = 54, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
+    @Entry(type = EntryType.Subscriber)
+    private static double maxHeightInches = 54, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
     
     @Setter @Getter
-    private Distance targetHeight = Inches.of(0);
+    @Entry(type = EntryType.Publisher)
+    @Config(UnitMappings.DistanceConfiguration.INCHES)
+    private static Distance targetHeight = Inches.of(0);
 
-    private Distance currentHeight = Inches.of(0);
+    @Entry(type = EntryType.Publisher)
+    @Config(UnitMappings.DistanceConfiguration.INCHES)
+    private static Distance currentHeight = Inches.of(0);
 
     private Distance offset = Inches.of(0);
 
@@ -68,18 +67,14 @@ public class Elevator extends SubsystemBase {
      * Hardware: the elevator has two Talon FX motor controllers.
      * Controllers: Feedforward and ProfiledPIDController.
      */
-    public Elevator() {
-        DashboardHelpers.addUpdateClass(this);
-        
+    public Elevator() {        
         leftMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast);
-        // rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast, InvertedValue.CounterClockwise_Positive);
+        rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast, InvertedValue.CounterClockwise_Positive);
         leftMotor.setPosition(Rotations.of(0));
-        // rightMotor.setPosition(Rotations.of(0));
+        rightMotor.setPosition(Rotations.of(0));
 
-        motorGroup = new TalonFXGroup(new TalonData(leftMotor));//, new TalonData(rightMotor));
+        motorGroup = new TalonFXGroup(new TalonData(leftMotor), new TalonData(rightMotor));
 
-        pid = new ProfiledPIDController(kP, kI, kD, 
-                new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
         pid.setTolerance(TOLERANCE.in(Inches));
 
         feedforward = new ElevatorFeedforward(0, kG, kV, 0);
@@ -91,15 +86,12 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
-        pid.setPID(kP, kI, kD);
         feedforward = new ElevatorFeedforward(0, kG, kV, 0);
         if (!limitSwitch.get()) {
             offset = getRawHeight();
         }
 
         currentHeight = getCurrentHeight();
-        SmartDashboard.putNumber("Elevator/Current Height", currentHeight.in(Inches));
-        SmartDashboard.putNumber("Elevator/Target Height", targetHeight.in(Inches));
 
         final double target = MathUtil.clamp(targetHeight.in(Inches), baseHeightInches, maxHeightInches);
         targetHeight = Inches.of(target);
@@ -109,9 +101,6 @@ public class Elevator extends SubsystemBase {
         double motorOutput = pidOutput + feedforwardOutput;
 
         motorGroup.setSpeed(motorOutput);
-
-        statorCurrent = leftMotor.getStatorCurrent().getValueAsDouble();
-        supplyCurrent = leftMotor.getSupplyCurrent().getValueAsDouble();
     }
     
     public boolean getLimitSwitch() {
@@ -143,16 +132,16 @@ public class Elevator extends SubsystemBase {
      * @return the rotation of the motors
      */
     public Rotation2d getCurrentElevatorMotorPositions(){
-        return Rotation2d.fromRadians((getLeftElevatorPosition().getRadians() + getLeftElevatorPosition().getRadians()) / 2D);
+        return Rotation2d.fromRadians((getLeftElevatorPosition().getRadians() + getRightElevatorPosition().getRadians()) / 2D);
     }
 
     public Rotation2d getLeftElevatorPosition(){
         return Rotation2d.fromRadians(leftMotor.getPosition().getValue().in(Radian));
     }
 
-    // public Rotation2d getRightElevatorPosition(){
-    //     return Rotation2d.fromRadians(rightMotor.getPosition().getValue().in(Radian));
-    // }
+    public Rotation2d getRightElevatorPosition(){
+        return Rotation2d.fromRadians(rightMotor.getPosition().getValue().in(Radian));
+    }
     
     /**
      * Sets the elevator motor positions to zero

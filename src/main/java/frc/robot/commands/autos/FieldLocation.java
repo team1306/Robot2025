@@ -26,7 +26,7 @@ public class FieldLocation {
     private static final Translation2d reefCenter = new Translation2d(Inches.of(176.277), Inches.of(158.801));
     private static final Distance reefEdgeDistance = Inches.of(32.746);
     private static final Distance robotWidth = Inches.of(35.75);
-    private static final Distance robotOffsetFromReef = Inches.of(4);
+    private static final Distance robotOffsetFromReef = Inches.of(10);
 
     private static final Distance reefOffset = Inches.of(6.469);
     

@@ -6,9 +6,9 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.utils.TalonFXGroup;
 import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
-import frc.robot.util.Dashboard.DashboardHelpers;
-import frc.robot.util.Dashboard.PutValue;
 import frc.robot.util.MotorUtil;
+import frc.robot.util.dashboardv3.entry.Entry;
+import frc.robot.util.dashboardv3.entry.EntryType;
 import lombok.Getter;
 import static frc.robot.Constants.INTAKE_MOTOR_ID;
 import static frc.robot.Constants.INTAKE_SENSOR_ID;
@@ -17,8 +17,9 @@ public class Intake extends SubsystemBase {
 
     @Getter
     private double targetSpeed = 0;
-    private boolean sensorReading = false;
-    
+
+    @Entry(type = EntryType.Publisher)
+    private static boolean sensorReading = false;
     
     private final TalonFX motor;
     private final TalonFXGroup motorGroup;
@@ -29,9 +30,7 @@ public class Intake extends SubsystemBase {
      * Hardware: The intake has one Talon FX motor controller and a beam-break sensor.
      * Controllers: None
      */
-    public Intake() {
-        DashboardHelpers.addUpdateClass(this);
-        
+    public Intake() {        
         motor = MotorUtil.initTalonFX(INTAKE_MOTOR_ID, NeutralModeValue.Coast);
         motorGroup = new TalonFXGroup(new TalonData(motor));
         sensor = new DigitalInput(INTAKE_SENSOR_ID);
@@ -55,7 +54,6 @@ public class Intake extends SubsystemBase {
      * Gets the reading from the beam-break sensor on the intake.
      * @return true if the sensor detects an object in the intake
      */
-    @PutValue(key = "Sensor Reading")
     public boolean getSensorReading() {
         return sensorReading;
     }

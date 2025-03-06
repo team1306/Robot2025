@@ -47,15 +47,12 @@ import frc.robot.Constants;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.PoseEstimate;
 import frc.robot.util.Utilities;
-import frc.robot.util.Dashboard.DashboardHelpers;
-import frc.robot.util.Dashboard.GetValue;
 import lombok.Getter;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
 import swervelib.math.SwerveMath;
-import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -77,7 +74,6 @@ public class SwerveSubsystem extends SubsystemBase {
     private final PIDController headingController = new PIDController(3.5, 0, 0.1);
 
     public SwerveSubsystem() {
-        DashboardHelpers.addUpdateClass(this);
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         try {
             File directory = new File(Filesystem.getDeployDirectory(), "swerve");
@@ -118,20 +114,9 @@ public class SwerveSubsystem extends SubsystemBase {
         driveFieldOriented(speeds);
     }
 
-    public boolean pushPID = false;
-
-    @GetValue
-    public double kP = 0.06, kI, kD = 1.6;
-
     @Override
     public void periodic() {
        addVisionMeasurement();
-        // if(pushPID){
-        //     for(SwerveModule module : swerveDrive.getModules()){
-        //         module.setAnglePIDF(new PIDFConfig(kP, kI, kD));
-        //     }
-        //     pushPID = false;
-        // }
     }
 
     public void addVisionMeasurement(){

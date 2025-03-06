@@ -8,12 +8,10 @@ import static frc.robot.Constants.*;
 public class RunClimber extends Command {
     private final Climber climber;
     private final double speed;
-    private final Direction direction;
 
     public RunClimber(Climber climber, Direction direction) {
         this.climber = climber;
         this.speed = direction == Direction.FORWARD ? 1 : -1;
-        this.direction = direction;
 
         addRequirements(climber);
     }

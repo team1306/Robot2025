@@ -6,15 +6,12 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.auto.AutoScoreL1;
-import frc.robot.commands.auto.AutoScoreL4;
 import frc.robot.commands.autos.MoveToolingToSetpoint;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.intake.RunIntake;
-import frc.robot.commands.wrist.WristSetpoint;
 import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.*;
 
@@ -50,7 +47,7 @@ public class Autos {
         AutoRoutine routine = autoFactory.newRoutine("1 Coral L4: " + name);
         AutoTrajectory coralPath = routine.trajectory(name);
         
-        Robot.runnable = () -> drivebase.resetOdometry(coralPath.getInitialPose().get());
+        RobotContainer.autoRunnable = () -> drivebase.resetOdometry(coralPath.getInitialPose().get());
         
         coralPath.atTime("Hover").onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L4, ArmSetpoints.HOVER_L4, WristSetpoints.VERTICAL_L)
@@ -73,7 +70,7 @@ public class Autos {
         AutoRoutine routine = autoFactory.newRoutine("1 Coral L1: " + name);
         AutoTrajectory coralPath = routine.trajectory(name);
 
-        Robot.runnable = () -> drivebase.resetOdometry(coralPath.getInitialPose().get());
+        RobotContainer.autoRunnable = () -> drivebase.resetOdometry(coralPath.getInitialPose().get());
         
         coralPath.atTime("Score").onTrue(new AutoScoreL1(drivebase, elevator, wrist, arm, intake));
 
@@ -90,7 +87,7 @@ public class Autos {
         AutoRoutine routine = autoFactory.newRoutine("2 Coral L4: " + name);
         AutoTrajectory coralPath = routine.trajectory(name);
 
-        Robot.runnable = () -> drivebase.resetOdometry(coralPath.getInitialPose().get());
+        RobotContainer.autoRunnable = () -> drivebase.resetOdometry(coralPath.getInitialPose().get());
         
         coralPath.atTime("Hover").onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L4, ArmSetpoints.HOVER_L4, WristSetpoints.VERTICAL_L)

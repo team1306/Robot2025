@@ -29,7 +29,7 @@ public class MoveElevatorToSetpoint extends Command {
 
     @Override
     public void execute() {
-        elevator.setTargetHeight(targetHeight);
+        Elevator.setTargetHeight(targetHeight);
     }
 
     @Override

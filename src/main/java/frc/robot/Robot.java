@@ -6,14 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.autos.FieldLocation;
-import frc.robot.util.Dashboard.DashboardHelpers;
-import frc.robot.util.Dashboard.GetValue;
-import frc.robot.util.Elastic;
 import frc.robot.util.dashboardv3.Dashboard;
 
 public class Robot extends TimedRobot {
@@ -22,7 +18,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-        DashboardHelpers.addUpdateClass(this);
         FieldLocation.calculateReefPositions();
         robotContainer = new RobotContainer();
         robotContainer.alianceLEDs();
@@ -34,7 +29,6 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        DashboardHelpers.update();
         Dashboard.update();
         if (gcTimer.advanceIfElapsed(5)) {
             System.gc();
@@ -46,22 +40,10 @@ public class Robot extends TimedRobot {
         robotContainer.alianceLEDs();
         new WaitCommand(2).andThen(new InstantCommand(robotContainer::resetTargetPositions)).ignoringDisable(true).schedule();
     }
-
-    @GetValue
-    public static boolean run;
-    public static Runnable runnable;
     
-    private final Elastic.Notification notification = new Elastic.Notification(
-            Elastic.Notification.NotificationLevel.INFO, "Reset Odometry", "Odometry has been reset to the current path's initial pose");
-
     @Override
     public void disabledPeriodic() {
-        if(run && runnable != null){
-            runnable.run();
-            run = false;
-            SmartDashboard.putBoolean("Robot/run", false);
-            Elastic.sendNotification(notification);
-        }
+    
     }
 
     @Override

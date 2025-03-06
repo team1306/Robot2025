@@ -9,7 +9,6 @@ import frc.robot.subsystems.Elevator;
 
 public class ManualElevatorControl extends Command {
     
-    private final Elevator elevator;
     private final DoubleSupplier doubleSupplier;
     private final double speed = 1;
 
@@ -18,7 +17,6 @@ public class ManualElevatorControl extends Command {
      * @param doubleSupplier controller input from -1 to 1. Negative values lower and positive values raise the setpoint.
     */
     public ManualElevatorControl(Elevator elevator, DoubleSupplier doubleSupplier) {
-        this.elevator = elevator;
         this.doubleSupplier = doubleSupplier;
         
         addRequirements(elevator);
@@ -26,6 +24,6 @@ public class ManualElevatorControl extends Command {
 
     @Override
     public void execute() {
-        elevator.setTargetHeight(elevator.getTargetHeight().plus(Inches.of(doubleSupplier.getAsDouble() * speed)));
+        Elevator.setTargetHeight(Elevator.getTargetHeight().plus(Inches.of(doubleSupplier.getAsDouble() * speed)));
     }
 }

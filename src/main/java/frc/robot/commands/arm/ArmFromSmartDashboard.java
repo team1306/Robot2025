@@ -3,14 +3,18 @@ package frc.robot.commands.arm;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
-import frc.robot.util.Dashboard.DashboardHelpers;
-import frc.robot.util.Dashboard.GetValue;
+import frc.robot.util.dashboardv3.entry.Config;
+import frc.robot.util.dashboardv3.entry.Entry;
+import frc.robot.util.dashboardv3.entry.EntryType;
+import frc.robot.util.dashboardv3.networktables.mappings.UnitMappings;
 
 public class ArmFromSmartDashboard extends Command {
 
     private final Arm arm;
-    @GetValue
-    private Rotation2d targetRotation = Rotation2d.kZero;
+
+    @Entry(type = EntryType.Subscriber)
+    @Config(UnitMappings.RotationConfiguration.DEGREES)
+    private static Rotation2d targetRotation = Rotation2d.kZero;
 
     /**
      * Sets the target postiton for the arm
@@ -18,7 +22,6 @@ public class ArmFromSmartDashboard extends Command {
      */
     public ArmFromSmartDashboard(Arm arm) {
         this.arm = arm;
-        DashboardHelpers.addUpdateClass(this);
         addRequirements(arm);
     }
 

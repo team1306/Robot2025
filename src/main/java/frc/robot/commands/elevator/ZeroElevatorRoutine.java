@@ -15,19 +15,19 @@ public class ZeroElevatorRoutine extends Command {
 
     @Override
     public void initialize() {
-        elevator.setTargetHeight(Inches.of(0));
+        Elevator.setTargetHeight(Inches.of(0));
     }
     
     @Override
     public void execute() {
         if(elevator.atSetpoint()){
-            elevator.setTargetHeight(elevator.getTargetHeight().minus(Inches.of(1)));
+            Elevator.setTargetHeight(Elevator.getTargetHeight().minus(Inches.of(1)));
         }
     }
     
     @Override
     public void end(boolean interrupted) {
-        elevator.setTargetHeight(ElevatorSetpoints.STOW.getHeight());
+        Elevator.setTargetHeight(ElevatorSetpoints.STOW.getHeight());
     }
 
     @Override

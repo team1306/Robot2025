@@ -5,29 +5,26 @@
 package frc.robot;
 
 import choreo.auto.AutoChooser;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Direction;
-import frc.robot.commands.arm.ArmFromSmartDashboard;
-import frc.robot.commands.arm.ArmSetpoint;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.auto.CustomWaitCommand;
 import frc.robot.commands.autos.*;
 import frc.robot.commands.climber.RunClimber;
-import frc.robot.commands.elevator.ElevatorFromSmartDashboard;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
@@ -35,12 +32,12 @@ import frc.robot.commands.elevator.ZeroElevatorRoutine;
 import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.wrist.ManualWristControl;
 import frc.robot.commands.wrist.MoveWristToSetpoint;
-import frc.robot.commands.wrist.WristFromSmartDashboard;
 import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.*;
 import frc.robot.util.Utilities;
-import frc.robot.util.Dashboard.DashboardHelpers;
-import frc.robot.util.Dashboard.GetValue;
+import frc.robot.util.dashboardv3.Dashboard;
+import frc.robot.util.dashboardv3.entry.Entry;
+import frc.robot.util.dashboardv3.entry.EntryType;
 import lombok.Getter;
 import swervelib.SwerveInputStream;
 
@@ -60,7 +57,7 @@ public class RobotContainer {
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
-    private final Climber climber = new Climber();
+    // private final Climber climber = new Climber();
     
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -76,24 +73,38 @@ public class RobotContainer {
     private final SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(() -> -controller1.getRightX(),
     () -> -controller1.getRightY()).headingWhile(true);
 
+    
+    @Entry(key = "Auto/Translation Controller", type = EntryType.Sendable)
+    private static ProfiledPIDController translationController = 
+                        new ProfiledPIDController(10, 0, 0, new Constraints(10, 10));
+    
+    @Entry(key = "Auto/Heading Controller", type = EntryType.Sendable)
+    private static ProfiledPIDController headingController = 
+                        new ProfiledPIDController(10, 0, 0, new Constraints(2.5, 10));
 
+    private final SwerveInputStream driveToPose = SwerveInputStream.of(drivebase.getSwerveDrive(), () -> 0, () -> 0)
+        .driveToPose(() -> FieldLocation.A, translationController, headingController)
+        .driveToPoseEnabled(true);
+
+    
     private final Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
     private final Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
-    private final AutoChooser autoChooser;
-    private final SendableChooser<EventLoop> controllerModeChooser = new SendableChooser<>();
+    @Entry(key = "Auto/Auto Chooser", type = EntryType.Sendable)
+    private static AutoChooser autoChooser = new AutoChooser();
+    
+    @Entry(key = "Auto/Controller Chooser",type = EntryType.Sendable)
+    private static SendableChooser<EventLoop> controllerModeChooser = new SendableChooser<>();
 
-    @GetValue
-    private double autoWaitTime = 0;
+    @Entry(key = "Auto/Auto Wait Time", type = EntryType.Subscriber)
+    private static double autoWaitTime = 0;
 
     public RobotContainer() {
-        DashboardHelpers.addUpdateClass(this);
         // UsbCamera camera = CameraServer.startAutomaticCapture();
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         
         //Autos
         Autos autos = new Autos(drivebase, arm, elevator, intake, wrist);
-        autoChooser = new AutoChooser();
 
         autoChooser.addRoutine("2 - Blue 2 -> H, I", () -> autos.get2CoralL4DriveRoutine("2 Coral Blue 2 H I"));
         autoChooser.addRoutine("2 - Red 2 -> C, F", () -> autos.get2CoralL4DriveRoutine("2 Coral Red 2 C F"));
@@ -109,8 +120,6 @@ public class RobotContainer {
         autoChooser.addRoutine("1 - Blue 2 -> H-L1", () -> autos.get1CoralL1DriveRoutine("1 Coral Blue 2 H"));
         autoChooser.addRoutine("1 - Mid -> B-L1", () -> autos.get1CoralL1DriveRoutine("1 Coral Mid B"));
 
-        SmartDashboard.putData("Auto Chooser", autoChooser);
-
         //Controller Chooser
         bindAlternative();
         bindAutomatic();
@@ -125,21 +134,19 @@ public class RobotContainer {
         controllerModeChooser.addOption("Alternative", alternativeEventLoop);
         controllerModeChooser.onChange(this::changeEventLoop);
 
-        SmartDashboard.putData("Controller Binding Chooser", controllerModeChooser);
-        
         // arm.setDefaultCommand(new ArmFromSmartDashboard(arm));
         // wrist.setDefaultCommand(new WristFromSmartDashboard(wrist));
         // elevator.setDefaultCommand(new ElevatorFromSmartDashboard(elevator));
     }
 
     public void zeroTargetPositions(){
-        elevator.setTargetHeight(Inches.of(0));
+        Elevator.setTargetHeight(Inches.of(0));
         wrist.setTargetAngle(Rotation2d.kZero);
         arm.setTargetAngle(Rotation2d.kZero);
     }
 
     public void resetTargetPositions(){
-        elevator.setTargetHeight(Inches.of(0));
+        Elevator.setTargetHeight(Inches.of(0));
         wrist.setTargetAngle(Rotation2d.kZero);
         arm.setTargetAngle(ArmSetpoints.STOW.getAngle());
     }
@@ -154,10 +161,8 @@ public class RobotContainer {
      */
     public void bindAlternative(){
         bindCommonControls(alternativeEventLoop);
-
         
-        controller1.a(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> 1));
-        controller1.b(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> -1));
+        controller1.a(alternativeEventLoop).whileTrue(drivebase.driveFieldOriented(driveToPose)).whileTrue(new RepeatCommand(new InstantCommand(() -> System.out.println(driveToPose.get()))));
     }
     
     public void bindManual(){
@@ -173,10 +178,6 @@ public class RobotContainer {
 
         // controller1.a(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> 1));
         // controller1.b(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> -1));
-
-        // controller1.rightBumper(fullManualEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
-        // controller1.leftBumper(fullManualEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
-
     }
 
     public void bindSetpoint(){
@@ -208,9 +209,6 @@ public class RobotContainer {
         controller2.rightTrigger(0.5, setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL_R));
         controller2.leftTrigger(0.5, setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL_L));
         controller2.leftBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.HORIZONTAL));
-
-        // controller1.rightBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
-        // controller1.leftBumper(setpointEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
     }
     
     private int selectedLevel = 1;
@@ -266,10 +264,6 @@ public class RobotContainer {
         controller1.y().onTrue(new InstantCommand(() -> arm.setTargetAngle(arm.getCurrentAngle().plus(Rotation2d.fromDegrees(5))), arm));
 
         controller1.b().onTrue(new InstantCommand(() -> arm.setTargetAngle(arm.getCurrentAngle().minus(Rotation2d.fromDegrees(5))), arm));
-
-        
-        // controller1.leftStick(fullAutomaticEventLoop).onTrue(new RotateToRotation(drivebase, () -> drivebase.getPose().nearest(FieldLocation.reefLocations).getRotation()));
-        // controller1.rightStick(fullAutomaticEventLoop).onTrue(new RotateToRotation(drivebase, () -> drivebase.getPose().nearest(FieldLocation.coralStationLocations).getRotation()));
         
         //slow mode
         controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.25)).onFalse(drivebase.changeSwerveSpeed(1));
@@ -290,8 +284,8 @@ public class RobotContainer {
         controller2.b(fullAutomaticEventLoop).whileTrue(new RunIntake(intake, () -> -1));
 
         controller2.back().whileTrue(new ZeroElevatorRoutine(elevator));
-        controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
-        controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
+        // controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
+        // controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
     }
 
     private LevelSelectorKey getLevelSelectorKey(){
@@ -306,7 +300,8 @@ public class RobotContainer {
     }
 
     private boolean useAngularVelocity = true;
-    
+    public static Runnable autoRunnable = null;
+
     public void bindCommonControls(EventLoop loop){
         controller1.start(loop).onTrue(new InstantCommand(drivebase::zeroGyro).ignoringDisable(true));
         controller1.back(loop).onTrue(new InstantCommand(() -> {
@@ -319,7 +314,12 @@ public class RobotContainer {
         controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));
 
         new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(new CustomWaitCommand(() -> autoWaitTime).andThen(autoChooser.selectedCommandScheduler()));
-        new Trigger(loop, DriverStation::isDisabled).onChange(new InstantCommand(FieldLocation::calculateReefPositions));
+        new Trigger(loop, DriverStation::isDisabled).onChange(new InstantCommand(FieldLocation::calculateReefPositions).ignoringDisable(true));
+
+        Dashboard.getAutoResettingButton("Auto/Reset Auto Odometry", loop)
+            .and(DriverStation::isDisabled)
+            .and(() -> autoRunnable != null)
+            .onTrue(new InstantCommand(() -> autoRunnable.run()).ignoringDisable(true));
     }
     
     public void changeEventLoop(EventLoop loop){

@@ -9,22 +9,20 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.utils.TalonFXGroup;
 import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
-import frc.robot.util.Dashboard.DashboardHelpers;
 import frc.robot.util.MotorUtil;
-import frc.robot.util.Dashboard.GetValue;
-import frc.robot.util.Dashboard.PutValue;
+import frc.robot.util.dashboardv3.entry.Entry;
+import frc.robot.util.dashboardv3.entry.EntryType;
 import lombok.Getter;
 
 import static frc.robot.Constants.*;
 
 public class Arm extends SubsystemBase  {
     
-    @GetValue public double kP = 0.015, kI = 0, kD = 0.0008; 
-    @GetValue public double kG = 0.033, kV = 0;
+    @Entry(type = EntryType.Subscriber)
+    private static double kG = 0.033, kV = 0;
     
     private final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
     
@@ -32,17 +30,17 @@ public class Arm extends SubsystemBase  {
 
     private final Rotation2d OFFSET = Rotation2d.fromDegrees(52.3 + 2.8), TOLERANCE = Rotation2d.fromDegrees(0.1);
 
-    @Getter @PutValue
-    private Rotation2d targetAngle = Rotation2d.kZero;
+    @Getter @Entry(type = EntryType.Publisher)
+    private static Rotation2d targetAngle = Rotation2d.kZero;
 
-    @PutValue
-    public Rotation2d currentAngle = Rotation2d.kZero;
+    @Entry(type = EntryType.Publisher)
+    public static Rotation2d currentAngle = Rotation2d.kZero;
 
     private final TalonFX motor;
     private final TalonFXGroup motorGroup;
     private final DutyCycleEncoder armEncoder;
 
-    private final ProfiledPIDController profiledPIDController;
+    private final ProfiledPIDController profiledPIDController = new ProfiledPIDController(0.015, 0, 0.0008, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private ArmFeedforward feedforward;
 
     
@@ -51,17 +49,13 @@ public class Arm extends SubsystemBase  {
      * Hardware: The arm has one Talon FX motor controller and an Absolute Analog Encoder
      * Controllers: Feedforward and Profiled PID Controller.
      */
-    public Arm() {
-        DashboardHelpers.addUpdateClass(this);
-        
+    public Arm() {        
         motor = MotorUtil.initTalonFX(ARM_MOTOR_ID, NeutralModeValue.Brake);
-        
         motorGroup = new TalonFXGroup(new TalonData(motor));
 
         armEncoder = new DutyCycleEncoder(ARM_ENCODER_ID);
 
         feedforward = new ArmFeedforward(0, kG, kV, 0);
-        profiledPIDController = new ProfiledPIDController(kP, kI, kD, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
 
         profiledPIDController.setTolerance(TOLERANCE.getDegrees());
         setTargetAngle(Rotation2d.kZero);
@@ -69,7 +63,6 @@ public class Arm extends SubsystemBase  {
 
     @Override
     public void periodic() {
-        profiledPIDController.setPID(kP, kI, kD);
         feedforward = new ArmFeedforward(0, kG, kV, 0);
 
         double pidOutput = profiledPIDController.calculate(getCurrentAngle().getDegrees(), getTargetAngle().getDegrees());
@@ -78,7 +71,6 @@ public class Arm extends SubsystemBase  {
         double motorOutput = pidOutput + feedforwardOutput;
 
         currentAngle = getCurrentAngle();
-        SmartDashboard.putNumber("arm output", motorOutput);
 
         motorGroup.setSpeed(motorOutput);
     }

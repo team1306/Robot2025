@@ -26,6 +26,6 @@ public class ManualArmControl extends Command {
 
     @Override
     public void execute() {
-        arm.setTargetAngle(arm.getTargetAngle().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * speed)));
+        arm.setTargetAngle(Arm.getTargetAngle().plus(Rotation2d.fromRadians(doubleSupplier.getAsDouble() * speed)));
     }
 }
