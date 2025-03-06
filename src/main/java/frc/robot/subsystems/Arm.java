@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.utils.TalonFXGroup;
 import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
 import frc.robot.util.MotorUtil;
+import frc.robot.util.dashboardv3.Dashboard;
 import frc.robot.util.dashboardv3.entry.Entry;
 import frc.robot.util.dashboardv3.entry.EntryType;
 import lombok.Getter;
@@ -24,7 +25,7 @@ public class Arm extends SubsystemBase  {
     @Entry(type = EntryType.Subscriber)
     private static double kG = 0.033, kV = 0;
     
-    private final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
+    private static final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
     
     private final double MIN_ANGLE = -30, MAX_ANGLE = 90;
 
@@ -40,7 +41,8 @@ public class Arm extends SubsystemBase  {
     private final TalonFXGroup motorGroup;
     private final DutyCycleEncoder armEncoder;
 
-    private final ProfiledPIDController profiledPIDController = new ProfiledPIDController(0.015, 0, 0.0008, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
+    @Entry(type = EntryType.Sendable)
+    private static ProfiledPIDController profiledPIDController = new ProfiledPIDController(0.015, 0, 0.0008, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private ArmFeedforward feedforward;
 
     
