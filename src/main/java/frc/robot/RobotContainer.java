@@ -6,6 +6,7 @@ package frc.robot;
 
 import choreo.auto.AutoChooser;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -72,20 +73,6 @@ public class RobotContainer {
      */
     private final SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(() -> -controller1.getRightX(),
     () -> -controller1.getRightY()).headingWhile(true);
-
-    
-    @Entry(key = "Auto/Translation Controller", type = EntryType.Sendable)
-    private static ProfiledPIDController translationController = 
-                        new ProfiledPIDController(10, 0, 0, new Constraints(10, 10));
-    
-    @Entry(key = "Auto/Heading Controller", type = EntryType.Sendable)
-    private static ProfiledPIDController headingController = 
-                        new ProfiledPIDController(10, 0, 0, new Constraints(2.5, 10));
-
-    private final SwerveInputStream driveToPose = SwerveInputStream.of(drivebase.getSwerveDrive(), () -> 0, () -> 0)
-        .driveToPose(() -> FieldLocation.A, translationController, headingController)
-        .driveToPoseEnabled(true);
-
     
     private final Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
     private final Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
@@ -162,7 +149,7 @@ public class RobotContainer {
     public void bindAlternative(){
         bindCommonControls(alternativeEventLoop);
         
-        controller1.a(alternativeEventLoop).whileTrue(drivebase.driveFieldOriented(driveToPose)).whileTrue(new RepeatCommand(new InstantCommand(() -> System.out.println(driveToPose.get()))));
+        controller1.a(alternativeEventLoop).whileTrue(drivebase.getAutoAlignCommand());
     }
     
     public void bindManual(){

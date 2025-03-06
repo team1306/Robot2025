@@ -13,6 +13,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import frc.robot.commands.autos.FieldLocation;
+import frc.robot.util.dashboardv3.entry.Entry;
+import frc.robot.util.dashboardv3.entry.EntryType;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -48,10 +53,7 @@ import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.PoseEstimate;
 import frc.robot.util.Utilities;
 import lombok.Getter;
-import swervelib.SwerveController;
-import swervelib.SwerveDrive;
-import swervelib.SwerveDriveTest;
-import swervelib.SwerveModule;
+import swervelib.*;
 import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
@@ -68,10 +70,20 @@ public class SwerveSubsystem extends SubsystemBase {
     @Getter
     private final SwerveDrive swerveDrive;
 
-    private final PIDController xController = new PIDController(7, 0, 0.2);
-    private final PIDController yController = new PIDController(7, 0, 0.2);
+    private final PIDController autoXController = new PIDController(7, 0, 0.2);
+    private final PIDController autoYController = new PIDController(7, 0, 0.2);
 
-    private final PIDController headingController = new PIDController(3.5, 0, 0.1);
+    private final PIDController autoHeadingController = new PIDController(3.5, 0, 0.1);
+    
+    @Entry(key = "Auto/Translation Controller", type = EntryType.Sendable)
+    private static ProfiledPIDController translationController =
+            new ProfiledPIDController(10, 0, 0, new TrapezoidProfile.Constraints(10, 10));
+
+    @Entry(key = "Auto/Heading Controller", type = EntryType.Sendable)
+    private static ProfiledPIDController headingController =
+            new ProfiledPIDController(10, 0, 0, new TrapezoidProfile.Constraints(2.5, 10));
+
+    private final SwerveInputStream driveToPose;
 
     public SwerveSubsystem() {
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
@@ -89,14 +101,26 @@ public class SwerveSubsystem extends SubsystemBase {
         // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
         swerveDrive.setAutoCenteringModules(false);
 
-        headingController.enableContinuousInput(-Math.PI, Math.PI);
-
-        // swerveDrive.getModules()[0].setFeedforward(new SimpleMotorFeedforward(0, 2.2629, 0.1113));
-        // swerveDrive.getModules()[1].setFeedforward(new SimpleMotorFeedforward(0.09, 2.228, 0.043304));
-        // swerveDrive.getModules()[2].setFeedforward(new SimpleMotorFeedforward(0.05159, 2.2674, 0.1307));
-        // swerveDrive.getModules()[3].setFeedforward(new SimpleMotorFeedforward(0.037985, 2.2677, 0.23622));
-
+        autoHeadingController.enableContinuousInput(-Math.PI, Math.PI);
+        
+        driveToPose = SwerveInputStream.of(swerveDrive, () -> 0, () -> 0)
+                .driveToPose(this::getNearestFieldLocation, translationController, headingController)
+                .driveToPoseEnabled(true);
+        
         setupPathPlanner();
+    }
+
+    private Pose2d lastCachedLocation = null;
+    private boolean isEnabled = false;
+
+    private Pose2d getNearestFieldLocation(){
+        if(isEnabled && lastCachedLocation != null) return lastCachedLocation;
+        lastCachedLocation = getPose().nearest(FieldLocation.reefLocations);
+        return lastCachedLocation;
+    }
+    
+    public Command getAutoAlignCommand(){
+        return driveFieldOriented(driveToPose);
     }
 
     public void followTrajectory(SwerveSample sample) {
@@ -105,9 +129,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
         // Generate the next speeds for the robot
         ChassisSpeeds speeds = new ChassisSpeeds(
-                sample.vx + xController.calculate(pose.getX(), sample.x),
-                sample.vy + yController.calculate(pose.getY(), sample.y),
-                sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
+                sample.vx + autoXController.calculate(pose.getX(), sample.x),
+                sample.vy + autoYController.calculate(pose.getY(), sample.y),
+                sample.omega + autoHeadingController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
         
         // Apply the generated speeds
@@ -116,7 +140,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-       addVisionMeasurement();
+        isEnabled = getAutoAlignCommand().isScheduled();
+        addVisionMeasurement();
     }
 
     public void addVisionMeasurement(){
@@ -165,9 +190,9 @@ public class SwerveSubsystem extends SubsystemBase {
                     },
                     new PPHolonomicDriveController(
                             // Translation PID constants
-                            new PIDConstants(xController.getP(), xController.getI(), xController.getD()),
+                            new PIDConstants(autoXController.getP(), autoXController.getI(), autoXController.getD()),
                             // Rotation PID constants
-                            new PIDConstants(headingController.getP(), headingController.getI(), headingController.getD())
+                            new PIDConstants(autoHeadingController.getP(), autoHeadingController.getI(), autoHeadingController.getD())
                     ),
                     config,
                     Utilities::isRedAlliance,
