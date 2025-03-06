@@ -45,6 +45,7 @@ import swervelib.SwerveInputStream;
 import static edu.wpi.first.units.Units.Inches;
 
 import java.util.HashMap;
+import java.util.function.BooleanSupplier;
 
 public class RobotContainer {
 
@@ -143,12 +144,8 @@ public class RobotContainer {
     private final EventLoop setpointEventLoop = new EventLoop();
     private final EventLoop alternativeEventLoop = new EventLoop();
 
-    /**
-     * Change these bindings for any testing needed
-     */
     public void bindAlternative(){
         bindCommonControls(alternativeEventLoop);
-        
         controller1.a(alternativeEventLoop).whileTrue(drivebase.getAutoAlignCommand());
     }
     
@@ -169,9 +166,6 @@ public class RobotContainer {
 
     public void bindSetpoint(){
         bindCommonControls(setpointEventLoop);
-
-        // controller1.leftStick(setpointEventLoop).onTrue(new RotateToRotation(drivebase, () -> drivebase.getPose().nearest(FieldLocation.reefLocations).getRotation()));
-        // controller1.rightStick(setpointEventLoop).onTrue(new RotateToRotation(drivebase, () -> drivebase.getPose().nearest(FieldLocation.coralStationLocations).getRotation()));
         
         controller1.pov(0, 0, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L4));
         controller1.pov(0, 90, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L3));
@@ -203,7 +197,7 @@ public class RobotContainer {
     
     //Make sure to implement correctly (use a supplier in an init method)
     @Getter
-    private static boolean overrideSafeMode = false;
+    private static final boolean overrideSafeMode = false;
 
     public void bindAutomatic(){
         bindCommonControls(fullAutomaticEventLoop);
@@ -286,9 +280,9 @@ public class RobotContainer {
         };
     }
 
-    private boolean useAngularVelocity = true;
     public static Runnable autoRunnable = null;
-
+    private boolean useAngularVelocity = true;
+    
     public void bindCommonControls(EventLoop loop){
         controller1.start(loop).onTrue(new InstantCommand(drivebase::zeroGyro).ignoringDisable(true));
         controller1.back(loop).onTrue(new InstantCommand(() -> {
@@ -307,12 +301,20 @@ public class RobotContainer {
             .and(DriverStation::isDisabled)
             .and(() -> autoRunnable != null)
             .onTrue(new InstantCommand(() -> autoRunnable.run()).ignoringDisable(true));
+
+        //Todo does not work - value is correctly returned, but it doesnt get bound??
+//        loop.bind(() -> System.out.println(isEventLoopScheduled(alternativeEventLoop).getAsBoolean()));
+//        new Trigger(loop, () -> CommandScheduler.getInstance().getActiveButtonLoop().equals(alternativeEventLoop)).onTrue(new InstantCommand(() -> System.out.println("test")).ignoringDisable(true));
+    }
+    
+    public BooleanSupplier isEventLoopScheduled(EventLoop loop){
+        return () -> CommandScheduler.getInstance().getActiveButtonLoop().equals(loop);
     }
     
     public void changeEventLoop(EventLoop loop){
         CommandScheduler.getInstance().setActiveButtonLoop(loop);
     }
-
+    
     public void alianceLEDs() {
         // FillLEDColor.fillColor(LEDStrip, Constants.LED_OFF).schedule();
         // FillLEDColor.fillColor(LEDStrip, Utilities.isRedAlliance() ? Constants.RED : Constants.BLUE).ignoringDisable(true).schedule();
