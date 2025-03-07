@@ -242,10 +242,8 @@ public class RobotContainer {
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
         );
 
-        controller1.y().onTrue(new InstantCommand(() -> arm.setTargetAngle(arm.getCurrentAngle().plus(Rotation2d.fromDegrees(5))), arm));
+        controller1.rightStick(fullAutomaticEventLoop).whileTrue(drivebase.getAutoAlignCommand());
 
-        controller1.b().onTrue(new InstantCommand(() -> arm.setTargetAngle(arm.getCurrentAngle().minus(Rotation2d.fromDegrees(5))), arm));
-        
         //slow mode
         controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.25)).onFalse(drivebase.changeSwerveSpeed(1));
 
@@ -264,7 +262,7 @@ public class RobotContainer {
         controller2.a(fullAutomaticEventLoop).whileTrue(new RunIntake(intake, () -> 1));
         controller2.b(fullAutomaticEventLoop).whileTrue(new RunIntake(intake, () -> -1));
 
-        controller2.back().whileTrue(new ZeroElevatorRoutine(elevator));
+        controller2.back(fullAutomaticEventLoop).whileTrue(new ZeroElevatorRoutine(elevator));
         // controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
         // controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
     }

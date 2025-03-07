@@ -33,10 +33,11 @@ public class Elevator extends SubsystemBase {
     @Entry(type = EntryType.Subscriber)
     private static double kG = 0.075, kV = 0; 
 
-    private final double MAX_VELOCITY = 1e+9, MAX_ACCELERATION = 700; // placeholder
+    private final static double MAX_VELOCITY = 1e+9, MAX_ACCELERATION = 700; // placeholder
     private Distance TOLERANCE = Inches.of(0.2);
     
-    private final ProfiledPIDController pid = new ProfiledPIDController(0.22, 0, 0.008,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
+    @Entry(type = EntryType.Sendable)
+    private static ProfiledPIDController pid = new ProfiledPIDController(0.22, 0, 0.008,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private ElevatorFeedforward feedforward;
 
     private final TalonFXGroup motorGroup;
@@ -48,7 +49,7 @@ public class Elevator extends SubsystemBase {
     private static double conversionFactor = 54.75 / 344.69;
 
     @Entry(type = EntryType.Subscriber)
-    private static double maxHeightInches = 54, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
+    private static double maxHeightInches = 53.5, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
     
     @Setter @Getter
     @Entry(type = EntryType.Publisher)
