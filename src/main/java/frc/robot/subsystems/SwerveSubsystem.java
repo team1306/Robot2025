@@ -61,12 +61,6 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase {
-    /**
-     * -- GETTER --
-     *  Gets the swerve drive object.
-     *
-     * @return {@link SwerveDrive}
-     */
     @Getter
     private final SwerveDrive swerveDrive;
 
