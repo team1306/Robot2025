@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.commands.autos.FieldLocation;
+import frc.robot.util.dashboardv3.Dashboard;
 import frc.robot.util.dashboardv3.entry.Entry;
 import frc.robot.util.dashboardv3.entry.EntryType;
 import org.json.simple.parser.ParseException;
@@ -71,11 +72,11 @@ public class SwerveSubsystem extends SubsystemBase {
     
     @Entry(key = "Auto/Translation Controller", type = EntryType.Sendable)
     private static ProfiledPIDController translationController =
-            new ProfiledPIDController(10, 0, 0, new TrapezoidProfile.Constraints(10, 10));
+            new ProfiledPIDController(4, 0.01, 0, new TrapezoidProfile.Constraints(2, 1));
 
     @Entry(key = "Auto/Heading Controller", type = EntryType.Sendable)
     private static ProfiledPIDController headingController =
-            new ProfiledPIDController(10, 0, 0, new TrapezoidProfile.Constraints(2.5, 10));
+            new ProfiledPIDController(4, 0.01, 0, new TrapezoidProfile.Constraints(50, 25));
 
     private final SwerveInputStream driveToPose;
 
@@ -96,7 +97,9 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.setAutoCenteringModules(false);
 
         autoHeadingController.enableContinuousInput(-Math.PI, Math.PI);
-        
+        translationController.setTolerance(0.001);
+        headingController.setTolerance(0.001);
+
         driveToPose = SwerveInputStream.of(swerveDrive, () -> 0, () -> 0)
                 .driveToPose(this::getNearestFieldLocation, translationController, headingController)
                 .driveToPoseEnabled(true);
@@ -135,6 +138,12 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         isEnabled = getAutoAlignCommand().isScheduled();
+        Dashboard.putValue("Auto/TranslationError", translationController.getPositionError());
+        Dashboard.putValue("Auto/HeadingError", headingController.getPositionError());
+
+        Dashboard.putValue("Auto/TranslationTolerance", translationController.getPositionTolerance());
+        Dashboard.putValue("Auto/HeadingTolerance", headingController.getPositionTolerance());
+
         addVisionMeasurement();
     }
 
