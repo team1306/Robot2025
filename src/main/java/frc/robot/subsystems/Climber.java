@@ -9,7 +9,8 @@ import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface.TimingBudget;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.utils.TalonFXGroup;
+import frc.robot.subsystems.utils.MotorGroup;
+import frc.robot.subsystems.utils.TalonFxMotor;
 import frc.robot.util.dashboardv3.entry.Entry;
 import frc.robot.util.dashboardv3.entry.EntryType;
 import frc.robot.util.MotorUtil;
@@ -18,11 +19,10 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 
 import static frc.robot.Constants.*;
-import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
 
 public class Climber extends SubsystemBase {
     private final TalonFX motor;
-    private final TalonFXGroup motorGroup;
+    private final MotorGroup<TalonFxMotor> motorGroup;
     private LaserCan laser = null;
     
     private static final double SENSOR_PIVOT_DISTANCE_MM = 80.9879;
@@ -49,7 +49,7 @@ public class Climber extends SubsystemBase {
     public Climber() {        
         motor = MotorUtil.initTalonFX(CLIMB_MOTOR_ID, NeutralModeValue.Brake);
 
-        motorGroup = new TalonFXGroup(new TalonData(motor));
+        motorGroup = new MotorGroup<>(new TalonFxMotor(motor));
         if(RobotBase.isReal()){
             laser = new LaserCan(CLIMBER_LASER_CAN_ID);
             laser.setRangingMode(LaserCan.RangingMode.SHORT);

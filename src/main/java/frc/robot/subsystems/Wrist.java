@@ -9,8 +9,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.utils.TalonFXGroup;
-import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
+import frc.robot.subsystems.utils.MotorGroup;
+import frc.robot.subsystems.utils.TalonFxMotor;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.dashboardv3.entry.Entry;
 import frc.robot.util.dashboardv3.entry.EntryType;
@@ -33,8 +33,8 @@ public class Wrist extends SubsystemBase  {
     @Entry(type = EntryType.Publisher)
     public static Rotation2d currentAngle = Rotation2d.fromDegrees(0);
 
-    private  TalonFX motor;
-    private  TalonFXGroup motorGroup;
+    private TalonFX motor;
+    private MotorGroup<TalonFxMotor> motorGroup;
 
     private  DutyCycleEncoder encoder;
 
@@ -48,7 +48,7 @@ public class Wrist extends SubsystemBase  {
      */
     public Wrist() {        
         motor = MotorUtil.initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
-        motorGroup = new TalonFXGroup(new TalonData(motor));
+        motorGroup = new MotorGroup<>(new TalonFxMotor(motor));
         encoder = new DutyCycleEncoder(WRIST_ENCODER_ID);
 
         pidController.setTolerance(TOLERANCE.getRadians());

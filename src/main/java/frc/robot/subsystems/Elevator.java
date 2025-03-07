@@ -13,8 +13,8 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.utils.TalonFXGroup;
-import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
+import frc.robot.subsystems.utils.MotorGroup;
+import frc.robot.subsystems.utils.TalonFxMotor;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.dashboardv3.entry.Config;
 import frc.robot.util.dashboardv3.entry.Entry;
@@ -40,7 +40,7 @@ public class Elevator extends SubsystemBase {
     private static ProfiledPIDController pid = new ProfiledPIDController(0.22, 0, 0.008,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private ElevatorFeedforward feedforward;
 
-    private final TalonFXGroup motorGroup;
+    private final MotorGroup<TalonFxMotor> motorGroup;
     private final TalonFX leftMotor, rightMotor;
 
     private final DigitalInput limitSwitch;
@@ -74,7 +74,7 @@ public class Elevator extends SubsystemBase {
         leftMotor.setPosition(Rotations.of(0));
         rightMotor.setPosition(Rotations.of(0));
 
-        motorGroup = new TalonFXGroup(new TalonData(leftMotor), new TalonData(rightMotor));
+        motorGroup = new MotorGroup<>(new TalonFxMotor(leftMotor), new TalonFxMotor(rightMotor));
 
         pid.setTolerance(TOLERANCE.in(Inches));
 

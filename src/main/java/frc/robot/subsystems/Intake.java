@@ -4,8 +4,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.utils.TalonFXGroup;
-import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
+import frc.robot.subsystems.utils.MotorGroup;
+import frc.robot.subsystems.utils.TalonFxMotor;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.dashboardv3.entry.Entry;
 import frc.robot.util.dashboardv3.entry.EntryType;
@@ -22,7 +22,7 @@ public class Intake extends SubsystemBase {
     private static boolean sensorReading = false;
     
     private final TalonFX motor;
-    private final TalonFXGroup motorGroup;
+    private final MotorGroup<TalonFxMotor> motorGroup;
     private final DigitalInput sensor;
 
     /**
@@ -32,7 +32,7 @@ public class Intake extends SubsystemBase {
      */
     public Intake() {        
         motor = MotorUtil.initTalonFX(INTAKE_MOTOR_ID, NeutralModeValue.Coast);
-        motorGroup = new TalonFXGroup(new TalonData(motor));
+        motorGroup = new MotorGroup<>(new TalonFxMotor(motor));
         sensor = new DigitalInput(INTAKE_SENSOR_ID);
     }
 

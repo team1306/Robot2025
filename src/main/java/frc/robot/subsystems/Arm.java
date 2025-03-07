@@ -10,10 +10,9 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.utils.TalonFXGroup;
-import frc.robot.subsystems.utils.TalonFXGroup.TalonData;
+import frc.robot.subsystems.utils.MotorGroup;
+import frc.robot.subsystems.utils.TalonFxMotor;
 import frc.robot.util.MotorUtil;
-import frc.robot.util.dashboardv3.Dashboard;
 import frc.robot.util.dashboardv3.entry.Entry;
 import frc.robot.util.dashboardv3.entry.EntryType;
 import lombok.Getter;
@@ -38,7 +37,7 @@ public class Arm extends SubsystemBase  {
     public static Rotation2d currentAngle = Rotation2d.kZero;
 
     private final TalonFX motor;
-    private final TalonFXGroup motorGroup;
+    private final MotorGroup<TalonFxMotor> motorGroup;
     private final DutyCycleEncoder armEncoder;
 
     @Entry(type = EntryType.Sendable)
@@ -53,7 +52,7 @@ public class Arm extends SubsystemBase  {
      */
     public Arm() {        
         motor = MotorUtil.initTalonFX(ARM_MOTOR_ID, NeutralModeValue.Brake);
-        motorGroup = new TalonFXGroup(new TalonData(motor));
+        motorGroup = new MotorGroup<>(new TalonFxMotor(motor));
 
         armEncoder = new DutyCycleEncoder(ARM_ENCODER_ID);
 
