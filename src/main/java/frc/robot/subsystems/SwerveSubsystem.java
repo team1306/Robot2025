@@ -9,6 +9,7 @@ import static frc.robot.Constants.LIMELIGHT_NAME;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
@@ -32,6 +33,7 @@ import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -56,6 +58,9 @@ public class SwerveSubsystem extends SubsystemBase {
     @Getter
     private final SwerveDrive swerveDrive;
 
+    @Entry(type = EntryType.Subscriber)
+    private static double WRIST_POSE_SHIFT = -3;
+
     private final PIDController autoXController = new PIDController(7, 0, 0.2);
     private final PIDController autoYController = new PIDController(7, 0, 0.2);
 
@@ -71,7 +76,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private final SwerveInputStream driveToPose;
 
-    public SwerveSubsystem() {
+    private final DoubleSupplier wristAngleSupplier;
+
+    public SwerveSubsystem(DoubleSupplier wristAngleSupplier) {
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         try {
             File directory = new File(Filesystem.getDeployDirectory(), "swerve");
@@ -90,8 +97,10 @@ public class SwerveSubsystem extends SubsystemBase {
         autoHeadingController.enableContinuousInput(-Math.PI, Math.PI);
         translationController.setTolerance(0.001);
         headingController.setTolerance(0.001);
+
+        this.wristAngleSupplier = wristAngleSupplier;
         driveToPose = SwerveInputStream.of(swerveDrive, () -> 0, () -> 0)
-                .driveToPose(this::getNearestFieldLocation, translationController, headingController)
+                .driveToPose(() -> shiftPoseRelativeToIntake(getNearestFieldLocation()), translationController, headingController)
                 .driveToPoseEnabled(true);
         
         setupPathPlanner();
@@ -99,6 +108,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Pose2d lastCachedLocation = null;
     private boolean isEnabled = false;
+
+    private Pose2d shiftPoseRelativeToIntake(Pose2d fieldRelativePose) {
+        final double shiftInches = WRIST_POSE_SHIFT * Math.signum(wristAngleSupplier.getAsDouble());
+        return fieldRelativePose.transformBy(new Transform2d(new Translation2d(0, shiftInches), new Rotation2d()));
+    }
 
     private Pose2d getNearestFieldLocation(){
         if(isEnabled && lastCachedLocation != null) return lastCachedLocation;
