@@ -65,9 +65,6 @@ public class Elevator extends SubsystemBase {
     @Entry(type = EntryType.Subscriber)
     private static boolean accelerationLimiting = false;
 
-    @Entry(type = EntryType.Subscriber)
-    private static double rateRatio = 1;
-
     private final SwerveSubsystem swerve;
 
     /**
@@ -111,7 +108,7 @@ public class Elevator extends SubsystemBase {
 
         motorGroup.setSpeed(motorOutput);
 
-        if(accelerationLimiting) swerve.setRateLimit((56 - currentHeight.in(Inches)) * rateRatio);
+        if(accelerationLimiting) swerve.setElevatorHeight(currentHeight.in(Inches));
     }
     
     public boolean getLimitSwitch() {

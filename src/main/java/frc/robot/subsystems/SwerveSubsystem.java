@@ -9,17 +9,18 @@ import static frc.robot.Constants.LIMELIGHT_NAME;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.commands.autos.FieldLocation;
 import frc.robot.util.dashboardv3.Dashboard;
 import frc.robot.util.dashboardv3.entry.Entry;
 import frc.robot.util.dashboardv3.entry.EntryType;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.json.simple.parser.ParseException;
 
@@ -33,7 +34,6 @@ import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -58,9 +58,6 @@ public class SwerveSubsystem extends SubsystemBase {
     @Getter
     private final SwerveDrive swerveDrive;
 
-    @Entry(type = EntryType.Subscriber)
-    private static double WRIST_POSE_SHIFT = -3;
-
     private final PIDController autoXController = new PIDController(7, 0, 0.2);
     private final PIDController autoYController = new PIDController(7, 0, 0.2);
 
@@ -76,9 +73,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private final SwerveInputStream driveToPose;
 
-    private final DoubleSupplier wristAngleSupplier;
-
-    public SwerveSubsystem(DoubleSupplier wristAngleSupplier) {
+    public SwerveSubsystem() {
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         try {
             File directory = new File(Filesystem.getDeployDirectory(), "swerve");
@@ -97,10 +92,8 @@ public class SwerveSubsystem extends SubsystemBase {
         autoHeadingController.enableContinuousInput(-Math.PI, Math.PI);
         translationController.setTolerance(0.001);
         headingController.setTolerance(0.001);
-
-        this.wristAngleSupplier = wristAngleSupplier;
         driveToPose = SwerveInputStream.of(swerveDrive, () -> 0, () -> 0)
-                .driveToPose(() -> shiftPoseRelativeToIntake(getNearestFieldLocation()), translationController, headingController)
+                .driveToPose(this::getNearestFieldLocation, translationController, headingController)
                 .driveToPoseEnabled(true);
         
         setupPathPlanner();
@@ -108,11 +101,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Pose2d lastCachedLocation = null;
     private boolean isEnabled = false;
-
-    private Pose2d shiftPoseRelativeToIntake(Pose2d fieldRelativePose) {
-        final double shiftInches = WRIST_POSE_SHIFT * Math.signum(wristAngleSupplier.getAsDouble());
-        return fieldRelativePose.transformBy(new Transform2d(new Translation2d(0, shiftInches), new Rotation2d()));
-    }
 
     private Pose2d getNearestFieldLocation(){
         if(isEnabled && lastCachedLocation != null) return lastCachedLocation;
@@ -139,20 +127,13 @@ public class SwerveSubsystem extends SubsystemBase {
         driveFieldOriented(speeds);
     }
 
-    public void setRateLimit(double rate){
-        rate = MathUtil.clamp(rate, 0.000001, 10);
-        SlewRateLimiter xRateLimiter = new SlewRateLimiter(rate);
-        SlewRateLimiter yRateLimiter = new SlewRateLimiter(rate);
-
-        swerveDrive.swerveController.addSlewRateLimiters(xRateLimiter, yRateLimiter, null);
-    }
-
     @Override
     public void periodic() {
         isEnabled = getAutoAlignCommand().isScheduled();
         Dashboard.putValue("Auto/TranslationError", translationController.getPositionError());
         Dashboard.putValue("Auto/HeadingError", headingController.getPositionError());
 
+        if(velocityDebounce.advanceIfElapsed(0.01)) accelerationLimiter.reset(0);
         addVisionMeasurement();
     }
 
@@ -277,14 +258,45 @@ public class SwerveSubsystem extends SubsystemBase {
         return run(() -> drive(ChassisSpeeds.fromFieldRelativeSpeeds(velocity.get(), getHeading())));
     }
 
+    @Setter
+    private double elevatorHeight;
+
+    @Entry(type = EntryType.Subscriber)
+    private static double maxAcceleration = 5, heightAccelerationMultiplier = 0.1;
+
+    @Entry(type = EntryType.Subscriber)
+    private static boolean useAccelerationLimiting = true;
+
+    private final SlewRateLimiter accelerationLimiter = new SlewRateLimiter(maxAcceleration);
+    private final Timer velocityDebounce = new Timer();
+
     /**
      * Drive according to the chassis robot oriented velocity.
      *
      * @param velocity Robot oriented {@link ChassisSpeeds}
      */
     public void drive(ChassisSpeeds velocity) {
+        if(useAccelerationLimiting) {
+            double magnitude = Math.hypot(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond);
+            double newAcceleration = accelerationLimiter.calculate(magnitude);
+            double elevatorHeightInverted = MathUtil.clamp(50 - elevatorHeight, 0.01, 50) / 55;
 
-        swerveDrive.drive(velocity.times(swerveSpeed));
+            newAcceleration *= elevatorHeightInverted * heightAccelerationMultiplier;
+
+            newAcceleration = MathUtil.clamp(newAcceleration, 0, magnitude);
+
+            Dashboard.putValue("SwerveSubsystem/New Acceleration", newAcceleration);
+
+            ChassisSpeeds newVelocity = new ChassisSpeeds();
+            if (magnitude != 0)
+                newVelocity = velocity.div(magnitude).times(newAcceleration);
+            newVelocity.omegaRadiansPerSecond = velocity.omegaRadiansPerSecond;
+            swerveDrive.drive(newVelocity.times(swerveSpeed));
+
+            velocityDebounce.reset();
+        }else{
+            swerveDrive.drive(velocity.times(swerveSpeed));
+        }
     }
 
 
