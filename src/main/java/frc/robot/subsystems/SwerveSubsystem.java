@@ -4,55 +4,58 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.LIMELIGHT_NAME;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.function.Supplier;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.Timer;
-import frc.robot.commands.autos.FieldLocation;
-import frc.robot.util.dashboardv3.Dashboard;
-import frc.robot.util.dashboardv3.entry.Entry;
-import frc.robot.util.dashboardv3.entry.EntryType;
-import lombok.Setter;
-import lombok.SneakyThrows;
-import org.json.simple.parser.ParseException;
-
+import choreo.trajectory.SwerveSample;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-
-import choreo.trajectory.SwerveSample;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.commands.autos.FieldLocation;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.PoseEstimate;
 import frc.robot.util.Utilities;
+import frc.robot.util.dashboardv3.Dashboard;
+import frc.robot.util.dashboardv3.entry.Entry;
+import frc.robot.util.dashboardv3.entry.EntryType;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.SneakyThrows;
+import org.json.simple.parser.ParseException;
 import swervelib.*;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meter;
+import static frc.robot.Constants.LIMELIGHT_NAME;
 
 public class SwerveSubsystem extends SubsystemBase {
     @Getter
@@ -60,6 +63,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private final PIDController autoXController = new PIDController(7, 0, 0.2);
     private final PIDController autoYController = new PIDController(7, 0, 0.2);
+
+    @Entry(type = EntryType.Subscriber)
+    private static double WRIST_POSE_SHIFT = -2;
 
     private final PIDController autoHeadingController = new PIDController(3.5, 0, 0.1);
     
@@ -73,7 +79,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private final SwerveInputStream driveToPose;
 
-    public SwerveSubsystem() {
+    private final BooleanSupplier wristDirectionSupplier;
+
+    public SwerveSubsystem(BooleanSupplier wristDirectionSupplier) {
+        this.wristDirectionSupplier = wristDirectionSupplier;
+        
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         try {
             File directory = new File(Filesystem.getDeployDirectory(), "swerve");
@@ -95,7 +105,7 @@ public class SwerveSubsystem extends SubsystemBase {
         driveToPose = SwerveInputStream.of(swerveDrive, () -> 0, () -> 0)
                 .driveToPose(this::getNearestFieldLocation, translationController, headingController)
                 .driveToPoseEnabled(true);
-        
+
         setupPathPlanner();
     }
 
@@ -105,11 +115,21 @@ public class SwerveSubsystem extends SubsystemBase {
     private Pose2d getNearestFieldLocation(){
         if(isEnabled && lastCachedLocation != null) return lastCachedLocation;
         lastCachedLocation = getPose().nearest(FieldLocation.reefLocations);
+        lastCachedLocation = shiftPoseRelativeToIntake(lastCachedLocation);
         return lastCachedLocation;
     }
-    
+
+    private Pose2d shiftPoseRelativeToIntake(Pose2d fieldRelativePose) {
+        final Distance shift = Inches.of(WRIST_POSE_SHIFT * (wristDirectionSupplier.getAsBoolean() ? -1 : 1));
+
+        return fieldRelativePose.transformBy(new Transform2d(new Translation2d(0, shift.in(Meter)), getHeading()));
+    }
+
+    private Command autoAlign = null;
+
     public Command getAutoAlignCommand(){
-        return driveFieldOriented(driveToPose);
+        if(autoAlign == null) autoAlign = driveFieldOriented(driveToPose);
+        return autoAlign;
     }
 
     public void followTrajectory(SwerveSample sample) {
@@ -265,7 +285,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private static double maxAcceleration = 5, heightAccelerationMultiplier = 0.1;
 
     @Entry(type = EntryType.Subscriber)
-    private static boolean useAccelerationLimiting = true;
+    private static boolean useAccelerationLimiting = false;
 
     private final SlewRateLimiter accelerationLimiter = new SlewRateLimiter(maxAcceleration);
     private final Timer velocityDebounce = new Timer();
