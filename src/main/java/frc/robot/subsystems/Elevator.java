@@ -34,7 +34,7 @@ public class Elevator extends SubsystemBase {
     private static double kG = 0.075, kV = 0; 
 
     private final static double MAX_VELOCITY = 1e+9, MAX_ACCELERATION = 700; // placeholder
-    private Distance TOLERANCE = Inches.of(0.2);
+    private final Distance TOLERANCE = Inches.of(0.2);
     
     @Entry(type = EntryType.Sendable)
     private static ProfiledPIDController pid = new ProfiledPIDController(0.22, 0, 0.008,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
@@ -62,13 +62,20 @@ public class Elevator extends SubsystemBase {
 
     private Distance offset = Inches.of(0);
 
+    @Entry(type = EntryType.Subscriber)
+    private static boolean accelerationLimiting = false;
+
+    @Entry(type = EntryType.Subscriber)
+    private static double rateRatio = 1;
+
+    private final SwerveSubsystem swerve;
 
     /**
      * The elevator is mounted on the robot frame and moves the arm up and down.
      * Hardware: the elevator has two Talon FX motor controllers.
      * Controllers: Feedforward and ProfiledPIDController.
      */
-    public Elevator() {        
+    public Elevator(SwerveSubsystem swerve) {
         leftMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast);
         rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast, InvertedValue.CounterClockwise_Positive);
         leftMotor.setPosition(Rotations.of(0));
@@ -81,7 +88,8 @@ public class Elevator extends SubsystemBase {
         feedforward = new ElevatorFeedforward(0, kG, kV, 0);
 
         limitSwitch = new DigitalInput(Constants.ELEVATOR_LIMIT_SWITCH_ID);
-        
+
+        this.swerve = swerve;
         zeroElevatorMotorPositions();
     }
 
@@ -102,6 +110,8 @@ public class Elevator extends SubsystemBase {
         double motorOutput = pidOutput + feedforwardOutput;
 
         motorGroup.setSpeed(motorOutput);
+
+        if(accelerationLimiting) swerve.setRateLimit((56 - currentHeight.in(Inches)) * rateRatio);
     }
     
     public boolean getLimitSwitch() {
@@ -149,7 +159,7 @@ public class Elevator extends SubsystemBase {
      */
     public void zeroElevatorMotorPositions(){
         leftMotor.setPosition(Rotations.of(0));
-        // rightMotor.setPosition(Rotations.of(0));
+        rightMotor.setPosition(Rotations.of(0));
     }
 
     /**

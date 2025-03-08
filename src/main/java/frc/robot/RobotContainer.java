@@ -57,7 +57,7 @@ public class RobotContainer {
     // private final LEDSubsystem chainLEDStrip = new LEDSubsystem(Constants.CHAIN_LED_PORT, 0, Constants.CHAIN_LED_COUNT);
     private final Wrist wrist = new Wrist();
     private final Arm arm = new Arm();
-    private final Elevator elevator = new Elevator();
+    private final Elevator elevator = new Elevator(drivebase);
     private final Intake intake = new Intake();
     // private final Climber climber = new Climber();
     
