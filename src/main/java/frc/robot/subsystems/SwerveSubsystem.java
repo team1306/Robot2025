@@ -14,10 +14,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -42,6 +39,8 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import org.json.simple.parser.ParseException;
 import swervelib.*;
+import swervelib.math.Matter;
+import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -50,11 +49,11 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.LIMELIGHT_NAME;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -297,26 +296,42 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public void drive(ChassisSpeeds velocity) {
         if(useAccelerationLimiting) {
-            double magnitude = Math.hypot(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond);
-            double newAcceleration = accelerationLimiter.calculate(magnitude);
-            double elevatorHeightInverted = MathUtil.clamp(50 - elevatorHeight, 0.01, 50) / 55;
-
-            newAcceleration *= elevatorHeightInverted * heightAccelerationMultiplier;
-
-            newAcceleration = MathUtil.clamp(newAcceleration, 0, magnitude);
-
-            Dashboard.putValue("SwerveSubsystem/New Acceleration", newAcceleration);
-
-            ChassisSpeeds newVelocity = new ChassisSpeeds();
-            if (magnitude != 0)
-                newVelocity = velocity.div(magnitude).times(newAcceleration);
-            newVelocity.omegaRadiansPerSecond = velocity.omegaRadiansPerSecond;
-            swerveDrive.drive(newVelocity.times(swerveSpeed));
-
-            velocityDebounce.reset();
+            ChassisSpeeds fieldRelativeVelocity = ChassisSpeeds.fromRobotRelativeSpeeds(velocity, getHeading());
+            Translation2d limitedVelocity = SwerveMath.limitVelocity(
+                    SwerveController.getTranslation2d(fieldRelativeVelocity),
+                    getFieldVelocity(),
+                    getPose(),
+                    0.02,
+                    125,
+                    List.of(new Matter(new Translation3d(0, 0.2, Inches.of(0.5 + elevatorHeight).in(Meters)), 15)),
+                    getSwerveDriveConfiguration()
+            );
+            
+            swerveDrive.drive(new ChassisSpeeds(limitedVelocity.getX(), limitedVelocity.getY(), velocity.omegaRadiansPerSecond));
         }else{
             swerveDrive.drive(velocity.times(swerveSpeed));
         }
+    }
+    
+    public ChassisSpeeds calculateAcceleration(ChassisSpeeds velocity){
+        double magnitude = Math.hypot(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond);
+        double newAcceleration = accelerationLimiter.calculate(magnitude);
+        double elevatorHeightInverted = MathUtil.clamp(50 - elevatorHeight, 0.01, 50) / 55;
+
+        newAcceleration *= elevatorHeightInverted * heightAccelerationMultiplier;
+
+        newAcceleration = MathUtil.clamp(newAcceleration, 0, magnitude);
+
+        Dashboard.putValue("SwerveSubsystem/New Acceleration", newAcceleration);
+
+        ChassisSpeeds newVelocity = new ChassisSpeeds();
+        if (magnitude != 0)
+            newVelocity = velocity.div(magnitude).times(newAcceleration);
+        newVelocity.omegaRadiansPerSecond = velocity.omegaRadiansPerSecond;
+
+        velocityDebounce.reset();
+        
+        return newVelocity;
     }
 
 
