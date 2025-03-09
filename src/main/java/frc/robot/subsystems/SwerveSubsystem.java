@@ -10,21 +10,18 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.commands.autos.FieldLocation;
@@ -35,12 +32,10 @@ import frc.robot.util.dashboardv3.Dashboard;
 import frc.robot.util.dashboardv3.entry.Entry;
 import frc.robot.util.dashboardv3.entry.EntryType;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 import org.json.simple.parser.ParseException;
 import swervelib.*;
-import swervelib.math.Matter;
-import swervelib.math.SwerveMath;
+import swervelib.imu.SwerveIMU;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -48,8 +43,9 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -91,6 +87,7 @@ public class SwerveSubsystem extends SubsystemBase {
             throw new RuntimeException(e);
         }
 
+//        replaceYAGSLIMU();
         swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
         swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         swerveDrive.setAngularVelocityCompensation(false, false, 0.1); //Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
@@ -105,23 +102,44 @@ public class SwerveSubsystem extends SubsystemBase {
                 .driveToPose(this::getNearestFieldLocation, translationController, headingController)
                 .driveToPoseEnabled(true);
 
+        /*
+        0 - use external imu,
+        1 - use external imu, seed internal imu,
+        2 - use internal,
+        3 - use internal with MT1 assisted convergence,
+        4 - use internal IMU with external IMU assisted convergence
+        */
+        LimelightHelpers.SetIMUMode(LIMELIGHT_NAME, 3);
         setupPathPlanner();
+    }
+
+    @SneakyThrows({NoSuchFieldException.class, IllegalAccessException.class})
+    public void replaceYAGSLIMU(){
+        LimelightIMU imu = new LimelightIMU();
+        swerveDrive.swerveDriveConfiguration.imu = imu;
+        swerveDrive.imuReadingCache.updateSupplier(imu::getRotation3d);
+        Field field = swerveDrive.getClass().getDeclaredField("imu");
+        field.setAccessible(true);
+        field.set(swerveDrive, imu);
     }
 
     private Pose2d lastCachedLocation = null;
     private boolean isEnabled = false;
 
+    @Entry(type = EntryType.Sendable)
+    private static Field2d shiftedPose = new Field2d();
+
     private Pose2d getNearestFieldLocation(){
         if(isEnabled && lastCachedLocation != null) return lastCachedLocation;
         lastCachedLocation = getPose().nearest(FieldLocation.reefLocations);
         lastCachedLocation = shiftPoseRelativeToIntake(lastCachedLocation);
+        shiftedPose.setRobotPose(lastCachedLocation);
         return lastCachedLocation;
     }
 
     private Pose2d shiftPoseRelativeToIntake(Pose2d fieldRelativePose) {
-        final Distance shift = Inches.of(WRIST_POSE_SHIFT * (wristDirectionSupplier.getAsBoolean() ? -1 : 1));
-
-        return fieldRelativePose.transformBy(new Transform2d(new Translation2d(0, shift.in(Meter)), getHeading()));
+        final Distance shift = Inches.of(WRIST_POSE_SHIFT);
+        return fieldRelativePose.transformBy(new Transform2d(new Translation2d(0, shift.in(Meter)), fieldRelativePose.getRotation()));
     }
 
     private Command autoAlign = null;
@@ -152,7 +170,6 @@ public class SwerveSubsystem extends SubsystemBase {
         Dashboard.putValue("Auto/TranslationError", translationController.getPositionError());
         Dashboard.putValue("Auto/HeadingError", headingController.getPositionError());
 
-        if(velocityDebounce.advanceIfElapsed(0.01)) accelerationLimiter.reset(0);
         addVisionMeasurement();
     }
 
@@ -277,63 +294,14 @@ public class SwerveSubsystem extends SubsystemBase {
         return run(() -> drive(ChassisSpeeds.fromFieldRelativeSpeeds(velocity.get(), getHeading())));
     }
 
-    @Setter
-    private double elevatorHeight;
-
-    @Entry(type = EntryType.Subscriber)
-    private static double maxAcceleration = 5, heightAccelerationMultiplier = 0.1;
-
-    @Entry(type = EntryType.Subscriber)
-    private static boolean useAccelerationLimiting = false;
-
-    private final SlewRateLimiter accelerationLimiter = new SlewRateLimiter(maxAcceleration);
-    private final Timer velocityDebounce = new Timer();
-
     /**
      * Drive according to the chassis robot oriented velocity.
      *
      * @param velocity Robot oriented {@link ChassisSpeeds}
      */
     public void drive(ChassisSpeeds velocity) {
-        if(useAccelerationLimiting) {
-            ChassisSpeeds fieldRelativeVelocity = ChassisSpeeds.fromRobotRelativeSpeeds(velocity, getHeading());
-            Translation2d limitedVelocity = SwerveMath.limitVelocity(
-                    SwerveController.getTranslation2d(fieldRelativeVelocity),
-                    getFieldVelocity(),
-                    getPose(),
-                    0.02,
-                    125,
-                    List.of(new Matter(new Translation3d(0, 0.2, Inches.of(0.5 + elevatorHeight).in(Meters)), 15)),
-                    getSwerveDriveConfiguration()
-            );
-            
-            swerveDrive.drive(new ChassisSpeeds(limitedVelocity.getX(), limitedVelocity.getY(), velocity.omegaRadiansPerSecond));
-        }else{
-            swerveDrive.drive(velocity.times(swerveSpeed));
-        }
+        swerveDrive.drive(velocity.times(swerveSpeed));
     }
-    
-    public ChassisSpeeds calculateAcceleration(ChassisSpeeds velocity){
-        double magnitude = Math.hypot(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond);
-        double newAcceleration = accelerationLimiter.calculate(magnitude);
-        double elevatorHeightInverted = MathUtil.clamp(50 - elevatorHeight, 0.01, 50) / 55;
-
-        newAcceleration *= elevatorHeightInverted * heightAccelerationMultiplier;
-
-        newAcceleration = MathUtil.clamp(newAcceleration, 0, magnitude);
-
-        Dashboard.putValue("SwerveSubsystem/New Acceleration", newAcceleration);
-
-        ChassisSpeeds newVelocity = new ChassisSpeeds();
-        if (magnitude != 0)
-            newVelocity = velocity.div(magnitude).times(newAcceleration);
-        newVelocity.omegaRadiansPerSecond = velocity.omegaRadiansPerSecond;
-
-        velocityDebounce.reset();
-        
-        return newVelocity;
-    }
-
 
     /**
      * Get the swerve drive kinematics object.
@@ -473,5 +441,78 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Rotation2d getPitch() {
         return swerveDrive.getPitch();
+    }
+
+    public static class LimelightIMU extends SwerveIMU {
+        private final MutAngularVelocity angularVelocity = new MutAngularVelocity(0, 0, DegreesPerSecond);
+
+        private Rotation3d offset = Rotation3d.kZero;
+        private boolean inverted = false;
+
+        private double lastYaw = 0;
+
+        @Override
+        public void setOffset(Rotation3d offset) {
+            this.offset = offset;
+        }
+
+        @Override
+        public void setInverted(boolean invertIMU) {
+            inverted = invertIMU;
+        }
+
+        @Override
+        public Rotation3d getRawRotation3d() {
+            LimelightHelpers.IMUData data = LimelightHelpers.getIMUData(LIMELIGHT_NAME);
+            Rotation3d rawRotation = new Rotation3d(data.Pitch, data.Roll, data.Yaw).times(inverted ? 1 : -1);
+            Dashboard.putValue("LimelightIMU/Rotation Raw", rawRotation);
+            return rawRotation;
+        }
+
+        @Override
+        public Rotation3d getRotation3d() {
+            Rotation3d rotation = getRawRotation3d().minus(offset);
+            Dashboard.putValue("LimelightIMU/Rotation Adjusted", rotation);
+            return getRawRotation3d().minus(rotation);
+        }
+
+        @Override
+        public Optional<Translation3d> getAccel() {
+            LimelightHelpers.IMUData data = LimelightHelpers.getIMUData(LIMELIGHT_NAME);
+
+            Translation3d accel = new Translation3d(data.accelX, data.accelY, data.accelZ);
+            Dashboard.putValue("LimelightIMU/Acceleration", accel);
+            return Optional.of(accel);
+        }
+
+        @Override
+        public MutAngularVelocity getYawAngularVelocity() {
+            double currentYaw = LimelightHelpers.getIMUData(LIMELIGHT_NAME).Yaw;
+            double yawVelocity = (currentYaw - lastYaw) / 0.02;
+            lastYaw = currentYaw;
+            Dashboard.putValue("LimelightIMU/Yaw Velocity", yawVelocity);
+            return angularVelocity.mut_setMagnitude(yawVelocity);
+        }
+
+        @Override
+        public Object getIMU() {
+            //Limelight is a network tables publisher so it has no object
+            return null;
+        }
+
+        @Override
+        public void close() {
+            //No resources to release
+        }
+
+        @Override
+        public void factoryDefault() {
+            //Limelight has onboard computer so no factory default
+        }
+
+        @Override
+        public void clearStickyFaults() {
+            //Not possible for sticky faults on limelight
+        }
     }
 }

@@ -62,11 +62,6 @@ public class Elevator extends SubsystemBase {
 
     private Distance offset = Inches.of(0);
 
-    @Entry(type = EntryType.Subscriber)
-    private static boolean accelerationLimiting = false;
-
-    private final SwerveSubsystem swerve;
-
     /**
      * The elevator is mounted on the robot frame and moves the arm up and down.
      * Hardware: the elevator has two Talon FX motor controllers.
@@ -85,8 +80,6 @@ public class Elevator extends SubsystemBase {
         feedforward = new ElevatorFeedforward(0, kG, kV, 0);
 
         limitSwitch = new DigitalInput(Constants.ELEVATOR_LIMIT_SWITCH_ID);
-
-        this.swerve = swerve;
         zeroElevatorMotorPositions();
     }
 
@@ -107,8 +100,6 @@ public class Elevator extends SubsystemBase {
         double motorOutput = pidOutput + feedforwardOutput;
 
         motorGroup.setSpeed(motorOutput);
-
-        if(accelerationLimiting) swerve.setElevatorHeight(currentHeight.in(Inches));
     }
     
     public boolean getLimitSwitch() {

@@ -49,6 +49,8 @@ public class Mappings {
      */
     @SneakyThrows({IllegalArgumentException.class, IllegalAccessException.class})
     private static void initialize() {
+        System.out.println("Starting Mapping Init");
+        double currentTime = System.currentTimeMillis();
         var classGraph = new ClassGraph()
                 .enableFieldInfo()
                 .enableAnnotationInfo()
@@ -66,5 +68,8 @@ public class Mappings {
                 mappings.add((Mapping<?, ?>) field.get(null));
             }
         }
+        result.close();
+
+        System.out.println("Finished Mapping Init. Took: " + (System.currentTimeMillis() - currentTime) / 1000 + "s");
     }
 }

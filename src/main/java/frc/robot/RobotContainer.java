@@ -235,8 +235,10 @@ public class RobotContainer {
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
         );
 
+        controller1.rightStick(fullAutomaticEventLoop).whileTrue(drivebase.getAutoAlignCommand());
+
         //slow mode
-        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.25)).onFalse(drivebase.changeSwerveSpeed(1));
+        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.1)).onFalse(drivebase.changeSwerveSpeed(1));
 
         controller2.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = false));
         controller2.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = true));
@@ -280,7 +282,6 @@ public class RobotContainer {
             drivebase.setDefaultCommand(useAngularVelocity ? driveFieldOrientedAngularVelocity : driveFieldOrientedDirectAngle);
             drivebase.getSwerveDrive().setHeadingCorrection(!useAngularVelocity);
         }));
-        controller1.rightStick(loop).whileTrue(drivebase.getAutoAlignCommand());
 
         controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));
 
