@@ -238,7 +238,7 @@ public class RobotContainer {
         controller1.rightStick(fullAutomaticEventLoop).whileTrue(drivebase.getAutoAlignCommand());
 
         //slow mode
-        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.1)).onFalse(drivebase.changeSwerveSpeed(1));
+        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.2)).onFalse(drivebase.changeSwerveSpeed(1));
 
         controller2.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = false));
         controller2.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = true));
