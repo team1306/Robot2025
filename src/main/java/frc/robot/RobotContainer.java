@@ -5,27 +5,20 @@
 package frc.robot;
 
 import choreo.auto.AutoChooser;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.Direction;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.auto.CustomWaitCommand;
 import frc.robot.commands.autos.*;
-import frc.robot.commands.climber.RunClimber;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
@@ -41,23 +34,24 @@ import frc.robot.util.dashboardv3.entry.Entry;
 import frc.robot.util.dashboardv3.entry.EntryType;
 import lombok.Getter;
 import swervelib.SwerveInputStream;
-import edu.wpi.first.wpilibj.util.Color8Bit;
-
-import static edu.wpi.first.units.Units.Inches;
 
 import java.util.HashMap;
 import java.util.function.BooleanSupplier;
+
+import static edu.wpi.first.units.Units.Inches;
 
 public class RobotContainer {
 
     private final CommandXboxController controller1 = new CommandXboxController(0);
     private final CommandXboxController controller2 = new CommandXboxController(1);
-    
-    public final SwerveSubsystem drivebase = new SwerveSubsystem();
-    private final LEDSubsystem strip1 = new LEDSubsystem(0);
+
     private final Wrist wrist = new Wrist();
+    public final SwerveSubsystem drivebase = new SwerveSubsystem(() -> wristLeft);
+    private final LEDSubsystem strip1 = new LEDSubsystem(0);
+    // private final LEDSubsystem LEDStrip = new LEDSubsystem(Constants.LED_PORT, 0, Constants.LED_COUNT);
+    // private final LEDSubsystem chainLEDStrip = new LEDSubsystem(Constants.CHAIN_LED_PORT, 0, Constants.CHAIN_LED_COUNT);
     private final Arm arm = new Arm();
-    private final Elevator elevator = new Elevator();
+    private final Elevator elevator = new Elevator(drivebase);
     private final Intake intake = new Intake();
     // private final Climber climber = new Climber();
     
@@ -195,7 +189,7 @@ public class RobotContainer {
     }
     
     private int selectedLevel = 1;
-    private boolean wristLeft = true;
+    private static boolean wristLeft = true;
     
     //Make sure to implement correctly (use a supplier in an init method)
     @Getter
@@ -247,7 +241,7 @@ public class RobotContainer {
         controller1.rightStick(fullAutomaticEventLoop).whileTrue(drivebase.getAutoAlignCommand());
 
         //slow mode
-        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.25)).onFalse(drivebase.changeSwerveSpeed(1));
+        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.2)).onFalse(drivebase.changeSwerveSpeed(1));
 
         controller2.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = false));
         controller2.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = true));
@@ -291,7 +285,7 @@ public class RobotContainer {
             drivebase.setDefaultCommand(useAngularVelocity ? driveFieldOrientedAngularVelocity : driveFieldOrientedDirectAngle);
             drivebase.getSwerveDrive().setHeadingCorrection(!useAngularVelocity);
         }));
-        
+
         controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));
 
         new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(new CustomWaitCommand(() -> autoWaitTime).andThen(autoChooser.selectedCommandScheduler()));

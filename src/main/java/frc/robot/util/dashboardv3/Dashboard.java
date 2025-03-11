@@ -3,7 +3,6 @@ package frc.robot.util.dashboardv3;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableType;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -61,7 +60,7 @@ public class Dashboard {
      * Run once on startup in the {@link Robot#robotInit()} method
      */
     public static void start() {
-        System.out.println("Starting Dashboard init");
+        System.out.println("Starting Dashboard Init");
         double currentTime = System.currentTimeMillis();
         var classGraph = new ClassGraph()
                 .enableFieldInfo()
@@ -89,8 +88,9 @@ public class Dashboard {
                 });
             }
         }
+        result.close();
 
-        System.out.println("Finished Dashboard init. Took: " + (System.currentTimeMillis() - currentTime) / 1000 + "s");
+        System.out.println("Finished Dashboard Init. Took: " + (System.currentTimeMillis() - currentTime) / 1000 + "s");
     }
 
     /**

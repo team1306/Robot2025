@@ -39,7 +39,7 @@ public class Wrist extends SubsystemBase  {
     private  DutyCycleEncoder encoder;
 
     @Entry(type = EntryType.Sendable)
-    private static PIDController pidController = new PIDController(0.5, 0.005, 0.015);
+    private static PIDController pidController = new PIDController(0.5, 0, 0.015);
 
     /**
      * The wrist is mounted on the arm and rotates the intake to place and pick up coral.
