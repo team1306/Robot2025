@@ -35,6 +35,7 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import org.json.simple.parser.ParseException;
 import swervelib.*;
+import swervelib.imu.NavXSwerve;
 import swervelib.imu.SwerveIMU;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
@@ -87,7 +88,6 @@ public class SwerveSubsystem extends SubsystemBase {
             throw new RuntimeException(e);
         }
 
-//        replaceYAGSLIMU();
         swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
         swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         swerveDrive.setAngularVelocityCompensation(false, false, 0.1); //Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
@@ -110,6 +110,7 @@ public class SwerveSubsystem extends SubsystemBase {
         4 - use internal IMU with external IMU assisted convergence
         */
         LimelightHelpers.SetIMUMode(LIMELIGHT_NAME, 3);
+        replaceYAGSLIMU();
         setupPathPlanner();
     }
 
@@ -121,6 +122,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Field field = swerveDrive.getClass().getDeclaredField("imu");
         field.setAccessible(true);
         field.set(swerveDrive, imu);
+        imu.setOffset(imu.getRawRotation3d());
     }
 
     private Pose2d lastCachedLocation = null;
@@ -174,7 +176,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void addVisionMeasurement(){
-        LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, swerveDrive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        // LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, swerveDrive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
         PoseEstimate poseEstimateMT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT_NAME);
         if(poseEstimateMT2 == null) return;
 
@@ -464,7 +466,7 @@ public class SwerveSubsystem extends SubsystemBase {
         @Override
         public Rotation3d getRawRotation3d() {
             LimelightHelpers.IMUData data = LimelightHelpers.getIMUData(LIMELIGHT_NAME);
-            Rotation3d rawRotation = new Rotation3d(data.Pitch, data.Roll, data.Yaw).times(inverted ? 1 : -1);
+            Rotation3d rawRotation = new Rotation3d(Math.toRadians(data.Roll), Math.toRadians(data.Pitch), Math.toRadians(data.Yaw)).times(inverted ? -1 : 1);
             Dashboard.putValue("LimelightIMU/Rotation Raw", rawRotation);
             return rawRotation;
         }
@@ -473,7 +475,7 @@ public class SwerveSubsystem extends SubsystemBase {
         public Rotation3d getRotation3d() {
             Rotation3d rotation = getRawRotation3d().minus(offset);
             Dashboard.putValue("LimelightIMU/Rotation Adjusted", rotation);
-            return getRawRotation3d().minus(rotation);
+            return rotation;
         }
 
         @Override
