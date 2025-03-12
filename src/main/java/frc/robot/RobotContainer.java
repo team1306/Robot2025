@@ -47,6 +47,7 @@ public class RobotContainer {
 
     private final Wrist wrist = new Wrist();
     public final SwerveSubsystem drivebase = new SwerveSubsystem(() -> wristLeft);
+    private final LEDSubsystem strip1 = new LEDSubsystem(0);
     // private final LEDSubsystem LEDStrip = new LEDSubsystem(Constants.LED_PORT, 0, Constants.LED_COUNT);
     // private final LEDSubsystem chainLEDStrip = new LEDSubsystem(Constants.CHAIN_LED_PORT, 0, Constants.CHAIN_LED_COUNT);
     private final Arm arm = new Arm();
@@ -140,6 +141,8 @@ public class RobotContainer {
     public void bindAlternative(){
         bindCommonControls(alternativeEventLoop);
         controller1.a(alternativeEventLoop).whileTrue(drivebase.getAutoAlignCommand());
+
+        controller1.pov(0, 0, alternativeEventLoop).onTrue(new InstantCommand(() -> enableLEDs()).ignoringDisable(true));
     }
     
     public void bindManual(){
@@ -293,6 +296,7 @@ public class RobotContainer {
             .and(() -> autoRunnable != null)
             .onTrue(new InstantCommand(() -> autoRunnable.run()).ignoringDisable(true));
 
+
         //Todo does not work - value is correctly returned, but it doesnt get bound??
 //        loop.bind(() -> System.out.println(isEventLoopScheduled(alternativeEventLoop).getAsBoolean()));
 //        new Trigger(loop, () -> CommandScheduler.getInstance().getActiveButtonLoop().equals(alternativeEventLoop)).onTrue(new InstantCommand(() -> System.out.println("test")).ignoringDisable(true));
@@ -306,14 +310,8 @@ public class RobotContainer {
         CommandScheduler.getInstance().setActiveButtonLoop(loop);
     }
     
-    public void alianceLEDs() {
-        // FillLEDColor.fillColor(LEDStrip, Constants.LED_OFF).schedule();
-        // FillLEDColor.fillColor(LEDStrip, Utilities.isRedAlliance() ? Constants.RED : Constants.BLUE).ignoringDisable(true).schedule();
-    }
-    public void enableLEDs() {
-        // LEDPatterns.setRainbowEffect(LEDStrip);
-    }
-    public void chainLeds() {
-        // LEDPatterns.setRainbowEffect(chainLEDStrip);
-    }
+    public void setAllianceLed(){
+        strip1.setAlliance().ignoringDisable(true).schedule();
+        //strip2.setAlliance().ignoringDisable(true).schedule();
+      }
 }

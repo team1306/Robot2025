@@ -8,8 +8,11 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.utils.DetectUnpluggedEncoder;
 import frc.robot.subsystems.utils.MotorGroup;
 import frc.robot.subsystems.utils.TalonFxMotor;
 import frc.robot.util.MotorUtil;
@@ -44,6 +47,9 @@ public class Arm extends SubsystemBase  {
     private static ProfiledPIDController profiledPIDController = new ProfiledPIDController(0.015, 0, 0.0008, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private ArmFeedforward feedforward;
 
+
+    private DetectUnpluggedEncoder detectEncoderUnplugged;
+    private final Alert encoderUnpluggedAlert = new Alert("Arm encoder detected unplugged", AlertType.kError);
     
     /**
      * The arm is mounted on the elevator and moves the wrist and intake to place and pick up coral.
@@ -60,6 +66,8 @@ public class Arm extends SubsystemBase  {
 
         profiledPIDController.setTolerance(TOLERANCE.getDegrees());
         setTargetAngle(Rotation2d.kZero);
+
+        detectEncoderUnplugged = new DetectUnpluggedEncoder(() -> getCurrentAngle().getDegrees(), () -> targetAngle.getDegrees());
     }
 
     @Override
@@ -74,6 +82,9 @@ public class Arm extends SubsystemBase  {
         currentAngle = getCurrentAngle();
 
         motorGroup.setSpeed(motorOutput);
+
+        if (detectEncoderUnplugged.update()) encoderUnpluggedAlert.set(true);
+        else encoderUnpluggedAlert.set(false);
     }
 
     /**
