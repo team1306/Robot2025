@@ -141,8 +141,6 @@ public class RobotContainer {
     public void bindAlternative(){
         bindCommonControls(alternativeEventLoop);
         controller1.a(alternativeEventLoop).whileTrue(drivebase.getAutoAlignCommand());
-
-        controller1.pov(0, 0, alternativeEventLoop).onTrue(new InstantCommand(() -> enableLEDs()).ignoringDisable(true));
     }
     
     public void bindManual(){
