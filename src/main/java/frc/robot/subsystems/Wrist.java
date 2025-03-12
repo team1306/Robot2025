@@ -18,7 +18,7 @@ import frc.robot.util.dashboardv3.entry.Entry;
 import frc.robot.util.dashboardv3.entry.EntryType;
 import lombok.Getter;
 import static frc.robot.Constants.*;
-import frc.robot.subsystems.utils.DetectEncoderUnplugged;
+import frc.robot.subsystems.utils.DetectUnpluggedEncoder;
 
 public class Wrist extends SubsystemBase  {
     private final double MIN_ANGLE = -100, MAX_ANGLE = 100;
