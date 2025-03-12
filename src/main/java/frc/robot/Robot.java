@@ -20,8 +20,6 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         FieldLocation.calculateReefPositions();
         robotContainer = new RobotContainer();
-        robotContainer.alianceLEDs();
-        robotContainer.chainLeds();
         System.gc();
         Dashboard.start();
     }
@@ -37,7 +35,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-        robotContainer.alianceLEDs();
         new WaitCommand(2).andThen(new InstantCommand(robotContainer::resetTargetPositions)).ignoringDisable(true).schedule();
     }
     
@@ -53,7 +50,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        robotContainer.alianceLEDs();
+
     }
 
     @Override
@@ -67,7 +64,6 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         // robotContainer.drivebase.pushPID = true;
-        robotContainer.alianceLEDs();
     }
 
     @Override
