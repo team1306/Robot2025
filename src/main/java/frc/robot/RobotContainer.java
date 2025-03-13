@@ -19,6 +19,7 @@ import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.auto.CustomWaitCommand;
 import frc.robot.commands.autos.*;
+import frc.robot.commands.climber.RunClimber;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
@@ -49,9 +50,9 @@ public class RobotContainer {
     public final SwerveSubsystem drivebase = new SwerveSubsystem(() -> wristLeft);
     private final LEDSubsystem strip1 = new LEDSubsystem(0);
     private final Arm arm = new Arm();
-    private final Elevator elevator = new Elevator(drivebase);
+    private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
-    // private final Climber climber = new Climber();
+     private final Climber climber = new Climber();
     
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -151,9 +152,6 @@ public class RobotContainer {
         controller2.back(fullManualEventLoop).toggleOnTrue(new ManualArmControl(arm, controller2::getRightY));
         controller2.y(fullManualEventLoop).toggleOnTrue(new ManualElevatorControl(elevator, controller2::getLeftY));
         controller2.x(fullManualEventLoop).toggleOnTrue(new ManualWristControl(wrist, controller2::getLeftX));
-
-        // controller1.a(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> 1));
-        // controller1.b(fullManualEventLoop).toggleOnTrue(new RunIntake(intake, () -> -1));
     }
 
     public void bindSetpoint(){
@@ -171,11 +169,6 @@ public class RobotContainer {
         controller2.pov(0, 90, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L3));
         controller2.pov(0, 180, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L2));
         controller2.pov(0, 270, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L1));
-
-        // controller2.pov(0, 45, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.HOVER_L4));
-        // controller2.pov(0, 135, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.HOVER_L2));
-        // controller2.pov(0, 225, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.GROUND_CORAL));
-        // controller2.pov(0, 315, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_STATION));
         
         controller2.back(setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.STOW));
         
@@ -255,8 +248,8 @@ public class RobotContainer {
         controller2.b(fullAutomaticEventLoop).whileTrue(new RunIntake(intake, () -> -1));
 
         controller2.back(fullAutomaticEventLoop).whileTrue(new ZeroElevatorRoutine(elevator));
-        // controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.FORWARD)); // climb
-        // controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Direction.REVERSE)); // deploy
+         controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Constants.Direction.FORWARD)); // climb
+         controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Constants.Direction.REVERSE)); // deploy
     }
 
     private LevelSelectorKey getLevelSelectorKey(){

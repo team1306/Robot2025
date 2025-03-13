@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -13,6 +12,8 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.utils.FakeMotor;
+import frc.robot.subsystems.utils.Motor;
 import frc.robot.subsystems.utils.MotorGroup;
 import frc.robot.subsystems.utils.TalonFxMotor;
 import frc.robot.util.MotorUtil;
@@ -40,8 +41,8 @@ public class Elevator extends SubsystemBase {
     private static ProfiledPIDController pid = new ProfiledPIDController(0.22, 0, 0.008,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private ElevatorFeedforward feedforward;
 
-    private final MotorGroup<TalonFxMotor> motorGroup;
-    private final TalonFX leftMotor, rightMotor;
+    private final MotorGroup<Motor> motorGroup;
+    private final Motor leftMotor, rightMotor;
 
     private final DigitalInput limitSwitch;
 
@@ -67,13 +68,16 @@ public class Elevator extends SubsystemBase {
      * Hardware: the elevator has two Talon FX motor controllers.
      * Controllers: Feedforward and ProfiledPIDController.
      */
-    public Elevator(SwerveSubsystem swerve) {
-        leftMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast);
-        rightMotor = MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast, InvertedValue.CounterClockwise_Positive);
+    public Elevator() {
+//        leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast));
+//        rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast, InvertedValue.CounterClockwise_Positive));
+        leftMotor = new FakeMotor();
+        rightMotor = new FakeMotor();
+
         leftMotor.setPosition(Rotations.of(0));
         rightMotor.setPosition(Rotations.of(0));
 
-        motorGroup = new MotorGroup<>(new TalonFxMotor(leftMotor), new TalonFxMotor(rightMotor));
+        motorGroup = new MotorGroup<>(leftMotor, rightMotor);
 
         pid.setTolerance(TOLERANCE.in(Inches));
 
@@ -135,11 +139,11 @@ public class Elevator extends SubsystemBase {
     }
 
     public Rotation2d getLeftElevatorPosition(){
-        return Rotation2d.fromRadians(leftMotor.getPosition().getValue().in(Radian));
+        return Rotation2d.fromRadians(leftMotor.getPosition().in(Radian));
     }
 
     public Rotation2d getRightElevatorPosition(){
-        return Rotation2d.fromRadians(rightMotor.getPosition().getValue().in(Radian));
+        return Rotation2d.fromRadians(rightMotor.getPosition().in(Radian));
     }
     
     /**

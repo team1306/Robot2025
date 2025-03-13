@@ -6,7 +6,7 @@ import frc.robot.util.Utilities;
 
 import java.util.List;
 
-public class MotorGroup <MotorType extends MotorData> implements Sendable {
+public class MotorGroup <MotorType extends Motor> implements Sendable {
     
     private final List<MotorType> motors;
     

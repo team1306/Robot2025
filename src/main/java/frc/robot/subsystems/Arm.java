@@ -12,9 +12,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.utils.DetectUnpluggedEncoder;
-import frc.robot.subsystems.utils.MotorGroup;
-import frc.robot.subsystems.utils.TalonFxMotor;
+import frc.robot.subsystems.utils.*;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.dashboardv3.entry.Entry;
 import frc.robot.util.dashboardv3.entry.EntryType;
@@ -39,8 +37,7 @@ public class Arm extends SubsystemBase  {
     @Entry(type = EntryType.Publisher)
     public static Rotation2d currentAngle = Rotation2d.kZero;
 
-    private final TalonFX motor;
-    private final MotorGroup<TalonFxMotor> motorGroup;
+    private final MotorGroup<Motor> motorGroup;
     private final DutyCycleEncoder armEncoder;
 
     @Entry(type = EntryType.Sendable)
@@ -48,7 +45,7 @@ public class Arm extends SubsystemBase  {
     private ArmFeedforward feedforward;
 
 
-    private DetectUnpluggedEncoder detectEncoderUnplugged;
+    private final DetectUnpluggedEncoder detectEncoderUnplugged;
     private final Alert encoderUnpluggedAlert = new Alert("Arm encoder detected unplugged", AlertType.kError);
     
     /**
@@ -56,9 +53,10 @@ public class Arm extends SubsystemBase  {
      * Hardware: The arm has one Talon FX motor controller and an Absolute Analog Encoder
      * Controllers: Feedforward and Profiled PID Controller.
      */
-    public Arm() {        
-        motor = MotorUtil.initTalonFX(ARM_MOTOR_ID, NeutralModeValue.Brake);
-        motorGroup = new MotorGroup<>(new TalonFxMotor(motor));
+    public Arm() {
+//        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(ARM_MOTOR_ID, NeutralModeValue.Brake));
+        Motor motor = new FakeMotor();
+        motorGroup = new MotorGroup<>(motor);
 
         armEncoder = new DutyCycleEncoder(ARM_ENCODER_ID);
 

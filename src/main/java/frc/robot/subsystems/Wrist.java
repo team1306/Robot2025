@@ -11,14 +11,12 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.utils.MotorGroup;
-import frc.robot.subsystems.utils.TalonFxMotor;
+import frc.robot.subsystems.utils.*;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.dashboardv3.entry.Entry;
 import frc.robot.util.dashboardv3.entry.EntryType;
 import lombok.Getter;
 import static frc.robot.Constants.*;
-import frc.robot.subsystems.utils.DetectUnpluggedEncoder;
 
 public class Wrist extends SubsystemBase  {
     private final double MIN_ANGLE = -100, MAX_ANGLE = 100;
@@ -36,15 +34,14 @@ public class Wrist extends SubsystemBase  {
     @Entry(type = EntryType.Publisher)
     public static Rotation2d currentAngle = Rotation2d.fromDegrees(0);
 
-    private TalonFX motor;
-    private MotorGroup<TalonFxMotor> motorGroup;
+    private final MotorGroup<Motor> motorGroup;
 
-    private  DutyCycleEncoder encoder;
+    private final DutyCycleEncoder encoder;
 
     @Entry(type = EntryType.Sendable)
     private static PIDController pidController = new PIDController(0.5, 0, 0.015);
 
-    private DetectUnpluggedEncoder detectEncoderUnplugged;
+    private final DetectUnpluggedEncoder detectEncoderUnplugged;
     private final Alert encoderUnpluggedAlert = new Alert("Arm encoder detected unplugged", AlertType.kError);
 
     /**
@@ -52,9 +49,11 @@ public class Wrist extends SubsystemBase  {
      * Hardware: The wrist has one Talon FX motor controller and an Absolute Analog Encoder.
      * Controllers: Normal PID Controller.
      */
-    public Wrist() {        
-        motor = MotorUtil.initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
-        motorGroup = new MotorGroup<>(new TalonFxMotor(motor));
+    public Wrist() {
+//        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive));
+        Motor motor = new FakeMotor();
+
+        motorGroup = new MotorGroup<>(motor);
         encoder = new DutyCycleEncoder(WRIST_ENCODER_ID);
 
         pidController.setTolerance(TOLERANCE.getRadians());

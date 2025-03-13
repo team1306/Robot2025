@@ -5,6 +5,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.utils.FakeMotor;
+import frc.robot.subsystems.utils.Motor;
 import frc.robot.subsystems.utils.MotorGroup;
 import frc.robot.subsystems.utils.TalonFxMotor;
 import frc.robot.util.MotorUtil;
@@ -21,9 +23,8 @@ public class Intake extends SubsystemBase {
 
     @Entry(type = EntryType.Publisher)
     private static boolean sensorReading = false;
-    
-    private final TalonFX motor;
-    private final MotorGroup<TalonFxMotor> motorGroup;
+
+    private final MotorGroup<Motor> motorGroup;
     private final DigitalInput sensor;
 
     /**
@@ -31,9 +32,11 @@ public class Intake extends SubsystemBase {
      * Hardware: The intake has one Talon FX motor controller and a beam-break sensor.
      * Controllers: None
      */
-    public Intake() {        
-        motor = MotorUtil.initTalonFX(INTAKE_MOTOR_ID, NeutralModeValue.Coast);
-        motorGroup = new MotorGroup<>(new TalonFxMotor(motor));
+    public Intake() {
+//        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(INTAKE_MOTOR_ID, NeutralModeValue.Coast));
+        Motor motor = new FakeMotor();
+
+        motorGroup = new MotorGroup<>(motor);
         sensor = new DigitalInput(INTAKE_SENSOR_ID);
     }
 
