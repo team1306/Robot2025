@@ -48,8 +48,6 @@ public class RobotContainer {
     private final Wrist wrist = new Wrist();
     public final SwerveSubsystem drivebase = new SwerveSubsystem(() -> wristLeft);
     private final LEDSubsystem strip1 = new LEDSubsystem(0);
-    // private final LEDSubsystem LEDStrip = new LEDSubsystem(Constants.LED_PORT, 0, Constants.LED_COUNT);
-    // private final LEDSubsystem chainLEDStrip = new LEDSubsystem(Constants.CHAIN_LED_PORT, 0, Constants.CHAIN_LED_COUNT);
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator(drivebase);
     private final Intake intake = new Intake();
@@ -293,11 +291,6 @@ public class RobotContainer {
             .and(DriverStation::isDisabled)
             .and(() -> autoRunnable != null)
             .onTrue(new InstantCommand(() -> autoRunnable.run()).ignoringDisable(true));
-
-
-        //Todo does not work - value is correctly returned, but it doesnt get bound??
-//        loop.bind(() -> System.out.println(isEventLoopScheduled(alternativeEventLoop).getAsBoolean()));
-//        new Trigger(loop, () -> CommandScheduler.getInstance().getActiveButtonLoop().equals(alternativeEventLoop)).onTrue(new InstantCommand(() -> System.out.println("test")).ignoringDisable(true));
     }
     
     public BooleanSupplier isEventLoopScheduled(EventLoop loop){
