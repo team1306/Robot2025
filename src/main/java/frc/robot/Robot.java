@@ -36,7 +36,8 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         // robotContainer.setAllianceLed();
-        robotContainer.setRainbow();
+        robotContainer.setSeizureMode();
+        // robotContainer.setRainbow();
         new WaitCommand(2).andThen(new InstantCommand(robotContainer::resetTargetPositions)).ignoringDisable(true).schedule();
     }
     
