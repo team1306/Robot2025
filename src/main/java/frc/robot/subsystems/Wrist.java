@@ -60,7 +60,7 @@ public class Wrist extends SubsystemBase  {
         
         setTargetAngle(Rotation2d.kZero);
 
-        detectEncoderUnplugged = new DetectUnpluggedEncoder(() -> getCurrentAngle().getDegrees(), () -> targetAngle.getDegrees());
+        detectEncoderUnplugged = new DetectUnpluggedEncoder(encoder::get, () -> targetAngle.getDegrees());
     }
 
     @Entry(type = EntryType.Publisher)
@@ -74,8 +74,7 @@ public class Wrist extends SubsystemBase  {
         motorOutput = pidOutput;
         motorGroup.setSpeed(motorOutput);
 
-        if (detectEncoderUnplugged.update()) encoderUnpluggedAlert.set(true);
-        else encoderUnpluggedAlert.set(false);
+        encoderUnpluggedAlert.set(detectEncoderUnplugged.update());
     }
 
     /**

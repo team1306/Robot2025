@@ -15,7 +15,7 @@ public class DetectUnpluggedEncoder {
     public DetectUnpluggedEncoder (DoubleSupplier encoderSupplier, DoubleSupplier targetSupplier) {
         this.encoderSupplier = encoderSupplier;
         this.targetSupplier = targetSupplier;
-        timer.reset();
+        timer.restart();
     }
 
     /**
@@ -24,7 +24,7 @@ public class DetectUnpluggedEncoder {
      */
     public boolean update() {
         if (targetSupplier.getAsDouble() == 0 || encoderSupplier.getAsDouble() != 0) {
-            timer.reset();
+            timer.restart();
             return false;
         }
         

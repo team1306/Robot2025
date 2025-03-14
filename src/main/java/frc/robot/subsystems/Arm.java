@@ -65,7 +65,7 @@ public class Arm extends SubsystemBase  {
         profiledPIDController.setTolerance(TOLERANCE.getDegrees());
         setTargetAngle(Rotation2d.kZero);
 
-        detectEncoderUnplugged = new DetectUnpluggedEncoder(() -> getCurrentAngle().getDegrees(), () -> targetAngle.getDegrees());
+        detectEncoderUnplugged = new DetectUnpluggedEncoder(armEncoder::get, () -> targetAngle.getDegrees());
     }
 
     @Override
@@ -81,8 +81,7 @@ public class Arm extends SubsystemBase  {
 
         motorGroup.setSpeed(motorOutput);
 
-        if (detectEncoderUnplugged.update()) encoderUnpluggedAlert.set(true);
-        else encoderUnpluggedAlert.set(false);
+        encoderUnpluggedAlert.set(detectEncoderUnplugged.update());
     }
 
     /**
