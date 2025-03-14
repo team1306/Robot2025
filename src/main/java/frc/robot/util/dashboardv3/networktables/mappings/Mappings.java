@@ -1,6 +1,7 @@
 package frc.robot.util.dashboardv3.networktables.mappings;
 
 import edu.wpi.first.networktables.NetworkTableType;
+import frc.robot.util.dashboardv3.Dashboard;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.FieldInfo;
@@ -8,6 +9,7 @@ import lombok.SneakyThrows;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Class containing all mappings for each type. On startup, searches for any fields annotated with {@link MappingType} and adds them to the list of current mappings.
@@ -40,24 +42,20 @@ public class Mappings {
         return findMapping(type).getNetworkTableType();
     }
 
-    static {
-        initialize();
-    }
-
     /**
      * Init method to search for all instances of the {@link MappingType} class and add them to the current list of mappings
      */
-    @SneakyThrows({IllegalArgumentException.class, IllegalAccessException.class})
-    private static void initialize() {
-        System.out.println("Starting Mapping Init");
-        double currentTime = System.currentTimeMillis();
+    @SneakyThrows({IllegalArgumentException.class, IllegalAccessException.class, ExecutionException.class, InterruptedException.class})
+    public static void initialize() {
         var classGraph = new ClassGraph()
                 .enableFieldInfo()
                 .enableAnnotationInfo()
                 .ignoreFieldVisibility();
 
-        var result = classGraph.scan();
-
+        
+        var resultAsync = classGraph.scanAsync(Dashboard.executorService, 10);
+        var result = resultAsync.get();
+        
         for (ClassInfo classInfo : result.getClassesWithFieldAnnotation(MappingType.class)) {
             for (FieldInfo fieldInfo : classInfo.getFieldInfo().filter(fieldInfo -> fieldInfo.hasAnnotation(MappingType.class))) {
                 if (!fieldInfo.isStatic()) continue;
@@ -69,7 +67,5 @@ public class Mappings {
             }
         }
         result.close();
-
-        System.out.println("Finished Mapping Init. Took: " + (System.currentTimeMillis() - currentTime) / 1000 + "s");
     }
 }

@@ -21,12 +21,14 @@ import frc.robot.util.dashboardv3.networktables.subscriber.FieldSubscriber;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.FieldInfo;
+import lombok.SneakyThrows;
 
 import java.util.HashMap;
+import java.util.concurrent.*;
 
 /**
- * Custom method of putting data to NetworkTables. This Dashboard is meant to replace {@link edu.wpi.first.wpilibj.smartdashboard.SmartDashboard} 
- * to allow for a much easier use of putting and getting values through the use of annotations. 
+ * Custom method of putting data to NetworkTables. This Dashboard is meant to replace {@link edu.wpi.first.wpilibj.smartdashboard.SmartDashboard}
+ * to allow for a much easier use of putting and getting values through the use of annotations.
  * <br> <br>
  * This can be done by annotating any field with a type mapping (See {@link Mappings}) with {@link Entry}.
  * Some parameters in the annotation are optional (the key will be auto set if not specified). The type of NetworkTable entry must be set.
@@ -38,37 +40,49 @@ import java.util.HashMap;
  * A <i>Sendable</i> uses an object which inherits from {@link edu.wpi.first.util.sendable.Sendable} to publish a specific set of values. <br>
  * <br>
  * If a <i>Sendable</i> can be used, it should because it logs more information than individual publishers or subscribers
- *  <br> <br>
+ * <br> <br>
  * All fields annotated with {@link Entry} <b>must</b> be static (they are already effectively static). The can have any access level and still work.
  * All fields also must be initialized in static initialization to ensure that the default value is correct.
  * <br> <br>
  * Example: <br>
  * <code>
- *     {@code @Entry(*key = "distance", type = EntryType.Publisher)} <br>
- *     public static Distance distance = Inches.of(2)
+ * {@code @Entry(*key = "distance", type = EntryType.Publisher)} <br>
+ * public static Distance distance = Inches.of(2)
  * </code> <br>
  * *key is not required, and will default to a NetworkTable key of the field name under a table with the class' simple name
  */
 public class Dashboard {
 
     public static final NetworkTable defaultTable = NetworkTableInstance.getDefault().getTable("Dashboard");
+    
+    public static final ExecutorService executorService = Executors.newCachedThreadPool();
+    
+    public static boolean isInitialized = false;
 
     private static final HashMap<String, DashboardEntry> ntEntries = new HashMap<>();
     private static final HashMap<String, DashboardPublisher<?>> singleUsePublishers = new HashMap<>();
     
+    static {
+        initialize();
+    }
+
     /**
-     * Run once on startup in the {@link Robot#robotInit()} method
+     * Runs once on startup to create field type mappings and values on networktables
      */
-    public static void start() {
-        System.out.println("Starting Dashboard Init");
-        double currentTime = System.currentTimeMillis();
+    @SneakyThrows({InterruptedException.class, ExecutionException.class})
+    private static void initialize() {
+        defaultTable.getEntry("Dashboard Startup").setBoolean(false);
+
+        Mappings.initialize();
+
         var classGraph = new ClassGraph()
                 .enableFieldInfo()
                 .enableClassInfo()
                 .enableAnnotationInfo()
                 .ignoreFieldVisibility();
-
-        var result = classGraph.scan();
+        
+        var resultAsync = classGraph.scanAsync(executorService, 10);
+        var result = resultAsync.get();
 
         for (ClassInfo classInfo : result.getClassesWithFieldAnnotation(Entry.class)) {
             for (FieldInfo fieldInfo : classInfo.getFieldInfo().filter(fieldInfo -> fieldInfo.hasAnnotation(Entry.class))) {
@@ -90,7 +104,8 @@ public class Dashboard {
         }
         result.close();
 
-        System.out.println("Finished Dashboard Init. Took: " + (System.currentTimeMillis() - currentTime) / 1000 + "s");
+        defaultTable.getEntry("Dashboard Startup").setBoolean(true);
+        isInitialized = true;
     }
 
     /**
@@ -122,17 +137,18 @@ public class Dashboard {
     public static Trigger getAutoResettingButton(String key, EventLoop eventLoop) {
         var subscriber = new DashboardSubscriber<>(key, boolean.class, NetworkTableType.kBoolean);
         return new Trigger(eventLoop,
-            () -> subscriber.getValue(false))
+                () -> subscriber.getValue(false))
                 .onTrue(Commands.waitSeconds(0.25)
-                .andThen(new InstantCommand(() -> subscriber.setInitialPublish(false))
-                .ignoringDisable(true))
-        );
+                        .andThen(new InstantCommand(() -> subscriber.setInitialPublish(false))
+                                .ignoringDisable(true))
+                );
     }
 
     /**
      * Put a value to NetworkTables given a key and value
-     * @param key the key referencing the NetworkTable entry
-     * @param value the value to publish
+     *
+     * @param key         the key referencing the NetworkTable entry
+     * @param value       the value to publish
      * @param <FieldType> the value of the field
      */
     public static <FieldType> void putValue(String key, FieldType value) {
@@ -141,19 +157,19 @@ public class Dashboard {
 
     /**
      * Put a value to NetworkTables given a key and value, using config to configure the mapping
-     * @param key the key referencing the NetworkTable entry
-     * @param value the value to publish
-     * @param config the config string to use
+     *
+     * @param key         the key referencing the NetworkTable entry
+     * @param value       the value to publish
+     * @param config      the config string to use
      * @param <FieldType> the value of the field
      */
     @SuppressWarnings("unchecked")
     public static <FieldType> void putValue(String key, FieldType value, String config) {
         DashboardPublisher<FieldType> publisher;
-        if(!singleUsePublishers.containsKey(key)) {
+        if (!singleUsePublishers.containsKey(key)) {
             publisher = new DashboardPublisher<>(key, (Class<FieldType>) value.getClass(), Mappings.findMappingType(value.getClass()), config);
             singleUsePublishers.put(key, publisher);
-        }
-        else{
+        } else {
             publisher = (DashboardPublisher<FieldType>) singleUsePublishers.get(key);
         }
 

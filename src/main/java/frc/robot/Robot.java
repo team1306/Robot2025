@@ -21,7 +21,6 @@ public class Robot extends TimedRobot {
         FieldLocation.calculateReefPositions();
         robotContainer = new RobotContainer();
         System.gc();
-        Dashboard.start();
     }
 
     @Override
@@ -49,6 +48,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledExit() {
         FieldLocation.calculateReefPositions();
+        if(!Dashboard.isInitialized) throw new IllegalStateException("Dashboard is not initialized--do not enable");
     }
 
     @Override
