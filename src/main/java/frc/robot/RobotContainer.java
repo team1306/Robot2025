@@ -26,6 +26,7 @@ import frc.robot.commands.elevator.MoveElevatorToSetpoint;
 import frc.robot.commands.elevator.ZeroElevatorRoutine;
 import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.led.FillLEDColor;
+import frc.robot.commands.led.LEDPatterns;
 import frc.robot.commands.wrist.ManualWristControl;
 import frc.robot.commands.wrist.MoveWristToSetpoint;
 import frc.robot.commands.wrist.WristSetpoints;
@@ -296,5 +297,8 @@ public class RobotContainer {
     
     public void setAllianceLed(){
         FillLEDColor.flashColor(ledStrip, Constants.RED, .5).ignoringDisable(true).schedule();
+    }
+    public void setSeizureMode(){
+        LEDPatterns.seizureMode(ledStrip).ignoringDisable(true).schedule();
     }
 }
