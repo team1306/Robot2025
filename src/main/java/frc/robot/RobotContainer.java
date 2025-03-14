@@ -25,6 +25,7 @@ import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
 import frc.robot.commands.elevator.ZeroElevatorRoutine;
 import frc.robot.commands.intake.RunIntake;
+import frc.robot.commands.led.FillLEDColor;
 import frc.robot.commands.wrist.ManualWristControl;
 import frc.robot.commands.wrist.MoveWristToSetpoint;
 import frc.robot.commands.wrist.WristSetpoints;
@@ -48,12 +49,11 @@ public class RobotContainer {
 
     private final Wrist wrist = new Wrist();
     public final SwerveSubsystem drivebase = new SwerveSubsystem(() -> wristLeft);
-    private final LEDSubsystem strip1 = new LEDSubsystem(0);
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
-     private final Climber climber = new Climber();
-    
+    private final Climber climber = new Climber();
+    private final LEDSubsystem ledStrip = new LEDSubsystem(Constants.LED_PORT, 0, Constants.LED_COUNT);
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
      */
@@ -295,7 +295,6 @@ public class RobotContainer {
     }
     
     public void setAllianceLed(){
-        strip1.setAlliance().ignoringDisable(true).schedule();
-        //strip2.setAlliance().ignoringDisable(true).schedule();
-      }
+        FillLEDColor.flashColor(ledStrip, Constants.RED, .5).ignoringDisable(true).schedule();
+    }
 }

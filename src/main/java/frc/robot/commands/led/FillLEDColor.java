@@ -10,7 +10,7 @@ public class FillLEDColor extends Command{
     public static Command fillColor(LEDSubsystem subsystem, Color8Bit color){
         return Commands.runOnce(() -> subsystem.fillAndCommitColor(color), subsystem);
     }
-    public static Command flashColor(LEDSubsystem subsystem, Color8Bit color, int seconds){
+    public static Command flashColor(LEDSubsystem subsystem, Color8Bit color, double seconds){
         return Commands.repeatingSequence(
             Commands.runOnce(() -> subsystem.fillAndCommitColor(color), subsystem),
             Commands.waitSeconds(seconds),
