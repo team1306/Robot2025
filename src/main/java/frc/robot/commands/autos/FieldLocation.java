@@ -45,13 +45,6 @@ public class FieldLocation {
     public static Pose2d J = calculateReefPosition(rotation60.unaryMinus(), false);
     public static Pose2d K = calculateReefPosition(rotation120.unaryMinus(), true);
     public static Pose2d L = calculateReefPosition(rotation120.unaryMinus(), false);
-
-    public static Pose2d ABIntermediate = new Pose2d(6.3, 4, Rotation2d.k180deg);
-    public static Pose2d CDIntermediate = new Pose2d(5.4, 2.5, rotation120); 
-    public static Pose2d EFIntermediate = new Pose2d(3.6, 2.5, rotation60);
-    public static Pose2d GHIntermediate = new Pose2d(2.6, 4, Rotation2d.kZero);
-    public static Pose2d IJIntermediate = new Pose2d(3.6, 5.4, rotation60.unaryMinus());
-    public static Pose2d KLIntermediate = new Pose2d(5.4, 5.5, rotation120.unaryMinus());
     
     public static void calculateReefPositions(){
         A = calculateReefPosition(Rotation2d.k180deg, true);
@@ -67,13 +60,6 @@ public class FieldLocation {
         K = calculateReefPosition(rotation120.unaryMinus(), true);
         L = calculateReefPosition(rotation120.unaryMinus(), false);
 
-        ABIntermediate = new Pose2d(6.3, 4, Rotation2d.k180deg);
-        CDIntermediate = new Pose2d(5.4, 2.5, rotation120); 
-        EFIntermediate = new Pose2d(3.6, 2.5, rotation60);
-        GHIntermediate = new Pose2d(2.6, 4, Rotation2d.kZero);
-        IJIntermediate = new Pose2d(3.6, 5.4, rotation60.unaryMinus());
-        KLIntermediate = new Pose2d(5.4, 5.5, rotation120.unaryMinus());
-
         A = Utilities.isRedAlliance() ? flipToRedSide(A) : A;
         B = Utilities.isRedAlliance() ? flipToRedSide(B) : B;
         C = Utilities.isRedAlliance() ? flipToRedSide(C) : C;
@@ -86,13 +72,6 @@ public class FieldLocation {
         J = Utilities.isRedAlliance() ? flipToRedSide(J) : J;
         K = Utilities.isRedAlliance() ? flipToRedSide(K) : K;
         L = Utilities.isRedAlliance() ? flipToRedSide(L) : L;
-        
-        ABIntermediate = Utilities.isRedAlliance() ? flipToRedSide(ABIntermediate) : ABIntermediate;
-        CDIntermediate = Utilities.isRedAlliance() ? flipToRedSide(CDIntermediate) : CDIntermediate;
-        EFIntermediate = Utilities.isRedAlliance() ? flipToRedSide(EFIntermediate) : EFIntermediate;
-        GHIntermediate = Utilities.isRedAlliance() ? flipToRedSide(GHIntermediate) : GHIntermediate;
-        IJIntermediate = Utilities.isRedAlliance() ? flipToRedSide(IJIntermediate) : IJIntermediate;
-        KLIntermediate = Utilities.isRedAlliance() ? flipToRedSide(KLIntermediate) : KLIntermediate;
 
         reefLocations = Arrays.asList(A, B, C, D, E, F, G, H, I, J, K, L);
 
@@ -127,45 +106,4 @@ public class FieldLocation {
         FlippingUtil.symmetryType = FlippingUtil.FieldSymmetry.kMirrored;
         return FlippingUtil.flipFieldPose(pose);
     }
-    
-    public static Pose2d getIntermediatePoseFromFinal(Pose2d pose){
-        if(pose.equals(A)){
-            return ABIntermediate;
-        }
-        else if(pose.equals(B)){
-            return ABIntermediate;
-        }
-        else if(pose.equals(C)){
-            return CDIntermediate;
-        }
-        else if(pose.equals(D)){
-            return CDIntermediate;
-        }
-        else if(pose.equals(E)){
-            return EFIntermediate;
-        }
-        else if(pose.equals(F)){
-            return EFIntermediate;
-        }
-        else if(pose.equals(G)){
-            return GHIntermediate;
-        }
-        else if(pose.equals(H)){
-            return GHIntermediate;
-        }
-        else if(pose.equals(I)){
-            return IJIntermediate;
-        }
-        else if(pose.equals(J)){
-            return IJIntermediate;
-        }
-        else if(pose.equals(K)){
-            return KLIntermediate;
-        }
-        else if(pose.equals(L)){
-            return KLIntermediate;
-        }
-        throw new IllegalArgumentException("Wrong pose");
-    }
-
 }
