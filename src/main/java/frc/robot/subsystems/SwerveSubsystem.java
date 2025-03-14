@@ -109,7 +109,7 @@ public class SwerveSubsystem extends SubsystemBase {
         3 - use internal with MT1 assisted convergence,
         4 - use internal IMU with external IMU assisted convergence
         */
-        LimelightHelpers.SetIMUMode(LIMELIGHT_NAME, 2);
+        LimelightHelpers.SetIMUMode(LIMELIGHT_NAME, 0);
         replaceYAGSLIMU();
         setupPathPlanner();
     }
