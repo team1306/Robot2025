@@ -298,7 +298,7 @@ public class RobotContainer {
     public void setAllianceLed(){
         FillLEDColor.flashColor(ledStrip, Constants.RED, .5).ignoringDisable(true).schedule();
     }
-    public void setSeizureMode(){
-        LEDPatterns.seizureMode(ledStrip).ignoringDisable(true).schedule();
+    public void setRainbow(){
+        LEDPatterns.setRainbowEffect(ledStrip).ignoringDisable(true).schedule();
     }
 }
