@@ -44,7 +44,7 @@ public class LEDPatterns extends Command {
         final LEDPattern rainbow = LEDPattern.rainbow(255, 75);
         final LEDPattern base = rainbow.scrollAtAbsoluteSpeed(InchesPerSecond.of(40), Meters.of(1.0/60));
       
-        LEDPattern mask = LEDPattern.steps(maskSteps).scrollAtRelativeSpeed(Percent.per(Second).of(25));
+        LEDPattern mask = LEDPattern.steps(maskSteps).scrollAtRelativeSpeed(Percent.per(Second).of(100));
 
         final LEDPattern heightDisplay = base.mask(mask);
 
