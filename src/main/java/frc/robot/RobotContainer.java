@@ -279,7 +279,7 @@ public class RobotContainer {
         controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));
 
         new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(new CustomWaitCommand(() -> autoWaitTime).andThen(autoChooser.selectedCommandScheduler()));
-        new Trigger(loop, DriverStation::isDisabled).onChange(new InstantCommand(FieldLocation::calculateReefPositions).ignoringDisable(true));
+        new Trigger(loop, Utilities::isRedAlliance).onChange(new InstantCommand(FieldLocation::recalculateFieldPositions).ignoringDisable(true));
 
         Dashboard.getAutoResettingButton("Auto/Reset Auto Odometry", loop)
             .and(DriverStation::isDisabled)
