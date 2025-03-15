@@ -67,11 +67,11 @@ public class SwerveSubsystem extends SubsystemBase {
     
     @Entry(key = "Auto/Translation Controller", type = EntryType.Sendable)
     private static ProfiledPIDController translationController =
-            new ProfiledPIDController(4, 0.01, 0, new TrapezoidProfile.Constraints(2, 1));
+            new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(2, 1));
 
     @Entry(key = "Auto/Heading Controller", type = EntryType.Sendable)
     private static ProfiledPIDController headingController =
-            new ProfiledPIDController(4, 0.01, 0, new TrapezoidProfile.Constraints(50, 25));
+            new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(50, 25));
 
     private final SwerveInputStream driveToPose;
 
