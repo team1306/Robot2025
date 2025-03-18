@@ -62,14 +62,8 @@ public class RobotContainer {
             SwerveInputStream.of(drivebase.getSwerveDrive(), () -> -controller1.getLeftY(), () -> -controller1.getLeftX())
                     .withControllerRotationAxis(() -> -controller1.getRightX()).deadband(Constants.LEFT_X_DEADBAND)
                     .scaleTranslation(1).scaleRotation(0.75).allianceRelativeControl(true);
-
-    /**
-     * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
-     */
-    private final SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(() -> -controller1.getRightX(),
-    () -> -controller1.getRightY()).headingWhile(true);
     
-    private final Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
+    private final Command driveRobotOrientedAngularVelocity = drivebase.drive(driveAngularVelocity);
     private final Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
     @Entry(key = "Auto/Auto Chooser", type = EntryType.Sendable)
@@ -265,15 +259,14 @@ public class RobotContainer {
     }
 
     public static Runnable autoRunnable = null;
-    private boolean useAngularVelocity = true;
+    private boolean useFieldRelative = true;
     
     public void bindCommonControls(EventLoop loop){
         controller1.start(loop).onTrue(new InstantCommand(drivebase::zeroGyro).ignoringDisable(true));
         controller1.back(loop).onTrue(new InstantCommand(() -> {
             Utilities.removeAndCancelDefaultCommand(drivebase);
-            useAngularVelocity = !useAngularVelocity;
-            drivebase.setDefaultCommand(useAngularVelocity ? driveFieldOrientedAngularVelocity : driveFieldOrientedDirectAngle);
-            drivebase.getSwerveDrive().setHeadingCorrection(!useAngularVelocity);
+            useFieldRelative = !useFieldRelative;
+            drivebase.setDefaultCommand(useFieldRelative ? driveFieldOrientedAngularVelocity : driveRobotOrientedAngularVelocity);
         }));
 
         controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));

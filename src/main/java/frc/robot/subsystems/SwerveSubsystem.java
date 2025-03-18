@@ -35,7 +35,6 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import org.json.simple.parser.ParseException;
 import swervelib.*;
-import swervelib.imu.NavXSwerve;
 import swervelib.imu.SwerveIMU;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
@@ -88,7 +87,7 @@ public class SwerveSubsystem extends SubsystemBase {
             throw new RuntimeException(e);
         }
 
-        swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
+        swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
         swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         swerveDrive.setAngularVelocityCompensation(false, false, 0.1); //Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
@@ -303,6 +302,15 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public void drive(ChassisSpeeds velocity) {
         swerveDrive.drive(velocity.times(swerveSpeed));
+    }
+
+    /**
+     * Drive according to the chassis robot oriented velocity.
+     *
+     * @param velocity Robot oriented {@link ChassisSpeeds}
+     */
+    public Command drive(Supplier<ChassisSpeeds> velocity) {
+        return run(() -> drive(velocity.get()));
     }
 
     /**
