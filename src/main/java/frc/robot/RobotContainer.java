@@ -110,9 +110,9 @@ public class RobotContainer {
         controllerModeChooser.addOption("Alternative", alternativeEventLoop);
         controllerModeChooser.onChange(this::changeEventLoop);
 
-        // arm.setDefaultCommand(new ArmFromSmartDashboard(arm));
-        // wrist.setDefaultCommand(new WristFromSmartDashboard(wrist));
-        // elevator.setDefaultCommand(new ElevatorFromSmartDashboard(elevator));
+//        arm.setDefaultCommand(new ArmFromSmartDashboard(arm));
+//        wrist.setDefaultCommand(new WristFromSmartDashboard(wrist));
+//        elevator.setDefaultCommand(new ElevatorFromSmartDashboard(elevator));
     }
 
     public void zeroTargetPositions(){
@@ -243,8 +243,8 @@ public class RobotContainer {
         controller2.b(fullAutomaticEventLoop).whileTrue(new RunIntake(intake, () -> -1));
 
         controller2.back(fullAutomaticEventLoop).whileTrue(new ZeroElevatorRoutine(elevator));
-         controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Constants.Direction.FORWARD)); // climb
-         controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Constants.Direction.REVERSE)); // deploy
+        controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Constants.Direction.FORWARD)); // climb
+        controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Constants.Direction.REVERSE)); // deploy
     }
 
     private LevelSelectorKey getLevelSelectorKey(){

@@ -56,7 +56,6 @@ public class FieldLocation {
         CORAL_STATION_RIGHT = Utilities.isRedAlliance() ? flipToRedSide(CORAL_STATION_RIGHT) : CORAL_STATION_RIGHT;
         
         coralStationLocations = Arrays.asList(CORAL_STATION_LEFT, CORAL_STATION_RIGHT);
-        System.out.println(coralStationLocations);
     }
     
     private static void refreshReefPositions(){

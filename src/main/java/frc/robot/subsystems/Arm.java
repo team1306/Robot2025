@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -23,13 +22,13 @@ import static frc.robot.Constants.*;
 public class Arm extends SubsystemBase  {
     
     @Entry(type = EntryType.Subscriber)
-    private static double kG = 0.033, kV = 0;
+    private static double kG = 0.03, kV = 0;
     
     private static final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
     
     private final double MIN_ANGLE = -30, MAX_ANGLE = 90;
 
-    private final Rotation2d OFFSET = Rotation2d.fromDegrees(52.3 + 2.8), TOLERANCE = Rotation2d.fromDegrees(0.1);
+    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-160), TOLERANCE = Rotation2d.fromDegrees(0.1);
 
     @Getter @Entry(type = EntryType.Publisher)
     private static Rotation2d targetAngle = Rotation2d.kZero;
@@ -41,7 +40,7 @@ public class Arm extends SubsystemBase  {
     private final DutyCycleEncoder armEncoder;
 
     @Entry(type = EntryType.Sendable)
-    private static ProfiledPIDController profiledPIDController = new ProfiledPIDController(0.015, 0, 0.0008, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
+    private static ProfiledPIDController profiledPIDController = new ProfiledPIDController(0.02, 0, 0.0001, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private ArmFeedforward feedforward;
 
 
@@ -54,8 +53,8 @@ public class Arm extends SubsystemBase  {
      * Controllers: Feedforward and Profiled PID Controller.
      */
     public Arm() {
-//        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(ARM_MOTOR_ID, NeutralModeValue.Brake));
-        Motor motor = new FakeMotor();
+       Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(ARM_MOTOR_ID, NeutralModeValue.Brake));
+        // Motor motor = new FakeMotor();
         motorGroup = new MotorGroup<>(motor);
 
         armEncoder = new DutyCycleEncoder(ARM_ENCODER_ID);

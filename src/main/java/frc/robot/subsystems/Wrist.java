@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -21,7 +20,7 @@ import static frc.robot.Constants.*;
 public class Wrist extends SubsystemBase  {
     private final double MIN_ANGLE = -100, MAX_ANGLE = 100;
 
-    private final Rotation2d OFFSET = Rotation2d.fromDegrees(266.5);
+    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-120);
     
     @Entry(type = EntryType.Subscriber)
     private static double offsetRight = 0D;
@@ -39,7 +38,7 @@ public class Wrist extends SubsystemBase  {
     private final DutyCycleEncoder encoder;
 
     @Entry(type = EntryType.Sendable)
-    private static PIDController pidController = new PIDController(0.5, 0, 0.015);
+    private static PIDController pidController = new PIDController(0.4, 0, 0.0001);
 
     private final DetectUnpluggedEncoder detectEncoderUnplugged;
     private final Alert encoderUnpluggedAlert = new Alert("Arm encoder detected unplugged", AlertType.kError);
@@ -50,8 +49,8 @@ public class Wrist extends SubsystemBase  {
      * Controllers: Normal PID Controller.
      */
     public Wrist() {
-//        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive));
-        Motor motor = new FakeMotor();
+       Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive));
+        // Motor motor = new FakeMotor();
 
         motorGroup = new MotorGroup<>(motor);
         encoder = new DutyCycleEncoder(WRIST_ENCODER_ID);

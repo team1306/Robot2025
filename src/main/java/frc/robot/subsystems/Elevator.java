@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
@@ -12,7 +11,6 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.utils.FakeMotor;
 import frc.robot.subsystems.utils.Motor;
 import frc.robot.subsystems.utils.MotorGroup;
 import frc.robot.subsystems.utils.TalonFxMotor;
@@ -32,13 +30,13 @@ public class Elevator extends SubsystemBase {
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
     @Entry(type = EntryType.Subscriber)
-    private static double kG = 0.075, kV = 0; 
+    private static double kG = 0.027, kV = 0;
 
     private final static double MAX_VELOCITY = 1e+9, MAX_ACCELERATION = 700; // placeholder
     private final Distance TOLERANCE = Inches.of(0.2);
     
     @Entry(type = EntryType.Sendable)
-    private static ProfiledPIDController pid = new ProfiledPIDController(0.22, 0, 0.008,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
+    private static ProfiledPIDController pid = new ProfiledPIDController(0.16, 0, 0.003,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private ElevatorFeedforward feedforward;
 
     private final MotorGroup<Motor> motorGroup;
@@ -69,10 +67,10 @@ public class Elevator extends SubsystemBase {
      * Controllers: Feedforward and ProfiledPIDController.
      */
     public Elevator() {
-//        leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast));
-//        rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast, InvertedValue.CounterClockwise_Positive));
-        leftMotor = new FakeMotor();
-        rightMotor = new FakeMotor();
+       leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast));
+       rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast));
+        // leftMotor = new FakeMotor();
+        // rightMotor = new FakeMotor();
 
         leftMotor.setPosition(Rotations.of(0));
         rightMotor.setPosition(Rotations.of(0));
