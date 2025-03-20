@@ -50,7 +50,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.*;
-import static frc.robot.Constants.LIMELIGHT_NAME;
+import static frc.robot.Constants.LIMELIGHT_3_NAME;
+import static frc.robot.Constants.LIMELIGHT_4_NAME;
 
 public class SwerveSubsystem extends SubsystemBase {
     @Getter
@@ -108,8 +109,8 @@ public class SwerveSubsystem extends SubsystemBase {
         3 - use internal with MT1 assisted convergence,
         4 - use internal IMU with external IMU assisted convergence
         */
-        LimelightHelpers.SetIMUMode(LIMELIGHT_NAME, 0);
-        // replaceYAGSLIMU();
+        LimelightHelpers.SetIMUMode(LIMELIGHT_4_NAME, 0);
+        replaceYAGSLIMU();
         setupPathPlanner();
     }
 
@@ -171,16 +172,17 @@ public class SwerveSubsystem extends SubsystemBase {
         Dashboard.putValue("Auto/TranslationError", translationController.getPositionError());
         Dashboard.putValue("Auto/HeadingError", headingController.getPositionError());
 
-        addVisionMeasurement();
+        addVisionMeasurement(LIMELIGHT_4_NAME);
+        addVisionMeasurement(LIMELIGHT_3_NAME);
     }
 
-    public void addVisionMeasurement(){
-         LimelightHelpers.SetRobotOrientation(LIMELIGHT_NAME, swerveDrive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        PoseEstimate poseEstimateMT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT_NAME);
+    public void addVisionMeasurement(String limelightName){
+        LimelightHelpers.SetRobotOrientation(limelightName, swerveDrive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        PoseEstimate poseEstimateMT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
         if(poseEstimateMT2 == null) return;
 
         Pose2d pose = new Pose2d(poseEstimateMT2.pose.getTranslation(), swerveDrive.getPose().getRotation());
-        if(poseEstimateMT2.tagCount >= 1) swerveDrive.addVisionMeasurement(pose, poseEstimateMT2.timestampSeconds); 
+        if(poseEstimateMT2.tagCount >= 1) swerveDrive.addVisionMeasurement(pose, poseEstimateMT2.timestampSeconds);
     }
 
     public Command setModuleAngleSetpoint(Rotation2d angle){
@@ -473,7 +475,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         @Override
         public Rotation3d getRawRotation3d() {
-            LimelightHelpers.IMUData data = LimelightHelpers.getIMUData(LIMELIGHT_NAME);
+            LimelightHelpers.IMUData data = LimelightHelpers.getIMUData(LIMELIGHT_4_NAME);
             Rotation3d rawRotation = new Rotation3d(Math.toRadians(data.Roll), Math.toRadians(data.Pitch), Math.toRadians(data.Yaw)).times(inverted ? -1 : 1);
             Dashboard.putValue("LimelightIMU/Rotation Raw", rawRotation);
             return rawRotation;
@@ -488,7 +490,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         @Override
         public Optional<Translation3d> getAccel() {
-            LimelightHelpers.IMUData data = LimelightHelpers.getIMUData(LIMELIGHT_NAME);
+            LimelightHelpers.IMUData data = LimelightHelpers.getIMUData(LIMELIGHT_4_NAME);
 
             Translation3d accel = new Translation3d(data.accelX, data.accelY, data.accelZ);
             Dashboard.putValue("LimelightIMU/Acceleration", accel);
@@ -497,7 +499,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         @Override
         public MutAngularVelocity getYawAngularVelocity() {
-            double currentYaw = LimelightHelpers.getIMUData(LIMELIGHT_NAME).Yaw;
+            double currentYaw = LimelightHelpers.getIMUData(LIMELIGHT_4_NAME).Yaw;
             double yawVelocity = (currentYaw - lastYaw) / 0.02;
             lastYaw = currentYaw;
             Dashboard.putValue("LimelightIMU/Yaw Velocity", yawVelocity);

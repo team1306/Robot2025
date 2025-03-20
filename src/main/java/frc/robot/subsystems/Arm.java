@@ -28,7 +28,7 @@ public class Arm extends SubsystemBase  {
     
     private final double MIN_ANGLE = -30, MAX_ANGLE = 90;
 
-    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-160), TOLERANCE = Rotation2d.fromDegrees(0.1);
+    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-160+4), TOLERANCE = Rotation2d.fromDegrees(0.1);
 
     @Getter @Entry(type = EntryType.Publisher)
     private static Rotation2d targetAngle = Rotation2d.kZero;

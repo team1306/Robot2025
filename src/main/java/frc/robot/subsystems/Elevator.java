@@ -24,19 +24,18 @@ import lombok.Setter;
 
 import static edu.wpi.first.units.Units.*;
 
-
 public class Elevator extends SubsystemBase {
     
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
     @Entry(type = EntryType.Subscriber)
-    private static double kG = 0.027, kV = 0;
+    private static double kG = 0.045, kV = 0;
 
     private final static double MAX_VELOCITY = 1e+9, MAX_ACCELERATION = 700; // placeholder
-    private final Distance TOLERANCE = Inches.of(0.2);
+    private final Distance TOLERANCE = Inches.of(0.5);
     
     @Entry(type = EntryType.Sendable)
-    private static ProfiledPIDController pid = new ProfiledPIDController(0.16, 0, 0.003,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
+    private static ProfiledPIDController pid = new ProfiledPIDController(0.1, 0, 0.006,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private ElevatorFeedforward feedforward;
 
     private final MotorGroup<Motor> motorGroup;
@@ -45,7 +44,7 @@ public class Elevator extends SubsystemBase {
     private final DigitalInput limitSwitch;
 
     @Entry(type = EntryType.Subscriber)
-    private static double conversionFactor = 54.75 / 344.69;
+    private static double conversionFactor = 54.75 / 344.69 * 3;
 
     @Entry(type = EntryType.Subscriber)
     private static double maxHeightInches = 53.5, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
@@ -67,8 +66,8 @@ public class Elevator extends SubsystemBase {
      * Controllers: Feedforward and ProfiledPIDController.
      */
     public Elevator() {
-       leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast));
-       rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast));
+       leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Brake));
+       rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Brake));
         // leftMotor = new FakeMotor();
         // rightMotor = new FakeMotor();
 

@@ -14,12 +14,14 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.arm.ArmFromSmartDashboard;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.auto.CustomWaitCommand;
 import frc.robot.commands.autos.*;
 import frc.robot.commands.climber.RunClimber;
+import frc.robot.commands.elevator.ElevatorFromSmartDashboard;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
@@ -110,9 +112,9 @@ public class RobotContainer {
         controllerModeChooser.addOption("Alternative", alternativeEventLoop);
         controllerModeChooser.onChange(this::changeEventLoop);
 
-//        arm.setDefaultCommand(new ArmFromSmartDashboard(arm));
+       arm.setDefaultCommand(new ArmFromSmartDashboard(arm));
 //        wrist.setDefaultCommand(new WristFromSmartDashboard(wrist));
-//        elevator.setDefaultCommand(new ElevatorFromSmartDashboard(elevator));
+       elevator.setDefaultCommand(new ElevatorFromSmartDashboard(elevator));
     }
 
     public void zeroTargetPositions(){
