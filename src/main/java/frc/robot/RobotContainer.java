@@ -112,9 +112,9 @@ public class RobotContainer {
         controllerModeChooser.addOption("Alternative", alternativeEventLoop);
         controllerModeChooser.onChange(this::changeEventLoop);
 
-       arm.setDefaultCommand(new ArmFromSmartDashboard(arm));
+    //    arm.setDefaultCommand(new ArmFromSmartDashboard(arm));
 //        wrist.setDefaultCommand(new WristFromSmartDashboard(wrist));
-       elevator.setDefaultCommand(new ElevatorFromSmartDashboard(elevator));
+    //    elevator.setDefaultCommand(new ElevatorFromSmartDashboard(elevator));
     }
 
     public void zeroTargetPositions(){
@@ -261,15 +261,12 @@ public class RobotContainer {
     }
 
     public static Runnable autoRunnable = null;
-    private boolean useFieldRelative = true;
     
     public void bindCommonControls(EventLoop loop){
         controller1.start(loop).onTrue(new InstantCommand(drivebase::zeroGyro).ignoringDisable(true));
-        controller1.back(loop).onTrue(new InstantCommand(() -> {
-            Utilities.removeAndCancelDefaultCommand(drivebase);
-            useFieldRelative = !useFieldRelative;
-            drivebase.setDefaultCommand(useFieldRelative ? driveFieldOrientedAngularVelocity : driveRobotOrientedAngularVelocity);
-        }));
+        controller1.leftStick(loop)
+            .onFalse(new InstantCommand(() -> changeDrivebaseDefaultCommand(driveFieldOrientedAngularVelocity)))
+            .onTrue(new InstantCommand(() -> changeDrivebaseDefaultCommand(driveRobotOrientedAngularVelocity)));
 
         controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));
 
@@ -280,6 +277,11 @@ public class RobotContainer {
             .and(DriverStation::isDisabled)
             .and(() -> autoRunnable != null)
             .onTrue(new InstantCommand(() -> autoRunnable.run()).ignoringDisable(true));
+    }
+
+    private void changeDrivebaseDefaultCommand(Command defaultCommand){
+        Utilities.removeAndCancelDefaultCommand(drivebase);
+        drivebase.setDefaultCommand(defaultCommand);
     }
     
     public BooleanSupplier isEventLoopScheduled(EventLoop loop){

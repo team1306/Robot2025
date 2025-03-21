@@ -109,7 +109,7 @@ public class SwerveSubsystem extends SubsystemBase {
         3 - use internal with MT1 assisted convergence,
         4 - use internal IMU with external IMU assisted convergence
         */
-        LimelightHelpers.SetIMUMode(LIMELIGHT_4_NAME, 0);
+        LimelightHelpers.SetIMUMode(LIMELIGHT_4_NAME, 3);
         replaceYAGSLIMU();
         setupPathPlanner();
     }
@@ -141,7 +141,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Pose2d shiftPoseRelativeToIntake(Pose2d fieldRelativePose) {
         final Distance shift = Inches.of(WRIST_POSE_SHIFT);
-        return fieldRelativePose.transformBy(new Transform2d(new Translation2d(0, shift.in(Meter)), fieldRelativePose.getRotation()));
+        Pose2d transformedPose = fieldRelativePose.transformBy(new Transform2d(new Translation2d(0, shift.in(Meter)), fieldRelativePose.getRotation()));
+        return new Pose2d(transformedPose.getTranslation(), fieldRelativePose.getRotation());
     }
 
     private Command autoAlign = null;
@@ -173,7 +174,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Dashboard.putValue("Auto/HeadingError", headingController.getPositionError());
 
         addVisionMeasurement(LIMELIGHT_4_NAME);
-        addVisionMeasurement(LIMELIGHT_3_NAME);
+//        addVisionMeasurement(LIMELIGHT_3_NAME);
     }
 
     public void addVisionMeasurement(String limelightName){
@@ -181,8 +182,8 @@ public class SwerveSubsystem extends SubsystemBase {
         PoseEstimate poseEstimateMT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
         if(poseEstimateMT2 == null) return;
 
-        Pose2d pose = new Pose2d(poseEstimateMT2.pose.getTranslation(), swerveDrive.getPose().getRotation());
-        if(poseEstimateMT2.tagCount >= 1) swerveDrive.addVisionMeasurement(pose, poseEstimateMT2.timestampSeconds);
+//        Pose2d pose = new Pose2d(poseEstimateMT2.pose.getTranslation(), swerveDrive.getPose().getRotation());
+        if(poseEstimateMT2.tagCount >= 1) swerveDrive.addVisionMeasurement(poseEstimateMT2.pose, poseEstimateMT2.timestampSeconds);
     }
 
     public Command setModuleAngleSetpoint(Rotation2d angle){
