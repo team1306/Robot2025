@@ -20,7 +20,7 @@ import static frc.robot.Constants.*;
 public class Wrist extends SubsystemBase  {
     private final double MIN_ANGLE = -100, MAX_ANGLE = 100;
 
-    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-120);
+    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-120+25);
     
     @Entry(type = EntryType.Subscriber)
     private static double offsetRight = 0D;

@@ -26,7 +26,7 @@ public class FieldLocation {
 
     private static final Distance reefOffset = Inches.of(6.469);
     
-    private static final Distance coralStationOffset = Inches.of(5);
+    private static final Distance coralStationOffset = Inches.of(-5);
     
     private static final Rotation2d rotation120 = Rotation2d.fromDegrees(120);
     private static final Rotation2d rotation60 = Rotation2d.fromDegrees(60);

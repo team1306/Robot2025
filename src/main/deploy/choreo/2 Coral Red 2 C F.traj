@@ -685,10 +685,8 @@
        {"type":"named", "data":{"name":"Intake"}},
        {"type":"named", "data":{"name":"Wait"}},
        {"type":"named", "data":{"name":"StopIntake"}}]}}},
-   {"name":"Score", "from":{"target":8, "targetTimestamp":18.17288, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Score"}}},
    {"name":"Score", "from":{"target":2, "targetTimestamp":4.39806, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Score"}}},
    {"name":"Hover", "from":{"target":1, "targetTimestamp":2.12091, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Hover"}}},
-   {"name":"Hover", "from":{"target":7, "targetTimestamp":16.26236, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Hover"}}},
    {"name":"Stow", "from":{"target":3, "targetTimestamp":7.08072, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Stow"}}},
    {"name":"Stow", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Stow"}}}]
 }

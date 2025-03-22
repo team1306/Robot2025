@@ -40,7 +40,7 @@ public class Autos {
         )
                 .bind("Stow", 
                         new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL, true)
-                                .raceWith(new WaitCommand(2)));
+                                .raceWith(new WaitCommand(3)));
     }
     
     public AutoRoutine get1CoralL4DriveRoutine(String name){

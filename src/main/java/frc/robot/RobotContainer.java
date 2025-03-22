@@ -14,14 +14,12 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.arm.ArmFromSmartDashboard;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.auto.CustomWaitCommand;
 import frc.robot.commands.autos.*;
 import frc.robot.commands.climber.RunClimber;
-import frc.robot.commands.elevator.ElevatorFromSmartDashboard;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
@@ -51,7 +49,7 @@ public class RobotContainer {
     private final CommandXboxController controller2 = new CommandXboxController(1);
 
     private final Wrist wrist = new Wrist();
-    public final SwerveSubsystem drivebase = new SwerveSubsystem(() -> wristLeft);
+    private final SwerveSubsystem drivebase = new SwerveSubsystem();
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
@@ -98,6 +96,7 @@ public class RobotContainer {
         autoChooser.addRoutine("1 - Blue 2 -> H-L1", () -> autos.get1CoralL1DriveRoutine("1 Coral Blue 2 H"));
         autoChooser.addRoutine("1 - Mid -> B-L1", () -> autos.get1CoralL1DriveRoutine("1 Coral Mid B"));
 
+        autoChooser.select("2 - Blue 2 -> H, I");
         //Controller Chooser
         bindAlternative();
         bindAutomatic();
@@ -136,7 +135,7 @@ public class RobotContainer {
 
     public void bindAlternative(){
         bindCommonControls(alternativeEventLoop);
-        controller1.a(alternativeEventLoop).whileTrue(drivebase.getAutoAlignCommand());
+        controller1.a(alternativeEventLoop).whileTrue(drivebase.getReefAutoAlignCommand());
     }
     
     public void bindManual(){
@@ -219,12 +218,14 @@ public class RobotContainer {
         controller1.a(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL)
         );
+
+        controller1.b(fullAutomaticEventLoop).whileTrue(drivebase.getCoralStationAutoAlign());
         
         controller1.x(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
         );
 
-        controller1.rightStick(fullAutomaticEventLoop).whileTrue(drivebase.getAutoAlignCommand());
+        controller1.rightStick(fullAutomaticEventLoop).whileTrue(drivebase.getReefAutoAlignCommand());
 
         //slow mode
         controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.2)).onFalse(drivebase.changeSwerveSpeed(1));

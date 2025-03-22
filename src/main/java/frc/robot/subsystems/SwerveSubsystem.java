@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.*;
@@ -73,13 +72,10 @@ public class SwerveSubsystem extends SubsystemBase {
     private static ProfiledPIDController headingController =
             new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(50, 25));
 
-    private final SwerveInputStream driveToPose;
+    private final SwerveInputStream driveToReefPose;
+    private final SwerveInputStream driveToCoralStationPose;
 
-    private final BooleanSupplier wristDirectionSupplier;
-
-    public SwerveSubsystem(BooleanSupplier wristDirectionSupplier) {
-        this.wristDirectionSupplier = wristDirectionSupplier;
-        
+    public SwerveSubsystem() {
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         try {
             File directory = new File(Filesystem.getDeployDirectory(), "swerve");
@@ -98,8 +94,12 @@ public class SwerveSubsystem extends SubsystemBase {
         autoHeadingController.enableContinuousInput(-Math.PI, Math.PI);
         translationController.setTolerance(0.001);
         headingController.setTolerance(0.001);
-        driveToPose = SwerveInputStream.of(swerveDrive, () -> 0, () -> 0)
-                .driveToPose(this::getNearestFieldLocation, translationController, headingController)
+        driveToReefPose = SwerveInputStream.of(swerveDrive, () -> 0, () -> 0)
+                .driveToPose(this::getNearestReefLocation, translationController, headingController)
+                .driveToPoseEnabled(true);
+
+        driveToCoralStationPose = SwerveInputStream.of(swerveDrive, () -> 0, () -> 0)
+                .driveToPose(this::getNearestCoralStationLocation, translationController, headingController)
                 .driveToPoseEnabled(true);
 
         /*
@@ -109,8 +109,8 @@ public class SwerveSubsystem extends SubsystemBase {
         3 - use internal with MT1 assisted convergence,
         4 - use internal IMU with external IMU assisted convergence
         */
-        LimelightHelpers.SetIMUMode(LIMELIGHT_4_NAME, 3);
-        replaceYAGSLIMU();
+        LimelightHelpers.SetIMUMode(LIMELIGHT_4_NAME, 0);
+        // replaceYAGSLIMU();
         setupPathPlanner();
     }
 
@@ -125,18 +125,18 @@ public class SwerveSubsystem extends SubsystemBase {
         imu.setOffset(imu.getRawRotation3d());
     }
 
-    private Pose2d lastCachedLocation = null;
-    private boolean isEnabled = false;
+    private Pose2d reefLastCachedLocation = null;
+    private boolean reefEnabled = false;
 
     @Entry(type = EntryType.Sendable)
     private static Field2d shiftedPose = new Field2d();
 
-    private Pose2d getNearestFieldLocation(){
-        if(isEnabled && lastCachedLocation != null) return lastCachedLocation;
-        lastCachedLocation = getPose().nearest(FieldLocation.reefLocations);
-        lastCachedLocation = shiftPoseRelativeToIntake(lastCachedLocation);
-        shiftedPose.setRobotPose(lastCachedLocation);
-        return lastCachedLocation;
+    private Pose2d getNearestReefLocation(){
+        if(reefEnabled && reefLastCachedLocation != null) return reefLastCachedLocation;
+        reefLastCachedLocation = getPose().nearest(FieldLocation.reefLocations);
+        reefLastCachedLocation = shiftPoseRelativeToIntake(reefLastCachedLocation);
+        shiftedPose.setRobotPose(reefLastCachedLocation);
+        return reefLastCachedLocation;
     }
 
     private Pose2d shiftPoseRelativeToIntake(Pose2d fieldRelativePose) {
@@ -145,11 +145,27 @@ public class SwerveSubsystem extends SubsystemBase {
         return new Pose2d(transformedPose.getTranslation(), fieldRelativePose.getRotation());
     }
 
-    private Command autoAlign = null;
+    private Command reefAutoAlign = null;
 
-    public Command getAutoAlignCommand(){
-        if(autoAlign == null) autoAlign = driveFieldOriented(driveToPose);
-        return autoAlign;
+    public Command getReefAutoAlignCommand(){
+        if(reefAutoAlign == null) reefAutoAlign = driveFieldOriented(driveToReefPose);
+        return reefAutoAlign;
+    }
+
+    private Pose2d coralStationLastCachedLocation = null;
+    private boolean coralStationEnabled = false;
+
+    private Pose2d getNearestCoralStationLocation(){
+        if(coralStationEnabled && coralStationLastCachedLocation != null) return coralStationLastCachedLocation;
+        coralStationLastCachedLocation = getPose().nearest(FieldLocation.coralStationLocations);
+        return coralStationLastCachedLocation;
+    }
+
+    private Command coralStationAutoAlign = null;
+
+    public Command getCoralStationAutoAlign(){
+        if(coralStationAutoAlign == null) coralStationAutoAlign = driveFieldOriented(driveToCoralStationPose);
+        return coralStationAutoAlign;
     }
 
     public void followTrajectory(SwerveSample sample) {
@@ -169,12 +185,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        isEnabled = getAutoAlignCommand().isScheduled();
+        reefEnabled = getReefAutoAlignCommand().isScheduled();
+        coralStationEnabled = getCoralStationAutoAlign().isScheduled();
         Dashboard.putValue("Auto/TranslationError", translationController.getPositionError());
         Dashboard.putValue("Auto/HeadingError", headingController.getPositionError());
 
         addVisionMeasurement(LIMELIGHT_4_NAME);
-//        addVisionMeasurement(LIMELIGHT_3_NAME);
+        addVisionMeasurement(LIMELIGHT_3_NAME);
     }
 
     public void addVisionMeasurement(String limelightName){
@@ -182,8 +199,8 @@ public class SwerveSubsystem extends SubsystemBase {
         PoseEstimate poseEstimateMT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
         if(poseEstimateMT2 == null) return;
 
-//        Pose2d pose = new Pose2d(poseEstimateMT2.pose.getTranslation(), swerveDrive.getPose().getRotation());
-        if(poseEstimateMT2.tagCount >= 1) swerveDrive.addVisionMeasurement(poseEstimateMT2.pose, poseEstimateMT2.timestampSeconds);
+        Pose2d pose = new Pose2d(poseEstimateMT2.pose.getTranslation(), swerveDrive.getPose().getRotation());
+        if(poseEstimateMT2.tagCount >= 1) swerveDrive.addVisionMeasurement(pose, poseEstimateMT2.timestampSeconds);
     }
 
     public Command setModuleAngleSetpoint(Rotation2d angle){
