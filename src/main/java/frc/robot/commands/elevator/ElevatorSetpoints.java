@@ -16,7 +16,7 @@ public enum ElevatorSetpoints implements ElevatorSetpoint {
     
     CORAL_STATION(Inches.of(8)),
     BUMPER_CORAL_STATION(Inches.of(4)),
-    GROUND_CORAL(Inches.of(0.1)),
+    GROUND_CORAL(Inches.of(3)),
 
     ALGAE_L2_REMOVE(Inches.of(19)),
     ALGAE_L3_REMOVE(Inches.of(27)),

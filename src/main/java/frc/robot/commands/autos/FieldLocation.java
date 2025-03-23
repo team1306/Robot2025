@@ -1,15 +1,16 @@
 package frc.robot.commands.autos;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.pathplanner.lib.util.FlippingUtil;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.units.measure.Distance;
+import frc.robot.Constants;
+import frc.robot.util.LimelightHelpers;
 import frc.robot.util.Utilities;
 
 import static edu.wpi.first.units.Units.*;
@@ -38,7 +39,14 @@ public class FieldLocation {
     
     public static List<Pose2d> reefLocations;
     public static List<Pose2d> coralStationLocations;
-    
+
+    public static final Set<Integer> REEF_APRILTAG_IDS = new HashSet<>(Arrays.asList(22, 21, 19, 18, 17, 6, 7, 8, 9, 10, 11));
+
+    public enum ReefSide{
+        LEFT,
+        RIGHT
+    }
+
     static {
         refreshReefPositions();
     }
@@ -73,6 +81,16 @@ public class FieldLocation {
         L = calculateReefPosition(rotation120.unaryMinus(), false);
 
         reefLocations = Arrays.asList(A, B, C, D, E, F, G, H, I, J, K, L);
+    }
+
+    public static Pose2d getReefOffsetFromAprilTag(ReefSide reefSide){
+        if (REEF_APRILTAG_IDS.contains((int) LimelightHelpers.getFiducialID(Constants.LIMELIGHT_4_NAME))) return Pose2d.kZero;
+        Pose3d fiducialPos = LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_4_NAME);
+
+        return switch(reefSide){
+            case LEFT -> new Pose2d(fiducialPos.getMeasureX().minus(reefOffset), fiducialPos.getMeasureZ(), fiducialPos.getRotation().toRotation2d());
+            case RIGHT -> new Pose2d(fiducialPos.getMeasureX().plus(reefOffset), fiducialPos.getMeasureZ(), fiducialPos.getRotation().toRotation2d());
+        };
     }
 
     private static Pose2d calculateReefPosition(Rotation2d angle, boolean leftSide){

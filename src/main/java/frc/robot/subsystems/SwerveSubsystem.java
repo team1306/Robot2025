@@ -111,7 +111,7 @@ public class SwerveSubsystem extends SubsystemBase {
         4 - use internal IMU with external IMU assisted convergence
         */
         LimelightHelpers.SetIMUMode(LIMELIGHT_4_NAME, 0);
-        replaceYAGSLIMU();
+//        replaceYAGSLIMU();
         setupPathPlanner();
     }
 
@@ -134,8 +134,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Pose2d getNearestReefLocation(){
         if(reefEnabled && reefLastCachedLocation != null) return reefLastCachedLocation;
-        reefLastCachedLocation = getPose().nearest(FieldLocation.reefLocations);
-        reefLastCachedLocation = shiftPoseRelativeToIntake(reefLastCachedLocation);
+        reefLastCachedLocation = getReefLocationOdometryMethod();
         shiftedPose.setRobotPose(reefLastCachedLocation);
         return reefLastCachedLocation;
     }
@@ -144,6 +143,12 @@ public class SwerveSubsystem extends SubsystemBase {
         final Distance shift = Inches.of(WRIST_POSE_SHIFT);
         Pose2d transformedPose = fieldRelativePose.transformBy(new Transform2d(new Translation2d(0, shift.in(Meter)), fieldRelativePose.getRotation()));
         return new Pose2d(transformedPose.getTranslation(), fieldRelativePose.getRotation());
+    }
+
+    private Pose2d getReefLocationOdometryMethod(){
+        Pose2d position = getPose().nearest(FieldLocation.reefLocations);
+        position = shiftPoseRelativeToIntake(position);
+        return position;
     }
 
     private Command reefAutoAlign = null;
