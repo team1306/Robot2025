@@ -24,7 +24,7 @@ public class FieldLocation {
     private static final Distance robotWidth = Inches.of(35.75);
     private static final Distance robotOffsetFromReef = Inches.of(2.5);
 
-    private static final Distance reefOffset = Inches.of(6.469);
+    public static final Distance reefOffset = Inches.of(6.469);
     
     private static final Distance coralStationOffset = Inches.of(-5);
     
