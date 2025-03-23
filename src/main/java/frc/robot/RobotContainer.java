@@ -81,22 +81,13 @@ public class RobotContainer {
         
         //Autos
         Autos autos = new Autos(drivebase, arm, elevator, intake, wrist);
+        autoChooser.addRoutine("Left 2 H", () -> autos.get1CoralL4DriveRoutine("Score Left 2 H"));
+        autoChooser.addRoutine("Mid B", () -> autos.get1CoralL4DriveRoutine("Score Mid B"));
+        autoChooser.addRoutine("Right 2 C", () -> autos.get1CoralL4DriveRoutine("Score Right 2 C"));
 
-        autoChooser.addRoutine("2 - Blue 2 -> H, I", () -> autos.get2CoralL4DriveRoutine("2 Coral Blue 2 H I"));
-        autoChooser.addRoutine("2 - Red 2 -> C, F", () -> autos.get2CoralL4DriveRoutine("2 Coral Red 2 C F"));
-
-        autoChooser.addRoutine("1 - Blue 1 -> H-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Blue 1 H"));
-        autoChooser.addRoutine("1 - Blue 2 -> H-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Blue 2 H"));
-        autoChooser.addRoutine("1 - Blue 3 -> A-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Blue 3 A"));
-        autoChooser.addRoutine("1 - Mid -> B-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Mid B"));
-        autoChooser.addRoutine("1 - Red 1 -> B-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Red 1 B"));
-        autoChooser.addRoutine("1 - Red 2 -> C-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Red 2 C"));
-        autoChooser.addRoutine("1 - Red 3 -> C-L4", () -> autos.get1CoralL4DriveRoutine("1 Coral Red 3 C"));
-
-        autoChooser.addRoutine("1 - Blue 2 -> H-L1", () -> autos.get1CoralL1DriveRoutine("1 Coral Blue 2 H"));
-        autoChooser.addRoutine("1 - Mid -> B-L1", () -> autos.get1CoralL1DriveRoutine("1 Coral Mid B"));
-
-        autoChooser.select("2 - Blue 2 -> H, I");
+        autoChooser.addRoutine("2 Coral: Left 2", () -> autos.get2CoralDriveRoutine("Score Left 2 H", "Left 2 Intermediate Pickup", "Score Pickup I"));
+        autoChooser.addRoutine("2 Coral: Right 2", () -> autos.get2CoralDriveRoutine("Score Right 2 C", "Right 2 Intermediate Pickup", "Score Pickup F"));
+        
         //Controller Chooser
         bindAlternative();
         bindAutomatic();
