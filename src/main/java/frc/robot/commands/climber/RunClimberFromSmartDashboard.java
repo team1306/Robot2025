@@ -1,9 +1,9 @@
 package frc.robot.commands.climber;
 
+import badgerlog.entry.Entry;
+import badgerlog.entry.EntryType;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
-import frc.robot.util.dashboardv3.entry.Entry;
-import frc.robot.util.dashboardv3.entry.EntryType;
 
 public class RunClimberFromSmartDashboard extends Command {
     private final Climber climber;

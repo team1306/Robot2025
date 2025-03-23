@@ -32,14 +32,15 @@ import frc.robot.commands.wrist.MoveWristToSetpoint;
 import frc.robot.commands.wrist.WristSetpoints;
 import frc.robot.subsystems.*;
 import frc.robot.util.Utilities;
-import frc.robot.util.dashboardv3.Dashboard;
-import frc.robot.util.dashboardv3.entry.Entry;
-import frc.robot.util.dashboardv3.entry.EntryType;
 import lombok.Getter;
 import swervelib.SwerveInputStream;
 
 import java.util.HashMap;
 import java.util.function.BooleanSupplier;
+
+import badgerlog.Dashboard;
+import badgerlog.entry.Entry;
+import badgerlog.entry.EntryType;
 
 import static edu.wpi.first.units.Units.Inches;
 

@@ -4,12 +4,12 @@
 
 package frc.robot;
 
+import badgerlog.Dashboard;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.autos.FieldLocation;
-import frc.robot.util.dashboardv3.Dashboard;
 
 public class Robot extends TimedRobot {
     private RobotContainer robotContainer;

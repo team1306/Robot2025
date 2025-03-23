@@ -1,17 +1,15 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import badgerlog.entry.Entry;
+import badgerlog.entry.EntryType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.utils.FakeMotor;
 import frc.robot.subsystems.utils.Motor;
 import frc.robot.subsystems.utils.MotorGroup;
 import frc.robot.subsystems.utils.TalonFxMotor;
 import frc.robot.util.MotorUtil;
-import frc.robot.util.dashboardv3.entry.Entry;
-import frc.robot.util.dashboardv3.entry.EntryType;
 import lombok.Getter;
 import static frc.robot.Constants.INTAKE_MOTOR_ID;
 import static frc.robot.Constants.INTAKE_SENSOR_ID;

@@ -1,12 +1,12 @@
 package frc.robot.commands.arm;
 
+import badgerlog.entry.Config;
+import badgerlog.entry.Entry;
+import badgerlog.entry.EntryType;
+import badgerlog.networktables.mappings.UnitMappings;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
-import frc.robot.util.dashboardv3.entry.Config;
-import frc.robot.util.dashboardv3.entry.Entry;
-import frc.robot.util.dashboardv3.entry.EntryType;
-import frc.robot.util.dashboardv3.networktables.mappings.UnitMappings;
 
 public class ArmFromSmartDashboard extends Command {
 
@@ -18,7 +18,6 @@ public class ArmFromSmartDashboard extends Command {
 
     /**
      * Sets the target postiton for the arm
-     * @param armSetpoint moves the arm to the provided setpoint
      */
     public ArmFromSmartDashboard(Arm arm) {
         this.arm = arm;

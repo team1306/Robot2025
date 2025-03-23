@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import badgerlog.entry.Entry;
+import badgerlog.entry.EntryType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,8 +14,6 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.utils.*;
 import frc.robot.util.MotorUtil;
-import frc.robot.util.dashboardv3.entry.Entry;
-import frc.robot.util.dashboardv3.entry.EntryType;
 import lombok.Getter;
 import static frc.robot.Constants.*;
 

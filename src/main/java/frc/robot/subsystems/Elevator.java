@@ -2,6 +2,10 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import badgerlog.entry.Config;
+import badgerlog.entry.Entry;
+import badgerlog.entry.EntryType;
+import badgerlog.networktables.mappings.UnitMappings;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -15,10 +19,6 @@ import frc.robot.subsystems.utils.Motor;
 import frc.robot.subsystems.utils.MotorGroup;
 import frc.robot.subsystems.utils.TalonFxMotor;
 import frc.robot.util.MotorUtil;
-import frc.robot.util.dashboardv3.entry.Config;
-import frc.robot.util.dashboardv3.entry.Entry;
-import frc.robot.util.dashboardv3.entry.EntryType;
-import frc.robot.util.dashboardv3.networktables.mappings.UnitMappings;
 import lombok.Getter;
 import lombok.Setter;
 
