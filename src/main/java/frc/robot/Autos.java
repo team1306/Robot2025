@@ -5,7 +5,6 @@ import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.autos.MoveToolingToSetpoint;
@@ -71,10 +70,7 @@ public class Autos {
 
         RobotContainer.autoRunnable = () -> drivebase.resetOdometry(coral1.getInitialPose().get());
 
-        Command intakeCommand = new ParallelCommandGroup(
-                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL, false),
-                new RunIntake(intake, () -> -1)
-        ).raceWith(new WaitCommand(4));
+        Command intakeCommand = new RunIntake(intake, () -> -1).raceWith(new WaitCommand(4));
 
         routine.active().onTrue(
                 Commands.sequence(
@@ -84,6 +80,10 @@ public class Autos {
         );
 
         coral1.done().onTrue(intermediateToStation.cmd());
+
+        intermediateToStation.atTime("Pickup").onTrue(
+                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL, false)
+        );
 
         intermediateToStation.done().onTrue(
                 Commands.sequence(

@@ -82,12 +82,12 @@ public class RobotContainer {
         
         //Autos
         Autos autos = new Autos(drivebase, arm, elevator, intake, wrist);
-        autoChooser.addRoutine("Left 2 H", () -> autos.get1CoralL4DriveRoutine("Score Left 2 H"));
+        autoChooser.addRoutine("UNTESTED - Left 2 H", () -> autos.get1CoralL4DriveRoutine("Score Left 2 H"));
         autoChooser.addRoutine("Mid B", () -> autos.get1CoralL4DriveRoutine("Score Mid B"));
-        autoChooser.addRoutine("Right 2 C", () -> autos.get1CoralL4DriveRoutine("Score Right 2 C"));
+        autoChooser.addRoutine("UNTESTED - Right 2 C", () -> autos.get1CoralL4DriveRoutine("Score Right 2 C"));
 
         autoChooser.addRoutine("2 Coral: Left 2", () -> autos.get2CoralDriveRoutine("Score Left 2 H", "Left 2 Intermediate Pickup", "Score Pickup I"));
-        autoChooser.addRoutine("2 Coral: Right 2", () -> autos.get2CoralDriveRoutine("Score Right 2 C", "Right 2 Intermediate Pickup", "Score Pickup F"));
+        autoChooser.addRoutine("UNTESTED - 2 Coral: Right 2", () -> autos.get2CoralDriveRoutine("Score Right 2 C", "Right 2 Intermediate Pickup", "Score Pickup F"));
         
         //Controller Chooser
         bindAlternative();
