@@ -17,6 +17,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
+        Dashboard.initialize("frc.robot");
         FieldLocation.recalculateFieldPositions();
         robotContainer = new RobotContainer();
         System.gc();
