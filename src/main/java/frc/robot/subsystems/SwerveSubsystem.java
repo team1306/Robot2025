@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -113,6 +114,8 @@ public class SwerveSubsystem extends SubsystemBase {
         LimelightHelpers.SetIMUMode(LIMELIGHT_4_NAME, 0);
 //        replaceYAGSLIMU();
         setupPathPlanner();
+
+        Dashboard.putValue("Auto/Auto Align Startup", false);
     }
 
     @SneakyThrows({NoSuchFieldException.class, IllegalAccessException.class})
@@ -193,6 +196,8 @@ public class SwerveSubsystem extends SubsystemBase {
     public void periodic() {
         reefEnabled = getReefAutoAlignCommand().isScheduled();
         coralStationEnabled = getCoralStationAutoAlign().isScheduled();
+        
+        if(validateVelocity(driveToReefPose.get())) Dashboard.putValue("Auto/Auto Align Startup", true);
         Dashboard.putValue("Auto/TranslationError", translationController.getPositionError());
         Dashboard.putValue("Auto/HeadingError", headingController.getPositionError());
 
@@ -319,6 +324,10 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command driveFieldOriented(Supplier<ChassisSpeeds> velocity) {
         return run(() -> drive(ChassisSpeeds.fromFieldRelativeSpeeds(velocity.get(), getHeading())));
+    }
+    
+    public boolean validateVelocity(ChassisSpeeds velocity) {
+        return !velocity.equals(new ChassisSpeeds());
     }
 
     /**
