@@ -70,7 +70,7 @@ public class Autos {
 
         RobotContainer.autoRunnable = () -> drivebase.resetOdometry(coral1.getInitialPose().get());
 
-        Command intakeCommand = new RunIntake(intake, () -> -1).raceWith(new WaitCommand(4));
+        Command intakeCommand = new RunIntake(intake, () -> -1).raceWith(new WaitCommand(1));
 
         routine.active().onTrue(
                 Commands.sequence(

@@ -95,6 +95,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         autoHeadingController.enableContinuousInput(-Math.PI, Math.PI);
         translationController.setTolerance(0.001);
+        headingController.enableContinuousInput(-Math.PI, Math.PI);
         headingController.setTolerance(0.001);
         driveToReefPose = SwerveInputStream.of(swerveDrive, () -> 0, () -> 0)
                 .driveToPose(this::getNearestReefLocation, translationController, headingController)
@@ -115,7 +116,8 @@ public class SwerveSubsystem extends SubsystemBase {
 //        replaceYAGSLIMU();
         setupPathPlanner();
 
-        Dashboard.putValue("Auto/Auto Align Startup", false);
+        Dashboard.putValue("Auto/Reef Align Startup", false);
+        Dashboard.putValue("Auto/Station Align Startup", false);
     }
 
     @SneakyThrows({NoSuchFieldException.class, IllegalAccessException.class})
@@ -197,7 +199,9 @@ public class SwerveSubsystem extends SubsystemBase {
         reefEnabled = getReefAutoAlignCommand().isScheduled();
         coralStationEnabled = getCoralStationAutoAlign().isScheduled();
         
-        if(validateVelocity(driveToReefPose.get())) Dashboard.putValue("Auto/Auto Align Startup", true);
+        if(validateVelocity(driveToReefPose.get())) Dashboard.putValue("Auto/Reef Align Startup", true);
+        if(validateVelocity(driveToCoralStationPose.get())) Dashboard.putValue("Auto/Station Align Startup", true);
+
         Dashboard.putValue("Auto/TranslationError", translationController.getPositionError());
         Dashboard.putValue("Auto/HeadingError", headingController.getPositionError());
 

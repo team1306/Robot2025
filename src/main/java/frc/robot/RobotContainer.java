@@ -82,7 +82,7 @@ public class RobotContainer {
         
         //Autos
         Autos autos = new Autos(drivebase, arm, elevator, intake, wrist);
-        autoChooser.addRoutine("UNTESTED - Left 2 H", () -> autos.get1CoralL4DriveRoutine("Score Left 2 H"));
+        autoChooser.addRoutine("Left 2 H", () -> autos.get1CoralL4DriveRoutine("Score Left 2 H"));
         autoChooser.addRoutine("Mid B", () -> autos.get1CoralL4DriveRoutine("Score Mid B"));
         autoChooser.addRoutine("UNTESTED - Right 2 C", () -> autos.get1CoralL4DriveRoutine("Score Right 2 C"));
 
