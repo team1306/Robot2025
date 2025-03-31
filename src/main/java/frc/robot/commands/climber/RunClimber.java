@@ -11,7 +11,7 @@ public class RunClimber extends Command {
 
     public RunClimber(Climber climber, Direction direction) {
         this.climber = climber;
-        this.speed = direction == Direction.FORWARD ? 1 : -1;
+        this.speed = direction == Direction.FORWARD ? 0.85 : -0.85;
 
         addRequirements(climber);
     }
