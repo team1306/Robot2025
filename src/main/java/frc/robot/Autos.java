@@ -36,9 +36,8 @@ public class Autos {
                 true, // If alliance flipping should be enabled 
                 drivebase // The drive subsystem
         )
-                .bind("Stow",
-                        new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL, true)
-                                .raceWith(new WaitCommand(2)))
+                .bind("Stow", new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL, true)
+                        .raceWith(new WaitCommand(2)))
                 .bind("Hover",
                         new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L4, ArmSetpoints.HOVER_L4, WristSetpoints.VERTICAL_L)
                                 .raceWith(new WaitCommand(2)))
