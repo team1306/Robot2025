@@ -62,7 +62,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private final PIDController autoYController = new PIDController(7, 0, 0.2);
 
     @Entry(type = EntryType.Subscriber)
-    private static double WRIST_POSE_SHIFT = -2;
+    private static double WRIST_POSE_SHIFT = 0;
 
     private final PIDController autoHeadingController = new PIDController(3.5, 0, 0.1);
     

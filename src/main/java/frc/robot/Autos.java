@@ -69,7 +69,7 @@ public class Autos {
 
         RobotContainer.autoRunnable = () -> drivebase.resetOdometry(coral1.getInitialPose().get());
 
-        Command intakeCommand = new RunIntake(intake, () -> -1).raceWith(new WaitCommand(1));
+        Command intakeCommand = new RunIntake(intake, () -> -1).raceWith(new WaitCommand(0.5));
 
         routine.active().onTrue(
                 Commands.sequence(
@@ -82,6 +82,7 @@ public class Autos {
 
         intermediateToStation.atTime("Pickup").onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL, false)
+                        .alongWith(new RunIntake(intake, () -> -1))
         );
 
         intermediateToStation.done().onTrue(

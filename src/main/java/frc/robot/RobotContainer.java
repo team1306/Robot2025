@@ -20,6 +20,7 @@ import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.auto.CustomWaitCommand;
 import frc.robot.commands.autos.*;
 import frc.robot.commands.climber.RunClimber;
+import frc.robot.commands.elevator.ElevatorFromSmartDashboard;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;

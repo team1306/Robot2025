@@ -29,13 +29,13 @@ public class Elevator extends SubsystemBase {
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
     @Entry(type = EntryType.Subscriber)
-    private static double kG = 0.04, kV = 0;
+    private static double kG = 0.025, kV = 0;
 
-    private final static double MAX_VELOCITY = 1e+9, MAX_ACCELERATION = 700; // placeholder
+    private final static double MAX_VELOCITY = 175, MAX_ACCELERATION = 300; // placeholder
     private final Distance TOLERANCE = Inches.of(0.5);
     
     @Entry(type = EntryType.Sendable)
-    private static ProfiledPIDController pid = new ProfiledPIDController(0.1, 0, 0.006,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));    private ElevatorFeedforward feedforward;
+    private static ProfiledPIDController pid = new ProfiledPIDController(0.1, 0, 0.002,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));    private ElevatorFeedforward feedforward;
 
     private final MotorGroup<Motor> motorGroup;
     private final Motor leftMotor, rightMotor;
