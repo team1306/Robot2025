@@ -29,7 +29,7 @@ public class Elevator extends SubsystemBase {
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
     @Entry(type = EntryType.Subscriber)
-    private static double kG = 0.025, kV = 0;
+    private static double kG = 0.04, kV = 0;
 
     private final static double MAX_VELOCITY = 175, MAX_ACCELERATION = 300; // placeholder
     private final Distance TOLERANCE = Inches.of(0.5);
@@ -59,14 +59,17 @@ public class Elevator extends SubsystemBase {
 
     private Distance offset = Inches.of(0);
 
+    @Entry(type = EntryType.Subscriber)
+    private static double motorDeadband = 0.05;
+
     /**
      * The elevator is mounted on the robot frame and moves the arm up and down.
      * Hardware: the elevator has two Talon FX motor controllers.
      * Controllers: Feedforward and ProfiledPIDController.
      */
     public Elevator() {
-       leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast));
-       rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast));
+       leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Brake));
+       rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Brake));
         // leftMotor = new FakeMotor();
         // rightMotor = new FakeMotor();
 
@@ -99,6 +102,7 @@ public class Elevator extends SubsystemBase {
         double feedforwardOutput = feedforward.calculate(pid.getSetpoint().velocity);
         double motorOutput = pidOutput + feedforwardOutput;
 
+        motorOutput = MathUtil.applyDeadband(motorOutput, motorDeadband);
         motorGroup.setSpeed(motorOutput);
     }
     

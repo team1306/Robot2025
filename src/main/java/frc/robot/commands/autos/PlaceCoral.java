@@ -25,7 +25,12 @@ public class PlaceCoral extends ParallelCommandGroup {
             default -> ElevatorSetpoints.CORAL_HOVER_L2;
         };
 
-        ArmSetpoint hoverSetpoint = level == 4 ? ArmSetpoints.HOVER_L4 : ArmSetpoints.HOVER_L2;
+        ArmSetpoint hoverSetpoint = switch(level){
+            case 3 -> ArmSetpoints.HOVER_L3;
+            case 4 -> ArmSetpoints.HOVER_L4;
+
+            default -> ArmSetpoints.HOVER_L2;
+        };
 
         addCommands(
             new MoveToolingToSetpoint(elevator, arm, wrist, 

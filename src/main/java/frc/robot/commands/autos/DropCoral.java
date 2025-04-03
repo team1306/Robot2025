@@ -25,8 +25,12 @@ public class DropCoral extends ParallelCommandGroup {
             default -> ElevatorSetpoints.CORAL_L2;
         };
 
-        ArmSetpoint armSetpoint = level == 4 ? ArmSetpoints.CORAL_L4 : ArmSetpoints.CORAL_L2;
+        ArmSetpoint armSetpoint = switch(level){
+            case 3 -> ArmSetpoints.CORAL_L3;
+            case 4 -> ArmSetpoints.CORAL_L4;
 
+            default -> ArmSetpoints.CORAL_L2;
+        };
         addCommands(
             new MoveToolingToSetpoint(elevator, arm, wrist, 
                     elevatorSetpoint, armSetpoint, wristSetpoint, true)

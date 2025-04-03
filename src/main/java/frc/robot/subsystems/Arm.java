@@ -25,9 +25,9 @@ public class Arm extends SubsystemBase  {
     @Entry(type = EntryType.Subscriber)
     private static double kG = 0.03, kV = 0;
     
-    private static final double MAX_VELOCITY = Double.MAX_VALUE, MAX_ACCELERATION = Double.MAX_VALUE;
+    private static final double MAX_VELOCITY = 2500, MAX_ACCELERATION = 4500;
     
-    private final double MIN_ANGLE = -30, MAX_ANGLE = 90;
+    private final double MIN_ANGLE = -35, MAX_ANGLE = 90;
 
     private final Rotation2d OFFSET = Rotation2d.fromDegrees(-160+4), TOLERANCE = Rotation2d.fromDegrees(0.1);
 
