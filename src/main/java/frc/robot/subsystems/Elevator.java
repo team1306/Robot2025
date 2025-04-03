@@ -60,7 +60,10 @@ public class Elevator extends SubsystemBase {
     private Distance offset = Inches.of(0);
 
     @Entry(type = EntryType.Subscriber)
-    private static double motorDeadband = 0.05;
+    private static double exponentialScalar = 0.005;
+    
+    @Entry(type = EntryType.Subscriber)
+    private static boolean useExponential = true;
 
     /**
      * The elevator is mounted on the robot frame and moves the arm up and down.
@@ -102,7 +105,7 @@ public class Elevator extends SubsystemBase {
         double feedforwardOutput = feedforward.calculate(pid.getSetpoint().velocity);
         double motorOutput = pidOutput + feedforwardOutput;
 
-        motorOutput = MathUtil.applyDeadband(motorOutput, motorDeadband);
+        if(useExponential) motorOutput = motorOutput * Math.exp(currentHeight.in(Inches) * conversionFactor);
         motorGroup.setSpeed(motorOutput);
     }
     
