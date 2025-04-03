@@ -1,9 +1,6 @@
 package frc.robot.commands.autos;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.pathplanner.lib.util.FlippingUtil;
 
@@ -37,7 +34,7 @@ public class FieldLocation {
     public static Pose2d CORAL_STATION_LEFT = new Pose2d(0, 0, Rotation2d.fromDegrees(306));
     public static Pose2d CORAL_STATION_RIGHT = new Pose2d(0, 0, Rotation2d.fromDegrees(54));
     
-    public static List<Pose2d> reefLocations;
+    public static HashMap<Pose2d, Boolean> reefLocations;
     public static List<Pose2d> coralStationLocations;
 
     public static final Set<Integer> REEF_APRILTAG_IDS = new HashSet<>(Arrays.asList(22, 21, 19, 18, 17, 6, 7, 8, 9, 10, 11));
@@ -80,7 +77,20 @@ public class FieldLocation {
         K = calculateReefPosition(rotation120.unaryMinus(), true);
         L = calculateReefPosition(rotation120.unaryMinus(), false);
 
-        reefLocations = Arrays.asList(A, B, C, D, E, F, G, H, I, J, K, L);
+        reefLocations = new HashMap<>(){{
+            put(A, true);
+            put(B, false);
+            put(C, true);
+            put(D, false);
+            put(E, true);
+            put(F, false);
+            put(G, true);
+            put(H, false);
+            put(I, true);
+            put(J, false);
+            put(K, true);
+            put(L, false);
+        }};
     }
 
     public static Pose2d getReefOffsetFromAprilTag(ReefSide reefSide){

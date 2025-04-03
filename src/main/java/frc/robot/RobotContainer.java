@@ -51,7 +51,7 @@ public class RobotContainer {
     private final CommandXboxController controller2 = new CommandXboxController(1);
 
     private final Wrist wrist = new Wrist();
-    private final SwerveSubsystem drivebase = new SwerveSubsystem();
+    private final SwerveSubsystem drivebase = new SwerveSubsystem(() -> wristLeft ? 1 : -1);
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
@@ -211,8 +211,6 @@ public class RobotContainer {
         controller1.a(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL)
         );
-
-        controller1.b(fullAutomaticEventLoop).whileTrue(drivebase.getCoralStationAutoAlign());
         
         controller1.x(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
