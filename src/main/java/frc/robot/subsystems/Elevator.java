@@ -105,7 +105,7 @@ public class Elevator extends SubsystemBase {
         double feedforwardOutput = feedforward.calculate(pid.getSetpoint().velocity);
         double motorOutput = pidOutput + feedforwardOutput;
 
-        if(useExponential) motorOutput = motorOutput * Math.exp(currentHeight.in(Inches) * conversionFactor);
+        if(useExponential) motorOutput = motorOutput * Math.exp(currentHeight.in(Inches) * exponentialScalar);
         motorGroup.setSpeed(motorOutput);
     }
     
