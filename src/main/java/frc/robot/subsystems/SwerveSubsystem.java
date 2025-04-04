@@ -75,6 +75,7 @@ public class SwerveSubsystem extends SubsystemBase {
             new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(50, 25));
 
     private final SwerveInputStream driveToReefPose;
+    private final SwerveInputStream driveToCoralStationPose;
     private final IntSupplier wristMultSupplier;
     private final IntSupplier levelSupplier;
     
@@ -103,6 +104,9 @@ public class SwerveSubsystem extends SubsystemBase {
         headingController.setTolerance(0.001);
         driveToReefPose = SwerveInputStream.of(swerveDrive, () -> 0, () -> 0)
                 .driveToPose(this::getNearestReefLocation, translationController, headingController)
+                .driveToPoseEnabled(true);
+        driveToCoralStationPose = SwerveInputStream.of(swerveDrive, () -> 0, () -> 0)
+                .driveToPose(this::getNearestCoralStationLocation, translationController, headingController)
                 .driveToPoseEnabled(true);
 
         /*
@@ -164,6 +168,22 @@ public class SwerveSubsystem extends SubsystemBase {
         return reefAutoAlign;
     }
 
+    private Pose2d coralStationLastCachedLocation = null;
+    private boolean coralStationEnabled = false;
+
+    private Pose2d getNearestCoralStationLocation(){
+        if(coralStationEnabled && coralStationLastCachedLocation != null) return coralStationLastCachedLocation;
+        coralStationLastCachedLocation = getPose().nearest(FieldLocation.coralStationLocations);
+        return coralStationLastCachedLocation;
+    }
+
+    private Command coralStationAutoAlign = null;
+
+    public Command getCoralStationAutoAlign(){
+        if(coralStationAutoAlign == null) coralStationAutoAlign = driveFieldOriented(driveToCoralStationPose);
+        return coralStationAutoAlign;
+    }
+
     public void followTrajectory(SwerveSample sample) {
         // Get the current pose of the robot
         Pose2d pose = getPose();
@@ -182,8 +202,10 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         reefEnabled = getReefAutoAlignCommand().isScheduled();
-        
+        coralStationEnabled = getCoralStationAutoAlign().isScheduled();
+
         if(validateVelocity(driveToReefPose.get())) Dashboard.putValue("Auto/Reef Align Startup", true);
+        if(validateVelocity(driveToCoralStationPose.get())) Dashboard.putValue("Auto/Station Align Startup", true);
 
         Dashboard.putValue("Auto/TranslationError", translationController.getPositionError());
         Dashboard.putValue("Auto/HeadingError", headingController.getPositionError());
