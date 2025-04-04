@@ -18,7 +18,7 @@ public enum ArmSetpoints implements ArmSetpoint {
     STOW(Rotation2d.fromDegrees(65)),
     HOVER_L2(Rotation2d.fromDegrees(57)),
     HOVER_L3(Rotation2d.fromDegrees(48)),
-    HOVER_L4(Rotation2d.fromDegrees(43));
+    HOVER_L4(Rotation2d.fromDegrees(49));
 
 
     private final Rotation2d rotation;

@@ -212,7 +212,7 @@ public class RobotContainer {
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL)
         );
 
-        controller1.b().whileTrue(
+        controller1.b(fullAutomaticEventLoop).whileTrue(
             drivebase.getCoralStationAutoAlign()
         );
         

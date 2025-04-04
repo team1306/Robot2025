@@ -20,11 +20,11 @@ public class FieldLocation {
     private static final Translation2d reefCenter = new Translation2d(Inches.of(176.277), Inches.of(158.801));
     private static final Distance reefEdgeDistance = Inches.of(32.746);
     private static final Distance robotWidth = Inches.of(35.75);
-    private static final Distance robotOffsetFromReef = Inches.of(2.5);
+    private static final Distance robotOffsetFromReef = Inches.of(3.5);
 
     public static final Distance reefOffset = Inches.of(6.469);
     
-    private static final Distance coralStationOffset = Inches.of(-5);
+    private static final Distance coralStationOffset = Inches.of(-7);
     
     private static final Rotation2d rotation120 = Rotation2d.fromDegrees(120);
     private static final Rotation2d rotation60 = Rotation2d.fromDegrees(60);
@@ -54,7 +54,7 @@ public class FieldLocation {
         CORAL_STATION_LEFT = new Pose2d(0.843, 7.4, Rotation2d.fromDegrees(126));
         CORAL_STATION_RIGHT = new Pose2d(0.840, 0.664, Rotation2d.fromDegrees(234));
         
-        CORAL_STATION_RIGHT = CORAL_STATION_RIGHT.transformBy(new Transform2d(-(coralStationOffset.in(Meters) + robotWidth.in(Meters)), 0, Rotation2d.kZero));
+        CORAL_STATION_RIGHT = CORAL_STATION_RIGHT.transformBy(new Transform2d(-(coralStationOffset.in(Meters) + robotWidth.in(Meters)), Inches.of(2).in(Meter), Rotation2d.kZero));
         CORAL_STATION_LEFT = CORAL_STATION_LEFT.transformBy(new Transform2d(-(coralStationOffset.in(Meters) + robotWidth.in(Meters)), 0, Rotation2d.kZero));
 
         CORAL_STATION_LEFT = Utilities.isRedAlliance() ? flipToRedSide(CORAL_STATION_LEFT) : CORAL_STATION_LEFT;

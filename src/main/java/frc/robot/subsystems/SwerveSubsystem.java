@@ -170,10 +170,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Pose2d coralStationLastCachedLocation = null;
     private boolean coralStationEnabled = false;
+    @Entry(type = EntryType.Sendable)
+    private static Field2d coralStationField = new Field2d();
 
     private Pose2d getNearestCoralStationLocation(){
         if(coralStationEnabled && coralStationLastCachedLocation != null) return coralStationLastCachedLocation;
         coralStationLastCachedLocation = getPose().nearest(FieldLocation.coralStationLocations);
+        coralStationField.setRobotPose(coralStationLastCachedLocation);
         return coralStationLastCachedLocation;
     }
 
@@ -339,7 +342,7 @@ public class SwerveSubsystem extends SubsystemBase {
      *
      * @param velocity Velocity according to the field.
      */
-    public Command driveFieldOriented(Supplier<ChassisSpeeds> velocity) {
+    public Command  driveFieldOriented(Supplier<ChassisSpeeds> velocity) {
         return run(() -> drive(ChassisSpeeds.fromFieldRelativeSpeeds(velocity.get(), getHeading())));
     }
     
