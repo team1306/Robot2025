@@ -51,7 +51,7 @@ public class RobotContainer {
     private final CommandXboxController controller2 = new CommandXboxController(1);
 
     private final Wrist wrist = new Wrist();
-    private final SwerveSubsystem drivebase = new SwerveSubsystem(() -> wristLeft ? 1 : -1);
+    private final SwerveSubsystem drivebase = new SwerveSubsystem(() -> wristLeft ? 1 : -1, () -> selectedLevel);
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
@@ -89,7 +89,7 @@ public class RobotContainer {
 
         autoChooser.addRoutine("2 Coral: Left 2", () -> autos.get2CoralDriveRoutine("Score Left 2 G", "Left 2 Intermediate Pickup", "Score Pickup I"));
         autoChooser.addRoutine("UNTESTED - 2 Coral: Right 2", () -> autos.get2CoralDriveRoutine("Score Right 2 C", "Right 2 Intermediate Pickup", "Score Pickup F"));
-        autoChooser.addRoutine("3 Coral Left 2", () -> autos.get3CoralDriveRoutine("3 - Blue 2 G", "3 - G Pickup", "3 - I Score", "3 - I Pickup", "3 - J Score"));
+        autoChooser.addRoutine("3 Coral Left 2", () -> autos.get3CoralDriveRoutine("3 - Blue 2 G Pickup", "3 - I Score", "3 - I Pickup", "3 - J Score"));
         //Controller Chooser
         bindAlternative();
         bindAutomatic();
@@ -106,7 +106,7 @@ public class RobotContainer {
 
     //    arm.setDefaultCommand(new ArmFromSmartDashboard(arm));
 //        wrist.setDefaultCommand(new WristFromSmartDashboard(wrist));
-       elevator.setDefaultCommand(new ElevatorFromSmartDashboard(elevator));
+//       elevator.setDefaultCommand(new ElevatorFromSmartDashboard(elevator));
     }
 
     public void zeroTargetPositions(){
@@ -166,7 +166,7 @@ public class RobotContainer {
         controller2.leftBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.HORIZONTAL));
     }
     
-    private int selectedLevel = 1;
+    private static int selectedLevel = 1;
     private static boolean wristLeft = true;
     
     //Make sure to implement correctly (use a supplier in an init method)

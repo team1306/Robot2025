@@ -94,10 +94,9 @@ public class Autos {
         return routine;
     }
 
-    public AutoRoutine get3CoralDriveRoutine(String path1Name, String path2Name, String path3Name, String path4Name, String path5name) {
+    public AutoRoutine get3CoralDriveRoutine(String path1Name, String path3Name, String path4Name, String path5name) {
         AutoRoutine routine = autoFactory.newRoutine("3 Coral: " + path1Name);
         AutoTrajectory coral1 = routine.trajectory(path1Name);
-        AutoTrajectory intermediateToStation1 = routine.trajectory(path2Name);
         AutoTrajectory coral2 = routine.trajectory(path3Name);
         AutoTrajectory intermediateToStation2 = routine.trajectory(path4Name);
         AutoTrajectory coral3 = routine.trajectory(path5name);
@@ -113,9 +112,7 @@ public class Autos {
                 )
         );
 
-        coral1.done().onTrue(intermediateToStation1.cmd());
-
-        intermediateToStation1.atTime("Pickup").onTrue(
+        coral1.atTime("Pickup").onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL, false)
                         .alongWith(new RunIntake(intake, () -> -1))
         );
@@ -125,7 +122,7 @@ public class Autos {
                         .alongWith(new RunIntake(intake, () -> -1))
         );
 
-        intermediateToStation1.done().onTrue(
+        coral2.done().onTrue(
                 Commands.sequence(
                         intakeCommand, coral2.spawnCmd()
                 )

@@ -46,7 +46,7 @@ public class Elevator extends SubsystemBase {
     private static double conversionFactor = 54.75 / 140.83;
     //54.75
     @Entry(type = EntryType.Subscriber)
-    private static double maxHeightInches = 53.5, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
+    private static double maxHeightInches = 54.5, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
     
     @Setter @Getter
     @Entry(type = EntryType.Publisher)
@@ -59,20 +59,14 @@ public class Elevator extends SubsystemBase {
 
     private Distance offset = Inches.of(0);
 
-    @Entry(type = EntryType.Subscriber)
-    private static double exponentialScalar = 0.005;
-    
-    @Entry(type = EntryType.Subscriber)
-    private static boolean useExponential = true;
-
     /**
      * The elevator is mounted on the robot frame and moves the arm up and down.
      * Hardware: the elevator has two Talon FX motor controllers.
      * Controllers: Feedforward and ProfiledPIDController.
      */
     public Elevator() {
-       leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Brake));
-       rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Brake));
+       leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast));
+       rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast));
         // leftMotor = new FakeMotor();
         // rightMotor = new FakeMotor();
 
@@ -105,7 +99,6 @@ public class Elevator extends SubsystemBase {
         double feedforwardOutput = feedforward.calculate(pid.getSetpoint().velocity);
         double motorOutput = pidOutput + feedforwardOutput;
 
-        if(useExponential) motorOutput = motorOutput * Math.exp(currentHeight.in(Inches) * exponentialScalar);
         motorGroup.setSpeed(motorOutput);
     }
     

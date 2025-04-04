@@ -76,10 +76,12 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private final SwerveInputStream driveToReefPose;
     private final IntSupplier wristMultSupplier;
+    private final IntSupplier levelSupplier;
     
-    public SwerveSubsystem(IntSupplier wristMultSupplier) {
+    public SwerveSubsystem(IntSupplier wristMultSupplier, IntSupplier levelSupplier) {
         this.wristMultSupplier = wristMultSupplier;
-        
+        this.levelSupplier = levelSupplier;
+
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         try {
             File directory = new File(Filesystem.getDeployDirectory(), "swerve");
@@ -143,9 +145,9 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     private Pose2d shiftPoseRelativeToIntake(Pose2d fieldRelativePose) {
-        //TODO double check that the signs are correct
         final Distance shift = Inches.of(WRIST_POSE_SHIFT).times(wristMultSupplier.getAsInt()).times(FieldLocation.reefLocations.get(fieldRelativePose) ? -1 : 1);
-        Pose2d transformedPose = fieldRelativePose.transformBy(new Transform2d(new Translation2d(0, shift.in(Meter)), fieldRelativePose.getRotation()));
+        final Distance forwardShift = Inches.of(levelSupplier.getAsInt() == 3 ? 2 : 0);
+        Pose2d transformedPose = fieldRelativePose.transformBy(new Transform2d(new Translation2d(forwardShift.in(Meter), shift.in(Meter)), fieldRelativePose.getRotation()));
         return new Pose2d(transformedPose.getTranslation(), fieldRelativePose.getRotation());
     }
 

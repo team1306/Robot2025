@@ -15,7 +15,7 @@ public enum ArmSetpoints implements ArmSetpoint {
     ALGAE_L2_REMOVE(Rotation2d.fromDegrees(-18)),
     ALGAE_L3_REMOVE(Rotation2d.fromDegrees(0)),
 
-    STOW(Rotation2d.fromDegrees(70)),
+    STOW(Rotation2d.fromDegrees(65)),
     HOVER_L2(Rotation2d.fromDegrees(57)),
     HOVER_L3(Rotation2d.fromDegrees(48)),
     HOVER_L4(Rotation2d.fromDegrees(43));
