@@ -62,7 +62,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private final PIDController autoYController = new PIDController(7, 0, 0.2);
 
     @Entry(type = EntryType.Subscriber)
-    private static double WRIST_POSE_SHIFT = 0;
+    private static double WRIST_POSE_SHIFT = 1;
 
     private final PIDController autoHeadingController = new PIDController(3.5, 0, 0.1);
     
@@ -149,8 +149,12 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     private Pose2d shiftPoseRelativeToIntake(Pose2d fieldRelativePose) {
-        final Distance shift = Inches.of(WRIST_POSE_SHIFT).times(wristMultSupplier.getAsInt()).times(FieldLocation.reefLocations.get(fieldRelativePose) ? -1 : 1);
-        final Distance forwardShift = Inches.of(levelSupplier.getAsInt() == 3 ? 2 : 0);
+        final Distance shift = Inches.of(WRIST_POSE_SHIFT).times(-wristMultSupplier.getAsInt()).times(FieldLocation.reefLocations.get(fieldRelativePose) ? -1 : 1);
+        final Distance forwardShift = Inches.of(switch(levelSupplier.getAsInt()){
+            case 3 -> 2;
+            case 4 -> -1;
+            default -> 0;
+        });
         Pose2d transformedPose = fieldRelativePose.transformBy(new Transform2d(new Translation2d(forwardShift.in(Meter), shift.in(Meter)), fieldRelativePose.getRotation()));
         return new Pose2d(transformedPose.getTranslation(), fieldRelativePose.getRotation());
     }
