@@ -20,7 +20,6 @@ import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.auto.CustomWaitCommand;
 import frc.robot.commands.autos.*;
 import frc.robot.commands.climber.RunClimber;
-import frc.robot.commands.elevator.ElevatorFromSmartDashboard;
 import frc.robot.commands.elevator.ElevatorSetpoints;
 import frc.robot.commands.elevator.ManualElevatorControl;
 import frc.robot.commands.elevator.MoveElevatorToSetpoint;
@@ -128,7 +127,8 @@ public class RobotContainer {
 
     public void bindAlternative(){
         bindCommonControls(alternativeEventLoop);
-        controller1.a(alternativeEventLoop).whileTrue(drivebase.getReefAutoAlignCommand());
+        controller1.a().whileTrue(new RunIntake(intake, () -> -1));
+        controller1.b().whileTrue(new RunIntake(intake, () -> 1));
     }
     
     public void bindManual(){
@@ -273,6 +273,8 @@ public class RobotContainer {
             .and(DriverStation::isDisabled)
             .and(() -> autoRunnable != null)
             .onTrue(new InstantCommand(() -> autoRunnable.run()).ignoringDisable(true));
+        
+        Dashboard.getNetworkTablesButton("Speed Down", loop).onTrue(drivebase.changeSwerveSpeed(0.1)).onFalse(drivebase.changeSwerveSpeed(0.5));
     }
 
     private void changeDrivebaseDefaultCommand(Command defaultCommand){
