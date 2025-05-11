@@ -1,14 +1,15 @@
 
-package frc.robot.commands;
+package frc.robot.commands.autos;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.util.LimelightHelpers;
-import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.SwerveSubsystem;
 
 public class AutoAlign extends Command {
   private PIDController xController, yController, rotationController;
@@ -58,7 +59,7 @@ public class AutoAlign extends Command {
       double ySpeed = -yController.calculate(postions[0]);
       double rotValue = -rotationController.calculate(postions[4]);
 
-      drivebase.drive(new Translation2d(xSpeed, ySpeed), rotValue, false);
+      drivebase.drive(new ChassisSpeeds(xSpeed, ySpeed, rotValue));
 
       if(
         !rotationController.atSetpoint() ||
@@ -69,7 +70,7 @@ public class AutoAlign extends Command {
         stopTimer.reset();
       }
     } else {
-      drivebase.drive(new Translation2d(), 0, false);
+      drivebase.drive(new ChassisSpeeds(0, 0, 0));
     }
       
     SmartDashboard.putNumber("poseValidTimer", stopTimer.get());
@@ -77,7 +78,7 @@ public class AutoAlign extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    drivebase.drive(new Translation2d(), 0, false);
+    drivebase.drive(new ChassisSpeeds(0, 0, 0));
   }
 
   @Override
