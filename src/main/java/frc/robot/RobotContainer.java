@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -77,6 +78,7 @@ public class RobotContainer {
     private static double autoWaitTime = 0;
 
     public RobotContainer() {
+        SmartDashboard.putData("Autonomous Command", new AutoAlignSim(true, drivebase));
         // UsbCamera camera = CameraServer.startAutomaticCapture();
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         
@@ -213,7 +215,7 @@ public class RobotContainer {
         );
 
         controller1.b(fullAutomaticEventLoop).whileTrue(
-            drivebase.getCoralStationAutoAlign()
+            new AutoAlignSim(true, drivebase)
         );
         
         controller1.x(fullAutomaticEventLoop).onTrue(

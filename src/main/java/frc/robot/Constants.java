@@ -46,11 +46,11 @@ public final class Constants {
     public static final double      ROT_SETPOINT                    = 0;
     public static final double      ROT_TOLERANCE                   = 1;
 
-    public static final double      X_SETPOINT                      = -0.3;  
-	public static final double      X_TOLERANCE                     = 0.02;
+    public static final double      X_SETPOINT                      = 0;  
+	public static final double      X_TOLERANCE                     = 0.1;
 
-	public static final double      Y_SETPOINT                      = 0.16;  
-	public static final double      Y_TOLERANCE                     = 0.02;
+	public static final double      Y_SETPOINT                      = 0;  
+	public static final double      Y_TOLERANCE                     = 0.1;
     
     //LEDS
     public static final int LED_PORT = 0; // pwm port
