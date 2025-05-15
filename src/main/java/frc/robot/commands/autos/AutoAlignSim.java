@@ -26,7 +26,7 @@ public class AutoAlignSim extends Command {
     xController = new PIDController(0.2, 0.0, 0.5);  
     yController = new PIDController(0.2, 0.0, 0.5);  
     rotationController = new PIDController(0.058, 0, 0);  
-    this.direction = direction; // 1 = right reef, 0 = left reef
+    this.direction = direction; 
 
     this.drivebase = drivebase;
     addRequirements(drivebase);
@@ -34,7 +34,7 @@ public class AutoAlignSim extends Command {
 
   @Override
   public void initialize() {
-    System.out.print("WORKING!!!");
+   
     this.stopTimer = new Timer();
     this.stopTimer.start();
     
@@ -60,7 +60,7 @@ public class AutoAlignSim extends Command {
       
       double[] postions = LimelightHelpersSim.getBotPose_TargetSpace(this.drivebase);
 
-      double xSpeed = -xController.calculate(postions[2]);
+      double xSpeed = xController.calculate(postions[2]);
       double ySpeed = -yController.calculate(postions[0]);
       double rotValue = -rotationController.calculate(postions[4]);
       SmartDashboard.putNumber("xSpeed", xSpeed);
