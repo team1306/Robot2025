@@ -18,12 +18,27 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class LimelightHelpersSim {
   
    
-    public static double[] getBotPose_TargetSpace(SwerveSubsystem drivebase){
-        Pose2d pose = drivebase.getPose();
-        double[] poseArray = {-1-pose.getY(), 0, -1-pose.getX(), 0, 90-pose.getRotation().getDegrees(), 0};
-         SmartDashboard.putNumber("targetYAutoAlign", -1-pose.getY());
-         SmartDashboard.putNumber("targetXAutoAlign", -1-pose.getX());
-        return poseArray;
+    public static double[] getBotPose_TargetSpace(SwerveSubsystem drivebase, Pose2d tagPose) {
+        // 1) get robot in field
+        Pose2d robotField = drivebase.getPose();
+        // 2) compute robot relative to tag:  tag ↦ field, so invert tag to go field ↦ tag
+        Pose2d robotRelative = robotField.relativeTo(tagPose);
+        
+        // 3) push out for your auto-align (if desired)
+        SmartDashboard.putNumber("targetXAutoAlign", robotRelative.getX());
+        SmartDashboard.putNumber("targetYAutoAlign", robotRelative.getY());
+        SmartDashboard.putNumber("targetYawAutoAlign", robotRelative.getRotation().getDegrees());
+        
+        // 4) return as array [x, y, yaw] – you can expand to 6-element if you really need z/pitch/roll
+        return new double[] {
+          robotRelative.getX(),
+          0,
+          robotRelative.getY(),
+          0,
+          robotRelative.getRotation().getDegrees(),
+          0,
+          0
+        };
     }
     public static boolean getTV(){
         return true;
