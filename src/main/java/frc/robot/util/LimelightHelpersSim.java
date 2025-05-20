@@ -18,25 +18,22 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class LimelightHelpersSim {
   
    
-    public static double[] getBotPose_TargetSpace(SwerveSubsystem drivebase, Pose2d tagPose) {
-        // 1) get robot in field
-        Pose2d robotField = drivebase.getPose();
-        // 2) compute robot relative to tag:  tag ↦ field, so invert tag to go field ↦ tag
-        Pose2d robotRelative = robotField.relativeTo(tagPose);
+    public static double[] getTargetPose_RobotSpace(SwerveSubsystem drivebase, Pose2d tagPose) {
+   
+        Pose2d robotPose = drivebase.getPose();
         
-        // 3) push out for your auto-align (if desired)
+        Pose2d robotRelative = tagPose.relativeTo(robotPose);
+  
         SmartDashboard.putNumber("targetXAutoAlign", robotRelative.getX());
         SmartDashboard.putNumber("targetYAutoAlign", robotRelative.getY());
         SmartDashboard.putNumber("targetYawAutoAlign", robotRelative.getRotation().getDegrees());
-        
-        // 4) return as array [x, y, yaw] – you can expand to 6-element if you really need z/pitch/roll
+
         return new double[] {
           robotRelative.getX(),
-          0,
           robotRelative.getY(),
           0,
-          robotRelative.getRotation().getDegrees(),
           0,
+          robotRelative.getRotation().getDegrees(),
           0
         };
     }
