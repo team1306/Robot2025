@@ -1,13 +1,17 @@
 
 package frc.robot.commands.autos;
 
+import static edu.wpi.first.units.Units.Radian;
+
 import badgerlog.entry.Entry;
+
 import badgerlog.entry.EntryType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,7 +31,7 @@ public class AutoAlignSim extends Command {
   public AutoAlignSim(boolean direction, SwerveSubsystem drivebase) {
     xController = new PIDController(2, 0.0, 0);  
     yController = new PIDController(2, 0.0, 0);  
-    rotationController = new PIDController(0.058, 0, 0);  
+    rotationController = new PIDController(1, 0.5, 0);  
     this.direction = direction; 
 
     this.drivebase = drivebase;
@@ -60,14 +64,14 @@ public class AutoAlignSim extends Command {
     if (LimelightHelpersSim.getTV() && LimelightHelpersSim.getFiducialID() == tagID) {
       this.noTagTimer.reset();
       
-      double[] postions = LimelightHelpersSim.getBotPose_TargetSpace(this.drivebase, new Pose2d(1, 1, new Rotation2d(120)));
+      double[] postions = LimelightHelpersSim.getTargetPose_RobotSpace(this.drivebase, new Pose2d(13.86, 5.17, new Rotation2d(0)));
 
-      double xSpeed = xController.calculate(postions[0]);
-      double ySpeed = -yController.calculate(postions[2]);
-      double rotValue = -rotationController.calculate(postions[4]);
+      double xSpeed = -xController.calculate(postions[0]);
+      double ySpeed = -yController.calculate(postions[1]);
+      double rotValue = rotationController.calculate(postions[4]);
       SmartDashboard.putNumber("xSpeed", xSpeed);
       SmartDashboard.putNumber("ySpeed", ySpeed);
-      drivebase.drive(new ChassisSpeeds(xSpeed, ySpeed, 0));
+      drivebase.drive(new ChassisSpeeds(xSpeed, ySpeed, Units.degreesToRadians(rotValue)));
 
       if(
         !rotationController.atSetpoint() ||
