@@ -215,7 +215,7 @@ public class RobotContainer {
         );
 
         controller1.b(fullAutomaticEventLoop).whileTrue(
-            new AutoAlignSim(true, drivebase)
+            new AutoAlign(true, drivebase)
         );
         
         controller1.x(fullAutomaticEventLoop).onTrue(
