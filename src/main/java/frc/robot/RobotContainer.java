@@ -218,16 +218,18 @@ public class RobotContainer {
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL)
         );
 
-        controller1.b(fullAutomaticEventLoop).whileTrue(
+        controller1.leftStick(fullAutomaticEventLoop).whileTrue(
             new AutoAlign(true, drivebase)
         );
         
+        controller1.rightStick(fullAutomaticEventLoop).whileTrue(
+            new AutoAlign(false, drivebase)
+        );
         controller1.x(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
         );
 
-        controller1.rightStick(fullAutomaticEventLoop).whileTrue(drivebase.getReefAutoAlignCommand());
-
+      
         //slow mode
         controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.2)).onFalse(drivebase.changeSwerveSpeed(1));
 
