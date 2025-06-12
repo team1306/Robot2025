@@ -67,7 +67,7 @@ public class AutoAlign extends Command {
       double[] postions = LimelightHelpers.getTargetPose_RobotSpace(Constants.LIMELIGHT_4_NAME);
 
       double xSpeed = -xController.calculate(postions[0]);
-      double ySpeed = -yController.calculate(postions[1]);
+      double ySpeed = 0; //-yController.calculate(postions[1]);
       double rotValue = rotationController.calculate(postions[4]);
       SmartDashboard.putNumber("xSpeed", xSpeed);
       SmartDashboard.putNumber("ySpeed", ySpeed);

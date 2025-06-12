@@ -49,7 +49,7 @@ public final class Constants {
     public static final double      X_SETPOINT                      = 0;  
 	public static final double      X_TOLERANCE                     = 0.1;
 
-	public static final double      Y_SETPOINT                      = 0;  
+	public static final double      Y_SETPOINT                      = -0.81;  
 	public static final double      Y_TOLERANCE                     = 0.1;
     
     //LEDS
