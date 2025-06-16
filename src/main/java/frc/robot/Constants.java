@@ -43,13 +43,13 @@ public final class Constants {
     public static final double      NO_TAG_WAIT_TIME                = 1;
     public static final double      CORRECT_POSE_WAIT_TIME          = 0.3;
 
-    public static final double      ROT_SETPOINT                    = 0;
+    public static final double      ROT_SETPOINT                     = 0;
     public static final double      ROT_TOLERANCE                   = 1;
 
-    public static final double      X_SETPOINT                      = 0;  
+    public static final double      X_SETPOINT                      = 2;  
 	public static final double      X_TOLERANCE                     = 0.1;
 
-	public static final double      Y_SETPOINT                      = -0.81;  
+	public static final double      Y_SETPOINT                      = 1;  
 	public static final double      Y_TOLERANCE                     = 0.1;
     
     //LEDS

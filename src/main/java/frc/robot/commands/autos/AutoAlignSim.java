@@ -31,7 +31,7 @@ public class AutoAlignSim extends Command {
   public AutoAlignSim(boolean direction, SwerveSubsystem drivebase) {
     xController = new PIDController(2, 0.0, 0);  
     yController = new PIDController(2, 0.0, 0);  
-    rotationController = new PIDController(1, 0.5, 0);  
+    rotationController = new PIDController(2, 0.5, 0);  
     this.direction = direction; 
 
     this.drivebase = drivebase;
@@ -64,10 +64,10 @@ public class AutoAlignSim extends Command {
     if (LimelightHelpersSim.getTV() && LimelightHelpersSim.getFiducialID() == tagID) {
       this.noTagTimer.reset();
       
-      double[] postions = LimelightHelpersSim.getTargetPose_RobotSpace(this.drivebase, new Pose2d(13.86, 5.17, new Rotation2d(0)));
+      double[] postions = LimelightHelpersSim.getTargetPose_RobotSpace(this.drivebase, new Pose2d(13.86, 5.17, new Rotation2d(3.14/4)));
 
-      double xSpeed = -xController.calculate(postions[0]);
-      double ySpeed = -yController.calculate(postions[1]);
+      double xSpeed = xController.calculate(postions[0]);
+      double ySpeed = yController.calculate(postions[1]);
       double rotValue = rotationController.calculate(postions[4]);
       SmartDashboard.putNumber("xSpeed", xSpeed);
       SmartDashboard.putNumber("ySpeed", ySpeed);

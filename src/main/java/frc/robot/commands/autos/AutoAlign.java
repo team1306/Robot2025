@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 
 import frc.robot.util.LimelightHelpers;
+import frc.robot.util.LimelightHelpersSim;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class AutoAlign extends Command {
@@ -31,7 +32,7 @@ public class AutoAlign extends Command {
   public AutoAlign(boolean direction, SwerveSubsystem drivebase) {
     xController = new PIDController(2, 0.0, 0);  
     yController = new PIDController(2, 0.0, 0);  
-    rotationController = new PIDController(1, 0.5, 0);  
+    rotationController = new PIDController(2, 0.5, 0);  
     this.direction = direction; 
 
     this.drivebase = drivebase;
@@ -66,8 +67,8 @@ public class AutoAlign extends Command {
       
       double[] postions = LimelightHelpers.getTargetPose_RobotSpace(Constants.LIMELIGHT_4_NAME);
 
-      double xSpeed = -xController.calculate(postions[0]);
-      double ySpeed = 0; //-yController.calculate(postions[1]);
+      double xSpeed = xController.calculate(postions[0]);
+      double ySpeed = yController.calculate(postions[1]);
       double rotValue = rotationController.calculate(postions[4]);
       SmartDashboard.putNumber("xSpeed", xSpeed);
       SmartDashboard.putNumber("ySpeed", ySpeed);
