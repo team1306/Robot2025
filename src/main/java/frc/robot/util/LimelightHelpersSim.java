@@ -22,7 +22,7 @@ public class LimelightHelpersSim {
    
         Pose2d robotPose = drivebase.getPose();
         
-        Pose2d robotRelative = tagPose.relativeTo(robotPose);
+        Pose2d robotRelative = robotPose.relativeTo(tagPose);
   
         SmartDashboard.putNumber("targetXAutoAlign", robotRelative.getX());
         SmartDashboard.putNumber("targetYAutoAlign", robotRelative.getY());
