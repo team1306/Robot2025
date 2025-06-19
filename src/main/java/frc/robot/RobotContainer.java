@@ -216,11 +216,11 @@ public class RobotContainer {
         );
 
         controller1.leftStick(fullAutomaticEventLoop).whileTrue(
-            new AutoAlignSim(true, drivebase)
+            new AutoAlign(true, drivebase)
         );
         
         controller1.rightStick(fullAutomaticEventLoop).whileTrue(
-            new AutoAlignSim(false, drivebase)
+            new AutoAlign(false, drivebase)
         );
         controller1.x(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)

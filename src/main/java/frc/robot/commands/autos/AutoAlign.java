@@ -8,6 +8,7 @@ import badgerlog.entry.Entry;
 import badgerlog.entry.EntryType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -64,15 +65,18 @@ public class AutoAlign extends Command {
   public void execute() {
     if (LimelightHelpers.getTV(Constants.LIMELIGHT_4_NAME) && LimelightHelpers.getFiducialID(Constants.LIMELIGHT_4_NAME) == tagID) {
       this.noTagTimer.reset();
-      
-      double[] postions = LimelightHelpers.getTargetPose_RobotSpace(Constants.LIMELIGHT_4_NAME);
+      SmartDashboard.putNumber("TagID", tagID);
+      Pose3d robotPose = LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_4_NAME);
 
-      double xSpeed = xController.calculate(postions[0]);
-      double ySpeed = yController.calculate(postions[1]);
-      double rotValue = rotationController.calculate(postions[4]);
+      double xSpeed = xController.calculate(-robotPose.getX());
+      double ySpeed = yController.calculate(robotPose.getY()); 
+      double rotValue = rotationController.calculate(-robotPose.getRotation().getZ());
+      SmartDashboard.putNumber("targetX", robotPose.getX());
+      SmartDashboard.putNumber("targetY", robotPose.getY());
+      SmartDashboard.putNumber("targetRot", robotPose.getRotation().getZ());
       SmartDashboard.putNumber("xSpeed", xSpeed);
       SmartDashboard.putNumber("ySpeed", ySpeed);
-      drivebase.drive(new ChassisSpeeds(xSpeed, ySpeed, Units.degreesToRadians(rotValue)));
+      drivebase.drive(new ChassisSpeeds(xSpeed, ySpeed, rotValue));
 
       if(
         !rotationController.atSetpoint() ||

@@ -18,24 +18,17 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class LimelightHelpersSim {
   
    
-    public static double[] getTargetPose_RobotSpace(SwerveSubsystem drivebase, Pose2d tagPose) {
+    public static Pose3d getTargetPose3d_RobotSpace(SwerveSubsystem drivebase, Pose2d tagPose) {
    
         Pose2d robotPose = drivebase.getPose();
         
-        Pose2d robotRelative = robotPose.relativeTo(tagPose);
+        Pose2d robotRelative = tagPose.relativeTo(robotPose);
   
-        SmartDashboard.putNumber("targetXAutoAlign", robotRelative.getX());
-        SmartDashboard.putNumber("targetYAutoAlign", robotRelative.getY());
-        SmartDashboard.putNumber("targetYawAutoAlign", robotRelative.getRotation().getDegrees());
+        SmartDashboard.putNumber("alignErrorX", robotRelative.getX());
+        SmartDashboard.putNumber("alignErrorY", -robotRelative.getY());
+    
 
-        return new double[] {
-          robotRelative.getX(),
-          robotRelative.getY(),
-          0,
-          0,
-          robotRelative.getRotation().getDegrees(),
-          0
-        };
+        return new Pose3d(robotRelative.getX(), -robotRelative.getY(), 0d, new Rotation3d(robotRelative.getRotation()));
     }
     public static boolean getTV(){
         return true;
