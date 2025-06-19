@@ -8,6 +8,7 @@ import badgerlog.entry.Entry;
 import badgerlog.entry.EntryType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -17,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 
+import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpersSim;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -31,7 +33,7 @@ public class AutoAlignSim extends Command {
   public AutoAlignSim(boolean direction, SwerveSubsystem drivebase) {
     xController = new PIDController(2, 0.0, 0);  
     yController = new PIDController(2, 0.0, 0);  
-    rotationController = new PIDController(2, 0.5, 0);  
+    rotationController = new PIDController(0.8, 0, 1);  
     this.direction = direction; 
 
     this.drivebase = drivebase;
@@ -63,15 +65,18 @@ public class AutoAlignSim extends Command {
   public void execute() {
     if (LimelightHelpersSim.getTV() && LimelightHelpersSim.getFiducialID() == tagID) {
       this.noTagTimer.reset();
-      
-      double[] postions = LimelightHelpersSim.getTargetPose_RobotSpace(this.drivebase, new Pose2d(13.86, 5.17, new Rotation2d(3.14/4)));
+      SmartDashboard.putNumber("TagID", tagID);
+      Pose3d robotPose = LimelightHelpersSim.getTargetPose3d_RobotSpace(this.drivebase, new Pose2d(13.86, 5.17, new Rotation2d(0)));
 
-      double xSpeed = xController.calculate(postions[0]);
-      double ySpeed = yController.calculate(postions[1]);
-      double rotValue = rotationController.calculate(postions[4]);
+      double xSpeed = xController.calculate(-robotPose.getX());
+      double ySpeed = yController.calculate(robotPose.getY()); // Not inverted because WPILIB and Limlight y's are inverted
+      double rotValue = rotationController.calculate(-robotPose.getRotation().getZ());
+      SmartDashboard.putNumber("targetX", robotPose.getX());
+      SmartDashboard.putNumber("targetY", robotPose.getY());
+      SmartDashboard.putNumber("targetRot", robotPose.getRotation().getZ());
       SmartDashboard.putNumber("xSpeed", xSpeed);
       SmartDashboard.putNumber("ySpeed", ySpeed);
-      drivebase.drive(new ChassisSpeeds(xSpeed, ySpeed, Units.degreesToRadians(rotValue)));
+      drivebase.drive(new ChassisSpeeds(xSpeed, ySpeed, rotValue));
 
       if(
         !rotationController.atSetpoint() ||
