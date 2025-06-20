@@ -33,7 +33,7 @@ public class AutoAlign extends Command {
   public AutoAlign(boolean direction, SwerveSubsystem drivebase) {
     xController = new PIDController(2, 0.0, 0);  
     yController = new PIDController(2, 0.0, 0);  
-    rotationController = new PIDController(2, 0.5, 0);  
+    rotationController = new PIDController(2, 0, 0);  
     this.direction = direction; 
 
     this.drivebase = drivebase;
@@ -68,12 +68,12 @@ public class AutoAlign extends Command {
       SmartDashboard.putNumber("TagID", tagID);
       Pose3d robotPose = LimelightHelpers.getTargetPose3d_RobotSpace(Constants.LIMELIGHT_4_NAME);
 
-      double xSpeed = xController.calculate(-robotPose.getX());
-      double ySpeed = yController.calculate(robotPose.getY()); 
-      double rotValue = rotationController.calculate(-robotPose.getRotation().getZ());
-      SmartDashboard.putNumber("targetX", robotPose.getX());
-      SmartDashboard.putNumber("targetY", robotPose.getY());
-      SmartDashboard.putNumber("targetRot", robotPose.getRotation().getZ());
+      double xSpeed = xController.calculate(-robotPose.getZ());
+      double ySpeed = yController.calculate(robotPose.getX()); 
+      double rotValue = rotationController.calculate(robotPose.getRotation().getY());
+      SmartDashboard.putNumber("targetX", robotPose.getZ());
+      SmartDashboard.putNumber("targetY", robotPose.getX());
+      SmartDashboard.putNumber("targetRot", robotPose.getRotation().getY());
       SmartDashboard.putNumber("xSpeed", xSpeed);
       SmartDashboard.putNumber("ySpeed", ySpeed);
       drivebase.drive(new ChassisSpeeds(xSpeed, ySpeed, rotValue));
