@@ -8,7 +8,7 @@ import frc.robot.subsystems.Climber;
 public class RunClimberFromSmartDashboard extends Command {
     private final Climber climber;
 
-    @Entry(type = EntryType.Subscriber)
+    @Entry(EntryType.Subscriber)
     private static double speed = 0;
 
     public RunClimberFromSmartDashboard(Climber climber) {

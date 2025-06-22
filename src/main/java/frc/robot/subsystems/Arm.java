@@ -22,7 +22,7 @@ import static frc.robot.Constants.*;
 
 public class Arm extends SubsystemBase  {
     
-    @Entry(type = EntryType.Subscriber)
+    @Entry(EntryType.Subscriber)
     private static double kG = 0.03, kV = 0;
     
     private static final double MAX_VELOCITY = 2500, MAX_ACCELERATION = 4500;
@@ -31,16 +31,16 @@ public class Arm extends SubsystemBase  {
 
     private final Rotation2d OFFSET = Rotation2d.fromDegrees(-160+4), TOLERANCE = Rotation2d.fromDegrees(0.1);
 
-    @Getter @Entry(type = EntryType.Publisher)
+    @Getter @Entry(EntryType.Publisher)
     private static Rotation2d targetAngle = Rotation2d.kZero;
 
-    @Entry(type = EntryType.Publisher)
+    @Entry(EntryType.Publisher)
     public static Rotation2d currentAngle = Rotation2d.kZero;
 
     private final MotorGroup<Motor> motorGroup;
     private final DutyCycleEncoder armEncoder;
 
-    @Entry(type = EntryType.Sendable)
+    @Entry(EntryType.Sendable)
     private static ProfiledPIDController profiledPIDController = new ProfiledPIDController(0.02, 0, 0.0001, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private ArmFeedforward feedforward;
 

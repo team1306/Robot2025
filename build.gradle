@@ -74,7 +74,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    annotationProcessor 'com.github.team1306:badger-log:2025.1.4'
+    annotationProcessor 'com.github.team1306:badger-log:2025.2.1'
 }
 
 test {
