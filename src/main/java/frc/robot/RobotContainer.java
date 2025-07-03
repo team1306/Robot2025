@@ -78,8 +78,8 @@ public class RobotContainer {
     private static double autoWaitTime = 0;
 
     public RobotContainer() {
-        SmartDashboard.putData("AlignLeft", new AutoAlignSim(true, drivebase));
-        SmartDashboard.putData("Align Right", new AutoAlignSim(false, drivebase));
+        SmartDashboard.putData("AlignLeft", new AutoAlign(true, drivebase));
+        SmartDashboard.putData("Align Right", new AutoAlign(false, drivebase));
         // UsbCamera camera = CameraServer.startAutomaticCapture();
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         
@@ -216,11 +216,11 @@ public class RobotContainer {
         );
 
         controller1.leftStick(fullAutomaticEventLoop).whileTrue(
-            new AutoAlign(true, drivebase)
+            new AutoScore(true, drivebase, elevator, arm, wrist, selectedLevel, wristLeft)
         );
         
         controller1.rightStick(fullAutomaticEventLoop).whileTrue(
-            new AutoAlign(false, drivebase)
+            new AutoScore(false, drivebase, elevator, arm, wrist, selectedLevel, wristLeft)
         );
         controller1.x(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
