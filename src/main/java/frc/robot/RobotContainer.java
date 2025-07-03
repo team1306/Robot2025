@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import badgerlog.entry.handlers.Key;
 import choreo.auto.AutoChooser;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -68,13 +69,16 @@ public class RobotContainer {
     private final Command driveRobotOrientedAngularVelocity = drivebase.drive(driveAngularVelocity);
     private final Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
-    @Entry(key = "Auto/Auto Chooser", type = EntryType.Sendable)
+    @Entry(EntryType.Sendable)
+    @Key("Auto/Auto Chooser")
     private static AutoChooser autoChooser = new AutoChooser();
     
-    @Entry(key = "Auto/Controller Chooser",type = EntryType.Sendable)
+    @Entry(EntryType.Sendable)
+    @Key("Auto/Controller Chooser")
     private static SendableChooser<EventLoop> controllerModeChooser = new SendableChooser<>();
 
-    @Entry(key = "Auto/Auto Wait Time", type = EntryType.Subscriber)
+    @Entry(EntryType.Subscriber)
+    @Key("Auto/Auto Wait Time")
     private static double autoWaitTime = 0;
 
     public RobotContainer() {

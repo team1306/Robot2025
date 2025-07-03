@@ -5,6 +5,7 @@
 package frc.robot;
 
 import badgerlog.Dashboard;
+import badgerlog.DashboardConfig;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -18,7 +19,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-        Dashboard.initialize("frc.robot");
+        Dashboard.initialize(DashboardConfig.defaultConfig);
         FieldLocation.recalculateFieldPositions();
         robotContainer = new RobotContainer();
         System.gc();
@@ -49,7 +50,6 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledExit() {
         FieldLocation.recalculateFieldPositions();
-        if(!Dashboard.isInitialized) throw new IllegalStateException("Dashboard is not initialized--do not enable");
     }
 
     @Override

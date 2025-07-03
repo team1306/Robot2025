@@ -1,11 +1,10 @@
 package frc.robot.subsystems;
 
+import badgerlog.entry.handlers.UnitConversion;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import badgerlog.entry.Config;
 import badgerlog.entry.Entry;
 import badgerlog.entry.EntryType;
-import badgerlog.networktables.mappings.UnitMappings;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -28,13 +27,13 @@ public class Elevator extends SubsystemBase {
     
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
-    @Entry(type = EntryType.Subscriber)
+    @Entry(EntryType.Subscriber)
     private static double kG = 0.045, kV = 0;
 
     private final static double MAX_VELOCITY = 225, MAX_ACCELERATION = 500; // placeholder
     private final Distance TOLERANCE = Inches.of(0.5);
     
-    @Entry(type = EntryType.Sendable)
+    @Entry(EntryType.Sendable)
     private static ProfiledPIDController pid = new ProfiledPIDController(0.05, 0, 0.0015,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));    private ElevatorFeedforward feedforward;
 
     private final MotorGroup<Motor> motorGroup;
@@ -42,19 +41,19 @@ public class Elevator extends SubsystemBase {
 
     private final DigitalInput limitSwitch;
 
-    @Entry(type = EntryType.Subscriber)
+    @Entry(EntryType.Subscriber)
     private static double conversionFactor = 54.75 / 140.83;
     //54.75
-    @Entry(type = EntryType.Subscriber)
+    @Entry(EntryType.Subscriber)
     private static double maxHeightInches = 54.5, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
     
     @Setter @Getter
-    @Entry(type = EntryType.Publisher)
-    @Config(UnitMappings.DistanceConfiguration.INCHES)
+    @Entry(EntryType.Publisher)
+    @UnitConversion("Inches")
     private static Distance targetHeight = Inches.of(0);
 
-    @Entry(type = EntryType.Publisher)
-    @Config(UnitMappings.DistanceConfiguration.INCHES)
+    @Entry(EntryType.Publisher)
+    @UnitConversion("Inches")
     private static Distance currentHeight = Inches.of(0);
 
     private Distance offset = Inches.of(0);

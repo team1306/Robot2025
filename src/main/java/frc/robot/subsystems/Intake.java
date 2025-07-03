@@ -19,7 +19,7 @@ public class Intake extends SubsystemBase {
     @Getter
     private double targetSpeed = 0;
 
-    @Entry(type = EntryType.Publisher)
+    @Entry(EntryType.Publisher)
     private static boolean sensorReading = false;
 
     private final MotorGroup<Motor> motorGroup;

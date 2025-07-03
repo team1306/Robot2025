@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import badgerlog.entry.handlers.Key;
 import choreo.trajectory.SwerveSample;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -61,16 +62,18 @@ public class SwerveSubsystem extends SubsystemBase {
     private final PIDController autoXController = new PIDController(7, 0, 0.2);
     private final PIDController autoYController = new PIDController(7, 0, 0.2);
 
-    @Entry(type = EntryType.Subscriber)
+    @Entry(EntryType.Subscriber)
     private static double WRIST_POSE_SHIFT = 1;
 
     private final PIDController autoHeadingController = new PIDController(3.5, 0, 0.1);
     
-    @Entry(key = "Auto/Translation Controller", type = EntryType.Sendable)
+    @Entry(EntryType.Sendable)
+    @Key("Auto/Translation Controller")
     private static ProfiledPIDController translationController =
             new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(2, 1));
 
-    @Entry(key = "Auto/Heading Controller", type = EntryType.Sendable)
+    @Entry(EntryType.Sendable)
+    @Key("Auto/Heading Controller")
     private static ProfiledPIDController headingController =
             new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(50, 25));
 
@@ -138,7 +141,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private Pose2d reefLastCachedLocation = null;
     private boolean reefEnabled = false;
 
-    @Entry(type = EntryType.Sendable)
+    @Entry(EntryType.Sendable)
     private static Field2d shiftedPose = new Field2d();
 
     private Pose2d getNearestReefLocation(){
@@ -174,7 +177,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Pose2d coralStationLastCachedLocation = null;
     private boolean coralStationEnabled = false;
-    @Entry(type = EntryType.Sendable)
+    @Entry(EntryType.Sendable)
     private static Field2d coralStationField = new Field2d();
 
     private Pose2d getNearestCoralStationLocation(){

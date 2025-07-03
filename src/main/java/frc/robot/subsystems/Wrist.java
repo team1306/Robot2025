@@ -22,22 +22,22 @@ public class Wrist extends SubsystemBase  {
 
     private final Rotation2d OFFSET = Rotation2d.fromDegrees(-120+25);
     
-    @Entry(type = EntryType.Subscriber)
+    @Entry(EntryType.Subscriber)
     private static double offsetRight = 0D;
 
     private final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0);
 
-    @Getter @Entry(type = EntryType.Publisher)
+    @Getter @Entry(EntryType.Publisher)
     private static Rotation2d targetAngle = Rotation2d.fromDegrees(0);
 
-    @Entry(type = EntryType.Publisher)
+    @Entry(EntryType.Publisher)
     public static Rotation2d currentAngle = Rotation2d.fromDegrees(0);
 
     private final MotorGroup<Motor> motorGroup;
 
     private final DutyCycleEncoder encoder;
 
-    @Entry(type = EntryType.Sendable)
+    @Entry(EntryType.Sendable)
     private static PIDController pidController = new PIDController(0.4, 0, 0.0001);
 
     private final DetectUnpluggedEncoder detectEncoderUnplugged;
@@ -62,7 +62,7 @@ public class Wrist extends SubsystemBase  {
         detectEncoderUnplugged = new DetectUnpluggedEncoder(encoder::get, () -> targetAngle.getDegrees());
     }
 
-    @Entry(type = EntryType.Publisher)
+    @Entry(EntryType.Publisher)
     private static double motorOutput = 0;
 
     @Override

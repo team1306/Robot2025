@@ -9,7 +9,7 @@ import frc.robot.subsystems.Wrist;
 public class WristFromSmartDashboard extends Command {
     private final Wrist wrist;
 
-    @Entry(type = EntryType.Subscriber)
+    @Entry(EntryType.Subscriber)
     private static Rotation2d targetRotation = Rotation2d.kZero;
     
     /**
