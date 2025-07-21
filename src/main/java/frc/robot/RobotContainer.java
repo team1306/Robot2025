@@ -128,11 +128,67 @@ public class RobotContainer {
     private final EventLoop fullAutomaticEventLoop = new EventLoop();
     private final EventLoop setpointEventLoop = new EventLoop();
     private final EventLoop alternativeEventLoop = new EventLoop();
+    private final EventLoop oneControllerEventLoop = new EventLoop();
 
     public void bindAlternative(){
         bindCommonControls(alternativeEventLoop);
         controller1.a().whileTrue(new RunIntake(intake, () -> -1));
         controller1.b().whileTrue(new RunIntake(intake, () -> 1));
+    }
+
+    public void bindOneController() {
+        controller1.pov(0, 270, oneControllerEventLoop).onTrue(new InstantCommand(() -> {
+            new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L1, ArmSetpoints.CORAL_L1, WristSetpoints.HORIZONTAL, true);
+            selectedLevel = 1;
+        }));
+        controller1.pov(0, 180, oneControllerEventLoop).onTrue(new InstantCommand(() -> {
+            new PlaceCoral(elevator, arm, wrist, 2, WristSetpoints.VERTICAL_L);
+            selectedLevel = 2;
+        }));
+        controller1.pov(0, 90, oneControllerEventLoop).onTrue(new InstantCommand(() -> {
+            new PlaceCoral(elevator, arm, wrist, 3, WristSetpoints.VERTICAL_L);
+            selectedLevel = 3;
+        }));
+        controller1.pov(0, 0, oneControllerEventLoop).onTrue(new InstantCommand(() -> {
+            new PlaceCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_L);
+            selectedLevel = 4;
+        }));
+
+        controller1.leftStick(oneControllerEventLoop).onTrue(new InstantCommand(() -> {
+            new StageRemoveAlgae(elevator, arm, wrist, 2);
+            selectedLevel = 6;
+        }));
+        controller1.rightStick(oneControllerEventLoop).onTrue(new InstantCommand(() -> {
+            new StageRemoveAlgae(elevator, arm, wrist, 3);
+            selectedLevel = 5;
+        }));
+                
+        HashMap<LevelSelectorKey, Command> scoringCommands = new HashMap<>();
+        scoringCommands.put(LevelSelectorKey.CORAL_L1, new RunIntake(intake, () -> 0.25));
+        scoringCommands.put(LevelSelectorKey.CORAL_L2_L, new DropCoral(elevator, arm, wrist, 2, WristSetpoints.VERTICAL_L));
+        scoringCommands.put(LevelSelectorKey.CORAL_L3_L, new DropCoral(elevator, arm, wrist, 3, WristSetpoints.VERTICAL_L));
+        scoringCommands.put(LevelSelectorKey.CORAL_L4_L, new DropCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_L));
+        scoringCommands.put(LevelSelectorKey.ALGAE_REMOVE_L2, new RemoveAlgae(elevator, arm, wrist, 2));
+        scoringCommands.put(LevelSelectorKey.ALGAE_REMOVE_L3, new RemoveAlgae(elevator, arm, wrist, 3));
+        
+        ConditionalCommandChooser<LevelSelectorKey> scoreWrapper = new ConditionalCommandChooser<>(scoringCommands, this::getLevelSelectorKey);
+
+        controller1.rightTrigger(0.5, oneControllerEventLoop).onTrue(scoreWrapper);        
+        controller1.leftBumper(oneControllerEventLoop).onTrue(new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL));
+        
+        controller1.y(oneControllerEventLoop).onTrue(
+                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL)
+        );
+        
+        controller1.x(oneControllerEventLoop).onTrue(
+                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
+        );
+        
+        controller1.a(oneControllerEventLoop).whileTrue(new RunIntake(intake, () -> 1));
+        controller1.b(oneControllerEventLoop).whileTrue(new RunIntake(intake, () -> -1));
+
+        //from common
+        Dashboard.getNetworkTablesButton("Speed Down", oneControllerEventLoop).onTrue(drivebase.changeSwerveSpeed(0.1)).onFalse(drivebase.changeSwerveSpeed(0.5));
     }
     
     public void bindManual(){
