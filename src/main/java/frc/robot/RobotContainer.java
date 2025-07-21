@@ -98,11 +98,13 @@ public class RobotContainer {
         bindAutomatic();
         bindManual();
         bindSetpoint();
+        bindOneController();
         changeEventLoop(alternativeEventLoop);
 
         controllerModeChooser.setDefaultOption("Full Auto", fullAutomaticEventLoop);
         controllerModeChooser.addOption("Setpoints", setpointEventLoop);
         controllerModeChooser.addOption("Manual", fullManualEventLoop);
+        controllerModeChooser.addOption("One Controller", oneControllerEventLoop);
 
         controllerModeChooser.addOption("Alternative", alternativeEventLoop);
         controllerModeChooser.onChange(this::changeEventLoop);
