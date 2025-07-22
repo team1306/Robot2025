@@ -38,6 +38,21 @@ public final class Constants {
 
     public static final double      ELEVATOR_STARTING_HEIGHT        = 0;
 
+    // AUTO ALIGN
+
+    public static final double      NO_TAG_WAIT_TIME                = 1;
+    public static final double      CORRECT_POSE_WAIT_TIME          = 0.3;
+
+    public static final double      ROT_SETPOINT                     = 0;
+    public static final double      ROT_TOLERANCE                   = 0.05;
+
+    public static final double      X_SETPOINT                      = -1;  
+	public static final double      X_TOLERANCE                     = 0.01;
+
+	public static final double      Y_SETPOINT                      = 0;  
+	public static final double      Y_TOLERANCE                     = 0.01;
+    
+    //LEDS
     public static final int LED_PORT = 0; // pwm port
     public static final int LED_COUNT = 50; // pixels
     public static final Color8Bit RED = new Color8Bit(255,0,0);
