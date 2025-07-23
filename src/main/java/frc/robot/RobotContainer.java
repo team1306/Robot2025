@@ -139,6 +139,8 @@ public class RobotContainer {
     }
 
     public void bindOneController() {
+        bindCommonControls(oneControllerEventLoop);
+
         controller1.pov(0, 270, oneControllerEventLoop).onTrue(new InstantCommand(() -> {
             new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L1, ArmSetpoints.CORAL_L1, WristSetpoints.HORIZONTAL, true);
             selectedLevel = 1;
@@ -188,9 +190,6 @@ public class RobotContainer {
         
         controller1.a(oneControllerEventLoop).whileTrue(new RunIntake(intake, () -> 1));
         controller1.b(oneControllerEventLoop).whileTrue(new RunIntake(intake, () -> -1));
-
-        //from common
-        Dashboard.getNetworkTablesButton("Speed Down", oneControllerEventLoop).onTrue(drivebase.changeSwerveSpeed(0.1)).onFalse(drivebase.changeSwerveSpeed(0.5));
     }
     
     public void bindManual(){
