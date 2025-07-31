@@ -100,7 +100,6 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
         // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
         swerveDrive.setAutoCenteringModules(false);
-
         autoHeadingController.enableContinuousInput(-Math.PI, Math.PI);
         translationController.setTolerance(0.001);
         headingController.enableContinuousInput(-Math.PI, Math.PI);

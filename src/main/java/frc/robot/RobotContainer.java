@@ -6,6 +6,7 @@ package frc.robot;
 
 import badgerlog.entry.handlers.Key;
 import choreo.auto.AutoChooser;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
@@ -58,17 +59,19 @@ public class RobotContainer {
     private final Intake intake = new Intake();
     private final Climber climber = new Climber();
     private final LEDSubsystem ledStrip = new LEDSubsystem(Constants.LED_PORT, 0, Constants.LED_COUNT);
+    private final SlewRateLimiter driveLimiter = new SlewRateLimiter(0.5);
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
      */
     private final SwerveInputStream driveAngularVelocity =
-            SwerveInputStream.of(drivebase.getSwerveDrive(), () -> -controller1.getLeftY(), () -> -controller1.getLeftX())
-                    .withControllerRotationAxis(() -> -controller1.getRightX()).deadband(Constants.LEFT_X_DEADBAND)
+            SwerveInputStream.of(drivebase.getSwerveDrive(), 
+            () -> driveLimiter.calculate(-controller1.getLeftY()), () -> driveLimiter.calculate(-controller1.getLeftX()))
+                    .withControllerRotationAxis(() -> driveLimiter.calculate(-controller1.getRightX())).deadband(Constants.LEFT_X_DEADBAND)
                     .scaleTranslation(1).scaleRotation(0.75).allianceRelativeControl(true);
     
     private final Command driveRobotOrientedAngularVelocity = drivebase.drive(driveAngularVelocity);
     private final Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-
+    
     @Entry(EntryType.Sendable)
     @Key("Auto/Auto Chooser")
     private static AutoChooser autoChooser = new AutoChooser();
@@ -82,8 +85,7 @@ public class RobotContainer {
     private static double autoWaitTime = 0;
 
     public RobotContainer() {
-        SmartDashboard.putData("AlignLeft", new AutoAlign(true, drivebase));
-        SmartDashboard.putData("Align Right", new AutoAlign(false, drivebase));
+
         // UsbCamera camera = CameraServer.startAutomaticCapture();
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         
@@ -131,7 +133,11 @@ public class RobotContainer {
     private final EventLoop fullAutomaticEventLoop = new EventLoop();
     private final EventLoop setpointEventLoop = new EventLoop();
     private final EventLoop alternativeEventLoop = new EventLoop();
+    private final EventLoop twistedEventLoop = new EventLoop();
 
+    public void bindTwisted(){
+
+    }
     public void bindAlternative(){
         bindCommonControls(alternativeEventLoop);
         controller1.a().whileTrue(new RunIntake(intake, () -> -1));
@@ -220,11 +226,11 @@ public class RobotContainer {
         );
 
         controller1.leftStick(fullAutomaticEventLoop).whileTrue(
-            new AutoScore(true, drivebase, elevator, arm, wrist, selectedLevel, wristLeft)
+            new AutoAlign(true, drivebase)
         );
         
         controller1.rightStick(fullAutomaticEventLoop).whileTrue(
-            new AutoScore(false, drivebase, elevator, arm, wrist, selectedLevel, wristLeft)
+            new AutoAlign(true, drivebase)
         );
         controller1.x(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
@@ -268,6 +274,7 @@ public class RobotContainer {
     public static Runnable autoRunnable = null;
     
     public void bindCommonControls(EventLoop loop){
+        
         controller1.start(loop).onTrue(new InstantCommand(drivebase::zeroGyro).ignoringDisable(true));
         controller1.leftStick(loop)
             .onFalse(new InstantCommand(() -> changeDrivebaseDefaultCommand(driveFieldOrientedAngularVelocity)))

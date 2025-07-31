@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 
 import frc.robot.util.LimelightHelpers;
-import frc.robot.util.LimelightHelpersSim;
+
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class AutoAlign extends Command {
