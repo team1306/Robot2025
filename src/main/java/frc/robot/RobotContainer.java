@@ -53,20 +53,23 @@ public class RobotContainer {
     private final CommandXboxController controller2 = new CommandXboxController(1);
 
     private final Wrist wrist = new Wrist();
-    private final SwerveSubsystem drivebase = new SwerveSubsystem(() -> wristLeft ? 1 : -1, () -> selectedLevel);
+    private final SwerveSubsystem drivebase = new SwerveSubsystem();
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
     private final Climber climber = new Climber();
     private final LEDSubsystem ledStrip = new LEDSubsystem(Constants.LED_PORT, 0, Constants.LED_COUNT);
-    private final SlewRateLimiter driveLimiter = new SlewRateLimiter(0.5);
+    private final SlewRateLimiter xLimiter = new SlewRateLimiter(1.5);
+    private final SlewRateLimiter yLimiter = new SlewRateLimiter(1.5);
+    private final SlewRateLimiter rotLimiter = new SlewRateLimiter(3);
+
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
      */
     private final SwerveInputStream driveAngularVelocity =
             SwerveInputStream.of(drivebase.getSwerveDrive(), 
-            () -> driveLimiter.calculate(-controller1.getLeftY()), () -> driveLimiter.calculate(-controller1.getLeftX()))
-                    .withControllerRotationAxis(() -> driveLimiter.calculate(-controller1.getRightX())).deadband(Constants.LEFT_X_DEADBAND)
+            () -> yLimiter.calculate(-controller1.getLeftY()), () -> xLimiter.calculate(-controller1.getLeftX()))
+                    .withControllerRotationAxis(() -> rotLimiter.calculate(-controller1.getRightX())).deadband(Constants.LEFT_X_DEADBAND)
                     .scaleTranslation(1).scaleRotation(0.75).allianceRelativeControl(true);
     
     private final Command driveRobotOrientedAngularVelocity = drivebase.drive(driveAngularVelocity);
@@ -134,10 +137,47 @@ public class RobotContainer {
     private final EventLoop setpointEventLoop = new EventLoop();
     private final EventLoop alternativeEventLoop = new EventLoop();
     private final EventLoop twistedEventLoop = new EventLoop();
-
+    private int selectedLevel = 1;
+    private boolean wristLeft = true;
+    
     public void bindTwisted(){
+        bindCommonControls(twistedEventLoop);
 
+        // -- CONTROLLER 1 --
+        controller1.rightBumper(twistedEventLoop).onTrue(new AutoAlign(true, drivebase));
+        controller1.leftBumper(twistedEventLoop).onTrue(new AutoAlign(true, drivebase));
+
+
+        controller1.leftTrigger(0.5, twistedEventLoop)
+        .onTrue(new InstantCommand(() -> {
+            if (selectedLevel != 1){
+                new DropCoral(elevator, arm, wrist, selectedLevel, WristSetpoints.VERTICAL_L);
+            } 
+            
+        }))
+        .whileTrue(new RunIntake(intake, () -> -0.25));
+        controller1.rightTrigger(0.5, twistedEventLoop).whileTrue(new RunIntake(intake, () -> 1));
+
+        // -- CONTROLLER 2 --
+
+        controller2.y(twistedEventLoop).onTrue(new InstantCommand(() -> {
+            new PlaceCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_L);
+            selectedLevel = 4;
+        }));
+        controller2.x(twistedEventLoop).onTrue(new InstantCommand(() -> {
+            new PlaceCoral(elevator, arm, wrist, 3, WristSetpoints.VERTICAL_L);
+            selectedLevel = 3;
+        }));
+        controller2.b(twistedEventLoop).onTrue(new InstantCommand(() -> {
+            new PlaceCoral(elevator, arm, wrist, 2, WristSetpoints.VERTICAL_L);
+            selectedLevel = 2;
+        }));
+        controller2.a(twistedEventLoop).onTrue(new InstantCommand(() -> {
+            new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L1, ArmSetpoints.CORAL_L1, WristSetpoints.HORIZONTAL, true);
+            selectedLevel = 1;
+        }));
     }
+
     public void bindAlternative(){
         bindCommonControls(alternativeEventLoop);
         controller1.a().whileTrue(new RunIntake(intake, () -> -1));
@@ -179,9 +219,7 @@ public class RobotContainer {
         controller2.leftBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.HORIZONTAL));
     }
     
-    private static int selectedLevel = 1;
-    private static boolean wristLeft = true;
-    
+  
     //Make sure to implement correctly (use a supplier in an init method)
     @Getter
     private static final boolean overrideSafeMode = false;

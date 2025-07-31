@@ -77,14 +77,9 @@ public class SwerveSubsystem extends SubsystemBase {
     private static ProfiledPIDController headingController =
             new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(50, 25));
 
-    private final SwerveInputStream driveToReefPose;
-    private final SwerveInputStream driveToCoralStationPose;
-    private final IntSupplier wristMultSupplier;
-    private final IntSupplier levelSupplier;
+
     
-    public SwerveSubsystem(IntSupplier wristMultSupplier, IntSupplier levelSupplier) {
-        this.wristMultSupplier = wristMultSupplier;
-        this.levelSupplier = levelSupplier;
+    public SwerveSubsystem() {
 
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         try {
@@ -104,12 +99,7 @@ public class SwerveSubsystem extends SubsystemBase {
         translationController.setTolerance(0.001);
         headingController.enableContinuousInput(-Math.PI, Math.PI);
         headingController.setTolerance(0.001);
-        driveToReefPose = SwerveInputStream.of(swerveDrive, () -> 0, () -> 0)
-                .driveToPose(this::getNearestReefLocation, translationController, headingController)
-                .driveToPoseEnabled(true);
-        driveToCoralStationPose = SwerveInputStream.of(swerveDrive, () -> 0, () -> 0)
-                .driveToPose(this::getNearestCoralStationLocation, translationController, headingController)
-                .driveToPoseEnabled(true);
+
 
         /*
         0 - use external imu,
@@ -137,61 +127,7 @@ public class SwerveSubsystem extends SubsystemBase {
         imu.setOffset(imu.getRawRotation3d());
     }
 
-    private Pose2d reefLastCachedLocation = null;
-    private boolean reefEnabled = false;
 
-    @Entry(EntryType.Sendable)
-    private static Field2d shiftedPose = new Field2d();
-
-    private Pose2d getNearestReefLocation(){
-        if(reefEnabled && reefLastCachedLocation != null) return reefLastCachedLocation;
-        reefLastCachedLocation = getReefLocationOdometryMethod();
-        shiftedPose.setRobotPose(reefLastCachedLocation);
-        return reefLastCachedLocation;
-    }
-
-    private Pose2d shiftPoseRelativeToIntake(Pose2d fieldRelativePose) {
-        final Distance shift = Inches.of(WRIST_POSE_SHIFT).times(-wristMultSupplier.getAsInt()).times(FieldLocation.reefLocations.get(fieldRelativePose) ? -1 : 1);
-        final Distance forwardShift = Inches.of(switch(levelSupplier.getAsInt()){
-            case 3 -> 2;
-            case 4 -> -1;
-            default -> 0;
-        });
-        Pose2d transformedPose = fieldRelativePose.transformBy(new Transform2d(new Translation2d(forwardShift.in(Meter), shift.in(Meter)), fieldRelativePose.getRotation()));
-        return new Pose2d(transformedPose.getTranslation(), fieldRelativePose.getRotation());
-    }
-
-    private Pose2d getReefLocationOdometryMethod(){
-        Pose2d position = getPose().nearest(FieldLocation.reefLocations.keySet().stream().toList());
-        position = shiftPoseRelativeToIntake(position);
-        return position;
-    }
-
-    private Command reefAutoAlign = null;
-
-    public Command getReefAutoAlignCommand(){
-        if(reefAutoAlign == null) reefAutoAlign = driveFieldOriented(driveToReefPose);
-        return reefAutoAlign;
-    }
-
-    private Pose2d coralStationLastCachedLocation = null;
-    private boolean coralStationEnabled = false;
-    @Entry(EntryType.Sendable)
-    private static Field2d coralStationField = new Field2d();
-
-    private Pose2d getNearestCoralStationLocation(){
-        if(coralStationEnabled && coralStationLastCachedLocation != null) return coralStationLastCachedLocation;
-        coralStationLastCachedLocation = getPose().nearest(FieldLocation.coralStationLocations);
-        coralStationField.setRobotPose(coralStationLastCachedLocation);
-        return coralStationLastCachedLocation;
-    }
-
-    private Command coralStationAutoAlign = null;
-
-    public Command getCoralStationAutoAlign(){
-        if(coralStationAutoAlign == null) coralStationAutoAlign = driveFieldOriented(driveToCoralStationPose);
-        return coralStationAutoAlign;
-    }
 
     public void followTrajectory(SwerveSample sample) {
         // Get the current pose of the robot
@@ -210,14 +146,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        reefEnabled = getReefAutoAlignCommand().isScheduled();
-        coralStationEnabled = getCoralStationAutoAlign().isScheduled();
-
-        if(validateVelocity(driveToReefPose.get())) Dashboard.putValue("Auto/Reef Align Startup", true);
-        if(validateVelocity(driveToCoralStationPose.get())) Dashboard.putValue("Auto/Station Align Startup", true);
-
-        Dashboard.putValue("Auto/TranslationError", translationController.getPositionError());
-        Dashboard.putValue("Auto/HeadingError", headingController.getPositionError());
 
         addVisionMeasurement(LIMELIGHT_4_NAME);
         addVisionMeasurement(LIMELIGHT_3_NAME);
