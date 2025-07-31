@@ -107,8 +107,8 @@ public class RobotContainer {
         bindManual();
         bindSetpoint();
         changeEventLoop(alternativeEventLoop);
-
-        controllerModeChooser.setDefaultOption("Full Auto", fullAutomaticEventLoop);
+        controllerModeChooser.setDefaultOption("TWISTED", twistedEventLoop);
+        controllerModeChooser.addOption("Full Auto", fullAutomaticEventLoop);
         controllerModeChooser.addOption("Setpoints", setpointEventLoop);
         controllerModeChooser.addOption("Manual", fullManualEventLoop);
 
