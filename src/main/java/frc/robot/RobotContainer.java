@@ -137,39 +137,61 @@ public class RobotContainer {
     private final EventLoop setpointEventLoop = new EventLoop();
     private final EventLoop alternativeEventLoop = new EventLoop();
     private final EventLoop twistedEventLoop = new EventLoop();
+    @Entry(EntryType.Subscriber)
     private int selectedLevel = 1;
+    @Entry(EntryType.Subscriber)
     private boolean wristLeft = true;
+    @Entry(EntryType.Subscriber)
+    private boolean groundIntake = false;
     
     public void bindTwisted(){
         bindCommonControls(twistedEventLoop);
 
         // -- CONTROLLER 1 --
         controller1.rightBumper(twistedEventLoop).onTrue(new AutoAlign(true, drivebase));
-        controller1.leftBumper(twistedEventLoop).onTrue(new AutoAlign(true, drivebase));
+        controller1.leftBumper(twistedEventLoop).onTrue(new AutoAlign(false, drivebase));
 
+       
 
-        controller1.leftTrigger(0.5, twistedEventLoop)
+        controller1.rightTrigger(0.5, twistedEventLoop)
         .onTrue(new InstantCommand(() -> {
             if (selectedLevel != 1){
-                new DropCoral(elevator, arm, wrist, selectedLevel, WristSetpoints.VERTICAL_L);
+                new DropCoral(elevator, arm, wrist, selectedLevel, wristLeft ? WristSetpoints.VERTICAL_L : WristSetpoints.VERTICAL_R);
             } 
             
         }))
         .whileTrue(new RunIntake(intake, () -> -0.25));
-        controller1.rightTrigger(0.5, twistedEventLoop).whileTrue(new RunIntake(intake, () -> 1));
+
+
+        controller1.leftTrigger(0.5, twistedEventLoop)
+        .whileTrue(new RunIntake(intake, () -> 1))
+        .onTrue(new InstantCommand(() -> {
+            if (groundIntake){
+                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL, true);
+            }
+            else {
+                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL, true);
+            }
+
+        }));
 
         // -- CONTROLLER 2 --
+        controller2.leftTrigger(0.5, twistedEventLoop).onTrue(new InstantCommand(() -> {groundIntake = true;}));
+        controller2.rightTrigger(0.5, twistedEventLoop).onTrue(new InstantCommand(() -> {groundIntake = false;}));
+
+        controller2.leftBumper(twistedEventLoop).onTrue(new InstantCommand(() -> {wristLeft = true;}));
+        controller2.rightBumper(twistedEventLoop).onTrue(new InstantCommand(() -> {wristLeft = false;}));
 
         controller2.y(twistedEventLoop).onTrue(new InstantCommand(() -> {
-            new PlaceCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_L);
+            new PlaceCoral(elevator, arm, wrist, 4, wristLeft ? WristSetpoints.VERTICAL_L : WristSetpoints.VERTICAL_R);
             selectedLevel = 4;
         }));
         controller2.x(twistedEventLoop).onTrue(new InstantCommand(() -> {
-            new PlaceCoral(elevator, arm, wrist, 3, WristSetpoints.VERTICAL_L);
+            new PlaceCoral(elevator, arm, wrist, 3, wristLeft ? WristSetpoints.VERTICAL_L : WristSetpoints.VERTICAL_R);
             selectedLevel = 3;
         }));
         controller2.b(twistedEventLoop).onTrue(new InstantCommand(() -> {
-            new PlaceCoral(elevator, arm, wrist, 2, WristSetpoints.VERTICAL_L);
+            new PlaceCoral(elevator, arm, wrist, 2, wristLeft ? WristSetpoints.VERTICAL_L : WristSetpoints.VERTICAL_R);
             selectedLevel = 2;
         }));
         controller2.a(twistedEventLoop).onTrue(new InstantCommand(() -> {
