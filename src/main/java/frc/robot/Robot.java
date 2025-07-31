@@ -7,6 +7,7 @@ package frc.robot;
 import badgerlog.Dashboard;
 import badgerlog.DashboardConfig;
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -37,6 +38,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         // robotContainer.setAllianceLed();
+         
         robotContainer.setSeizureMode();
         // robotContainer.setRainbow();
         new WaitCommand(2).andThen(new InstantCommand(robotContainer::resetTargetPositions)).ignoringDisable(true).schedule();

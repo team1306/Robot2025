@@ -9,12 +9,19 @@ import choreo.auto.AutoChooser;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.event.EventLoop;
+import edu.wpi.first.wpilibj.simulation.PS5ControllerSim;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandStadiaController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.ArmSetpoints;
@@ -137,20 +144,21 @@ public class RobotContainer {
     private final EventLoop setpointEventLoop = new EventLoop();
     private final EventLoop alternativeEventLoop = new EventLoop();
     private final EventLoop twistedEventLoop = new EventLoop();
+
+    private static int selectedLevel = 1;
+    
+    private static boolean wristLeft = true;
     @Entry(EntryType.Subscriber)
-    private int selectedLevel = 1;
-    @Entry(EntryType.Subscriber)
-    private boolean wristLeft = true;
-    @Entry(EntryType.Subscriber)
-    private boolean groundIntake = false;
+    private static boolean groundIntake = false;
     
     public void bindTwisted(){
         bindCommonControls(twistedEventLoop);
 
         // -- CONTROLLER 1 --
+        
         controller1.rightBumper(twistedEventLoop).onTrue(new AutoAlign(true, drivebase));
         controller1.leftBumper(twistedEventLoop).onTrue(new AutoAlign(false, drivebase));
-
+        
        
 
         controller1.rightTrigger(0.5, twistedEventLoop)
@@ -166,6 +174,7 @@ public class RobotContainer {
         controller1.leftTrigger(0.5, twistedEventLoop)
         .whileTrue(new RunIntake(intake, () -> 1))
         .onTrue(new InstantCommand(() -> {
+            
             if (groundIntake){
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL, true);
             }
