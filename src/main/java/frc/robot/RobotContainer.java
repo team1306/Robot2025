@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
@@ -113,7 +115,8 @@ public class RobotContainer {
         bindAutomatic();
         bindManual();
         bindSetpoint();
-        changeEventLoop(alternativeEventLoop);
+        bindTwisted();
+       
         controllerModeChooser.setDefaultOption("TWISTED", twistedEventLoop);
         controllerModeChooser.addOption("Full Auto", fullAutomaticEventLoop);
         controllerModeChooser.addOption("Setpoints", setpointEventLoop);
@@ -148,7 +151,6 @@ public class RobotContainer {
     private static int selectedLevel = 1;
     
     private static boolean wristLeft = true;
-    @Entry(EntryType.Subscriber)
     private static boolean groundIntake = false;
     
     public void bindTwisted(){
@@ -162,27 +164,15 @@ public class RobotContainer {
        
 
         controller1.rightTrigger(0.5, twistedEventLoop)
-        .onTrue(new InstantCommand(() -> {
-            if (selectedLevel != 1){
-                new DropCoral(elevator, arm, wrist, selectedLevel, wristLeft ? WristSetpoints.VERTICAL_L : WristSetpoints.VERTICAL_R);
-            } 
-            
-        }))
+        .onTrue(new ConditionalCommand(new DropCoral(elevator, arm, wrist, selectedLevel, wristLeft ? WristSetpoints.VERTICAL_L : WristSetpoints.VERTICAL_R), Commands.none(), () -> selectedLevel != 1))
         .whileTrue(new RunIntake(intake, () -> -0.25));
 
 
         controller1.leftTrigger(0.5, twistedEventLoop)
         .whileTrue(new RunIntake(intake, () -> 1))
-        .onTrue(new InstantCommand(() -> {
-            
-            if (groundIntake){
-                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL, true);
-            }
-            else {
-                new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL, true);
-            }
-
-        }));
+        .onTrue(new ConditionalCommand(new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL, true),  new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL, true), () -> groundIntake));
+     
+    
 
         // -- CONTROLLER 2 --
         controller2.leftTrigger(0.5, twistedEventLoop).onTrue(new InstantCommand(() -> {groundIntake = true;}));
