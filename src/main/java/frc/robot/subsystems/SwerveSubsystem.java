@@ -77,6 +77,10 @@ public class SwerveSubsystem extends SubsystemBase {
     private static ProfiledPIDController headingController =
             new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(50, 25));
 
+    @Entry(EntryType.Subscriber)
+    @Key("Swerve Speed")
+    private static double speedFromSmartDashboard = 1;
+
     private final SwerveInputStream driveToReefPose;
     private final SwerveInputStream driveToCoralStationPose;
     private final IntSupplier wristMultSupplier;
@@ -222,6 +226,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
         addVisionMeasurement(LIMELIGHT_4_NAME);
         addVisionMeasurement(LIMELIGHT_3_NAME);
+
+        changeSwerveSpeed(speedFromSmartDashboard);
     }
 
     public void addVisionMeasurement(String limelightName){
