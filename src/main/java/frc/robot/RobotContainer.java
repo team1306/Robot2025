@@ -177,6 +177,9 @@ public class RobotContainer {
         
         ConditionalCommandChooser<LevelSelectorKey> scoreWrapper = new ConditionalCommandChooser<>(scoringCommands, this::getLevelSelectorKey);
 
+        //slow mode
+        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.2)).onFalse(drivebase.changeSwerveSpeed(1));
+
         controller1.rightTrigger(0.5, oneControllerEventLoop).onTrue(scoreWrapper);        
         controller1.leftBumper(oneControllerEventLoop).onTrue(new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL));
         
@@ -273,15 +276,15 @@ public class RobotContainer {
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL)
         );
 
-        controller1.b(fullAutomaticEventLoop).whileTrue(
-            drivebase.getCoralStationAutoAlign()
-        );
+//        controller1.b(fullAutomaticEventLoop).whileTrue(
+//            drivebase.getCoralStationAutoAlign()
+//        );
         
         controller1.x(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
         );
 
-        controller1.rightStick(fullAutomaticEventLoop).whileTrue(drivebase.getReefAutoAlignCommand());
+//        controller1.rightStick(fullAutomaticEventLoop).whileTrue(drivebase.getReefAutoAlignCommand());
 
         //slow mode
         controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.2)).onFalse(drivebase.changeSwerveSpeed(1));
@@ -296,14 +299,14 @@ public class RobotContainer {
         controller2.pov(0, 180, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 2));
         controller2.pov(0, 270, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 1));
         
-        controller2.x(fullAutomaticEventLoop).toggleOnTrue(new ManualArmControl(arm, () -> -controller2.getRightY()));
+//        controller2.x(fullAutomaticEventLoop).toggleOnTrue(new ManualArmControl(arm, () -> -controller2.getRightY()));
 
         controller2.a(fullAutomaticEventLoop).whileTrue(new RunIntake(intake, () -> 1));
         controller2.b(fullAutomaticEventLoop).whileTrue(new RunIntake(intake, () -> -1));
 
-        controller2.back(fullAutomaticEventLoop).whileTrue(new ZeroElevatorRoutine(elevator));
-        controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Constants.Direction.FORWARD)); // climb
-        controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Constants.Direction.REVERSE)); // deploy
+//        controller2.back(fullAutomaticEventLoop).whileTrue(new ZeroElevatorRoutine(elevator));
+//        controller2.rightBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Constants.Direction.FORWARD)); // climb
+//        controller2.leftBumper(fullAutomaticEventLoop).whileTrue(new RunClimber(climber, Constants.Direction.REVERSE)); // deploy
     }
 
     private LevelSelectorKey getLevelSelectorKey(){
@@ -325,17 +328,17 @@ public class RobotContainer {
             .onFalse(new InstantCommand(() -> changeDrivebaseDefaultCommand(driveFieldOrientedAngularVelocity)))
             .onTrue(new InstantCommand(() -> changeDrivebaseDefaultCommand(driveRobotOrientedAngularVelocity)));
 
-        controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));
+//        controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));
 
-        new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(new CustomWaitCommand(() -> autoWaitTime).andThen(autoChooser.selectedCommandScheduler()));
-        new Trigger(loop, Utilities::isRedAlliance).onChange(new InstantCommand(FieldLocation::recalculateFieldPositions).ignoringDisable(true));
+//        new Trigger(loop, DriverStation::isAutonomousEnabled).whileTrue(new CustomWaitCommand(() -> autoWaitTime).andThen(autoChooser.selectedCommandScheduler()));
+//        new Trigger(loop, Utilities::isRedAlliance).onChange(new InstantCommand(FieldLocation::recalculateFieldPositions).ignoringDisable(true));
 
-        Dashboard.getAutoResettingButton("Auto/Reset Auto Odometry", loop)
-            .and(DriverStation::isDisabled)
-            .and(() -> autoRunnable != null)
-            .onTrue(new InstantCommand(() -> autoRunnable.run()).ignoringDisable(true));
+//        Dashboard.getAutoResettingButton("Auto/Reset Auto Odometry", loop)
+//            .and(DriverStation::isDisabled)
+//            .and(() -> autoRunnable != null)
+//            .onTrue(new InstantCommand(() -> autoRunnable.run()).ignoringDisable(true));
         
-        Dashboard.getNetworkTablesButton("Speed Down", loop).onTrue(drivebase.changeSwerveSpeed(0.1)).onFalse(drivebase.changeSwerveSpeed(0.5));
+//        Dashboard.getNetworkTablesButton("Speed Down", loop).onTrue(drivebase.changeSwerveSpeed(0.1)).onFalse(drivebase.changeSwerveSpeed(0.5));
     }
 
     private void changeDrivebaseDefaultCommand(Command defaultCommand){
