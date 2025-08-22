@@ -142,29 +142,29 @@ public class RobotContainer {
         bindCommonControls(oneControllerEventLoop);
 
         controller1.pov(0, 270, oneControllerEventLoop).onTrue(new InstantCommand(() -> {
-            new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L1, ArmSetpoints.CORAL_L1, WristSetpoints.HORIZONTAL, true);
             selectedLevel = 1;
+            new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L1, ArmSetpoints.CORAL_L1, WristSetpoints.HORIZONTAL, true).schedule();
         }));
         controller1.pov(0, 180, oneControllerEventLoop).onTrue(new InstantCommand(() -> {
-            new PlaceCoral(elevator, arm, wrist, 2, WristSetpoints.VERTICAL_L);
             selectedLevel = 2;
+            new PlaceCoral(elevator, arm, wrist, 2, WristSetpoints.VERTICAL_L).schedule();
         }));
         controller1.pov(0, 90, oneControllerEventLoop).onTrue(new InstantCommand(() -> {
-            new PlaceCoral(elevator, arm, wrist, 3, WristSetpoints.VERTICAL_L);
             selectedLevel = 3;
+            new PlaceCoral(elevator, arm, wrist, 3, WristSetpoints.VERTICAL_L).schedule();
         }));
         controller1.pov(0, 0, oneControllerEventLoop).onTrue(new InstantCommand(() -> {
-            new PlaceCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_L);
             selectedLevel = 4;
+            new PlaceCoral(elevator, arm, wrist, 4, WristSetpoints.VERTICAL_L).schedule();
         }));
 
         controller1.leftStick(oneControllerEventLoop).onTrue(new InstantCommand(() -> {
-            new StageRemoveAlgae(elevator, arm, wrist, 2);
             selectedLevel = 6;
+            new StageRemoveAlgae(elevator, arm, wrist, 2).schedule();
         }));
         controller1.rightStick(oneControllerEventLoop).onTrue(new InstantCommand(() -> {
-            new StageRemoveAlgae(elevator, arm, wrist, 3);
             selectedLevel = 5;
+            new StageRemoveAlgae(elevator, arm, wrist, 3).schedule();
         }));
                 
         HashMap<LevelSelectorKey, Command> scoringCommands = new HashMap<>();
