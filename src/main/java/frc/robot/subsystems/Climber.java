@@ -20,8 +20,8 @@ public class Climber extends SubsystemBase {
     private double targetSpeed;
 
     public Climber() {
-        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(CLIMB_MOTOR_ID, NeutralModeValue.Brake));
-    //    Motor motor = new FakeMotor();
+//        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(CLIMB_MOTOR_ID, NeutralModeValue.Brake));
+        Motor motor = new FakeMotor();
 
         motorGroup = new MotorGroup<>(motor);
     }
