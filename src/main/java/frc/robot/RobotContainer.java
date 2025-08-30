@@ -6,6 +6,7 @@ package frc.robot;
 
 import badgerlog.entry.handlers.Key;
 import choreo.auto.AutoChooser;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.event.EventLoop;
@@ -58,13 +59,36 @@ public class RobotContainer {
     private final Intake intake = new Intake();
     private final Climber climber = new Climber();
     private final LEDSubsystem ledStrip = new LEDSubsystem(Constants.LED_PORT, 0, Constants.LED_COUNT);
+
+    @Entry(EntryType.Subscriber)
+    @Key("Slew Settings/X-Y Slew Limiter")
+    private static double xyBoundRateLimit = 3;
+    private static double xyRateLimit = xyBoundRateLimit;
+
+    @Entry(EntryType.Subscriber)
+    @Key("Slew Settings/Rotation Slew Limiter")
+    private static double rotBoundRateLimit = 2;
+    private static double rotRateLimit = rotBoundRateLimit;
+
+    @Entry(EntryType.Subscriber)
+    @Key("Slew Settings/Slew Limiter Enabled")
+    private static boolean slewLimiterEnabled = true;
+
+    private static SlewRateLimiter slewX = new SlewRateLimiter(xyRateLimit);
+    private static SlewRateLimiter slewY = new SlewRateLimiter(xyRateLimit);
+    private static SlewRateLimiter slewRot = new SlewRateLimiter(rotRateLimit);
+
     /**
      * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
      */
-    private final SwerveInputStream driveAngularVelocity =
-            SwerveInputStream.of(drivebase.getSwerveDrive(), () -> -controller1.getLeftY(), () -> -controller1.getLeftX())
-                    .withControllerRotationAxis(() -> -controller1.getRightX()).deadband(Constants.LEFT_X_DEADBAND)
-                    .scaleTranslation(1).scaleRotation(0.75).allianceRelativeControl(true);
+    private final SwerveInputStream driveAngularVelocity = SwerveInputStream
+            .of(drivebase.getSwerveDrive(),
+                    () -> (slewLimiterEnabled ? slewX.calculate(-controller1.getLeftY()) : -controller1.getLeftY()) * getSpeedMultipler(),
+                    () -> (slewLimiterEnabled ? slewY.calculate(-controller1.getLeftX()) : -controller1.getLeftX()) * getSpeedMultipler())
+            .withControllerRotationAxis(
+                    () -> (slewLimiterEnabled ? slewRot.calculate(-controller1.getRightX()) : -controller1.getRightX()) * getSpeedMultipler())
+            .deadband(Constants.LEFT_X_DEADBAND)
+            .scaleTranslation(1).scaleRotation(0.75).allianceRelativeControl(true);
     
     private final Command driveRobotOrientedAngularVelocity = drivebase.drive(driveAngularVelocity);
     private final Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
@@ -113,6 +137,21 @@ public class RobotContainer {
     //    arm.setDefaultCommand(new ArmFromSmartDashboard(arm));
 //        wrist.setDefaultCommand(new WristFromSmartDashboard(wrist));
 //       elevator.setDefaultCommand(new ElevatorFromSmartDashboard(elevator));
+    }
+
+    public void robotPeriodic() {
+        // Badgerlog doesn't support an OnUpdated type event, so periodically check if
+        // the network tables have updated the slew limits and recreate the slew limiters
+        // if they have changed.
+        if(xyBoundRateLimit != xyRateLimit) {
+                xyRateLimit = xyBoundRateLimit;
+                slewX = new SlewRateLimiter(xyRateLimit);
+                slewY = new SlewRateLimiter(xyRateLimit);
+        }
+        if(rotBoundRateLimit != rotRateLimit) {
+                rotRateLimit = rotBoundRateLimit;
+                slewRot = new SlewRateLimiter(rotRateLimit);
+        }
     }
 
     public void zeroTargetPositions(){
@@ -277,9 +316,6 @@ public class RobotContainer {
 
 //        controller1.rightStick(fullAutomaticEventLoop).whileTrue(drivebase.getReefAutoAlignCommand());
 
-        //slow mode
-        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.2)).onFalse(drivebase.changeSwerveSpeed(1));
-
         controller2.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = false));
         controller2.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = true));
 
@@ -353,5 +389,12 @@ public class RobotContainer {
     }
     public void setSeizureMode(){
         LEDPatterns.seizureMode(ledStrip).ignoringDisable(true).schedule();
+    }
+
+    /**
+     * Returns a value between 0.2 and 1.0 determined by the amount controller1.LeftTrigger is pressed.
+     */
+    private double getSpeedMultipler(){
+        return ((1 - (controller1.getLeftTriggerAxis() * 0.8) ) );
     }
 }
