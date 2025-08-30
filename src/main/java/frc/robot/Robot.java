@@ -28,6 +28,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         Dashboard.update();
+        robotContainer.robotPeriodic();
         if (gcTimer.advanceIfElapsed(5)) {
             System.gc();
         }
