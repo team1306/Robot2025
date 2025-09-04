@@ -12,6 +12,7 @@ public class MoveArmToSetpoint extends Command {
 
     /**
      * Sets the target postiton for the arm
+     *
      * @param armSetpoint moves the arm to the provided setpoint
      */
     public MoveArmToSetpoint(Arm arm, ArmSetpoint armSetpoint, boolean finishWhenDone) {

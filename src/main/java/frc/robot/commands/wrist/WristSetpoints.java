@@ -12,6 +12,7 @@ public enum WristSetpoints implements WristSetpoint {
 
     /**
      * pre configured angles for the wrist
+     *
      * @param rotation the rotation for the setpoint
      */
     WristSetpoints(Rotation2d rotation) {

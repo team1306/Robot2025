@@ -38,12 +38,14 @@ public class Robot extends TimedRobot {
         // robotContainer.setAllianceLed();
         robotContainer.setSeizureMode();
         // robotContainer.setRainbow();
-        new WaitCommand(2).andThen(new InstantCommand(robotContainer::resetTargetPositions)).ignoringDisable(true).schedule();
+        new WaitCommand(2).andThen(new InstantCommand(robotContainer::resetTargetPositions))
+                .ignoringDisable(true)
+                .schedule();
     }
-    
+
     @Override
     public void disabledPeriodic() {
-    
+
     }
 
     @Override

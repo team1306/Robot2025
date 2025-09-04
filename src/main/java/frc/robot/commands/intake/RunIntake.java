@@ -1,18 +1,20 @@
 package frc.robot.commands.intake;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 import java.util.function.DoubleSupplier;
 
 public class RunIntake extends Command {
-    
+
     private final Intake intake;
     private final DoubleSupplier speed;
 
     /**
      * Sets the speed/direction of the intake
+     *
      * @param speed speed value for the intake
      */
-    public RunIntake(Intake intake, DoubleSupplier speed){
+    public RunIntake(Intake intake, DoubleSupplier speed) {
         this.intake = intake;
         this.speed = speed;
 
@@ -25,7 +27,7 @@ public class RunIntake extends Command {
     }
 
     @Override
-    public boolean isFinished(){
+    public boolean isFinished() {
         return false;
     }
 

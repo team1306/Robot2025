@@ -34,9 +34,10 @@ public class Utilities {
     /**
      * Run consumer if object is not null, else do nothing
      *
-     * @param <T>            type of object
-     * @param object         input object
+     * @param <T> type of object
+     * @param object input object
      * @param objectConsumer consumer to apply to object
+     *
      * @return returns optional input object
      */
     public static <T> Optional<T> runIfNotNull(T object, Consumer<T> objectConsumer) {
@@ -55,7 +56,8 @@ public class Utilities {
 
 
     public static Translation2d squareTranslation(Translation2d translation) {
-        return new Translation2d(Math.pow(translation.getX(), 2) * Math.signum(translation.getX()), Math.pow(translation.getY(), 2) * Math.signum(translation.getY()));
+        return new Translation2d(Math.pow(translation.getX(), 2) * Math.signum(translation.getX()), Math.pow(translation
+                .getY(), 2) * Math.signum(translation.getY()));
     }
 
     public static Translation2d cubeTranslation(Translation2d translation) {

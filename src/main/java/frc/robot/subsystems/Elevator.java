@@ -24,7 +24,7 @@ import lombok.Setter;
 import static edu.wpi.first.units.Units.*;
 
 public class Elevator extends SubsystemBase {
-    
+
     private static final double SPROCKET_DIAMETER_INCHES = 1.882;
 
     @Entry(EntryType.Subscriber)
@@ -32,9 +32,10 @@ public class Elevator extends SubsystemBase {
 
     private final static double MAX_VELOCITY = 225, MAX_ACCELERATION = 500; // placeholder
     private final Distance TOLERANCE = Inches.of(0.5);
-    
+
     @Entry(EntryType.Sendable)
-    private static ProfiledPIDController pid = new ProfiledPIDController(0.05, 0, 0.0015,  new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));    private ElevatorFeedforward feedforward;
+    private static ProfiledPIDController pid = new ProfiledPIDController(0.05, 0, 0.0015, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
+    private ElevatorFeedforward feedforward;
 
     private final MotorGroup<Motor> motorGroup;
     private final Motor leftMotor, rightMotor;
@@ -46,8 +47,9 @@ public class Elevator extends SubsystemBase {
     //54.75
     @Entry(EntryType.Subscriber)
     private static double maxHeightInches = 54.5, baseHeightInches = Constants.ELEVATOR_STARTING_HEIGHT; // placeholders
-    
-    @Setter @Getter
+
+    @Setter
+    @Getter
     @Entry(EntryType.Publisher)
     @UnitConversion("Inches")
     private static Distance targetHeight = Inches.of(0);
@@ -64,8 +66,8 @@ public class Elevator extends SubsystemBase {
      * Controllers: Feedforward and ProfiledPIDController.
      */
     public Elevator() {
-       leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast));
-       rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast));
+        leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast));
+        rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast));
         // leftMotor = new FakeMotor();
         // rightMotor = new FakeMotor();
 
@@ -100,13 +102,14 @@ public class Elevator extends SubsystemBase {
 
         motorGroup.setSpeed(motorOutput);
     }
-    
+
     public boolean getLimitSwitch() {
         return !limitSwitch.get();
     }
 
     /**
      * Gets whether the elevator is at its setpoint using the PID controller.
+     *
      * @return true if the elevator is at its setpoint.
      */
     public boolean atSetpoint() {
@@ -115,36 +118,39 @@ public class Elevator extends SubsystemBase {
 
     /**
      * Gets the current height of the elevator.
+     *
      * @return the elevator height in distance.
      */
-    public Distance getCurrentHeight(){
+    public Distance getCurrentHeight() {
         return getRawHeight().minus(offset);
     }
 
     private Distance getRawHeight() {
         return rotationsToDistance(getCurrentElevatorMotorPositions()).times(conversionFactor);
     }
-    
+
     /**
      * Gets the motor positions
+     *
      * @return the rotation of the motors
      */
-    public Rotation2d getCurrentElevatorMotorPositions(){
-        return Rotation2d.fromRadians((getLeftElevatorPosition().getRadians() + getRightElevatorPosition().getRadians()) / 2D);
+    public Rotation2d getCurrentElevatorMotorPositions() {
+        return Rotation2d.fromRadians((getLeftElevatorPosition().getRadians() + getRightElevatorPosition()
+                .getRadians()) / 2D);
     }
 
-    public Rotation2d getLeftElevatorPosition(){
+    public Rotation2d getLeftElevatorPosition() {
         return Rotation2d.fromRadians(leftMotor.getPosition().in(Radian));
     }
 
-    public Rotation2d getRightElevatorPosition(){
+    public Rotation2d getRightElevatorPosition() {
         return Rotation2d.fromRadians(rightMotor.getPosition().in(Radian));
     }
-    
+
     /**
      * Sets the elevator motor positions to zero
      */
-    public void zeroElevatorMotorPositions(){
+    public void zeroElevatorMotorPositions() {
         leftMotor.setPosition(Rotations.of(0));
         rightMotor.setPosition(Rotations.of(0));
     }

@@ -30,11 +30,11 @@ public class MotorUtil {
         return initSparkMax(motorId, idleMode, false);
     }
 
-    public static TalonFX initTalonFX(int motorId, NeutralModeValue idleMode){
+    public static TalonFX initTalonFX(int motorId, NeutralModeValue idleMode) {
         return initTalonFX(motorId, idleMode, InvertedValue.Clockwise_Positive);
     }
 
-    public static TalonFX initTalonFX(int motorId, NeutralModeValue idleMode, InvertedValue inverted){
+    public static TalonFX initTalonFX(int motorId, NeutralModeValue idleMode, InvertedValue inverted) {
         final TalonFX motor = new TalonFX(motorId);
         final TalonFXConfigurator configurator = motor.getConfigurator();
 
@@ -42,7 +42,7 @@ public class MotorUtil {
 
         motorOutputConfig.Inverted = inverted;
         motorOutputConfig.NeutralMode = idleMode;
-   
+
         configurator.apply(motorOutputConfig);
 
         return motor;

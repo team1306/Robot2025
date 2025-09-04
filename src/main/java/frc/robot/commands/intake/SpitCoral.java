@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.Intake;
 
 public class SpitCoral extends ParallelRaceGroup {
-    
+
     private final double INTAKE_SPEED = 0.3;
 
     /**
@@ -13,8 +13,7 @@ public class SpitCoral extends ParallelRaceGroup {
      */
     public SpitCoral(Intake intake) {
         addCommands(
-            new RunIntake(intake, () -> -INTAKE_SPEED),
-            new WaitUntilCommand(() -> !intake.getSensorReading())
+                new RunIntake(intake, () -> -INTAKE_SPEED), new WaitUntilCommand(() -> !intake.getSensorReading())
         );
     }
 }
