@@ -81,7 +81,7 @@ public class RobotContainer {
     public RobotContainer() {
         // UsbCamera camera = CameraServer.startAutomaticCapture();
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-        
+
         //Autos
         Autos autos = new Autos(drivebase, arm, elevator, intake, wrist);
         autoChooser.addRoutine("Left 2 H", () -> autos.get1CoralL4DriveRoutine("Score Left 2 H"));
@@ -178,7 +178,7 @@ public class RobotContainer {
         controller1.x(oneControllerEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
         );
-        
+
         controller1.a(oneControllerEventLoop).whileTrue(new RunIntake(intake, () -> 1));
         controller1.b(oneControllerEventLoop).whileTrue(new RunIntake(intake, () -> -1));
     }
@@ -326,7 +326,8 @@ public class RobotContainer {
             .and(() -> autoRunnable != null)
             .onTrue(new InstantCommand(() -> autoRunnable.run()).ignoringDisable(true));
         
-        Dashboard.getNetworkTablesButton("Speed Down", loop).onTrue(drivebase.changeSwerveSpeed(0.1)).onFalse(drivebase.changeSwerveSpeed(0.5));
+        Dashboard.getNetworkTablesButton("Speed Down", loop).onTrue(drivebase.changeSwerveSpeed(0.1)).onFalse(drivebase.changeSwerveSpeed(1));
+        Dashboard.getNetworkTablesButton("Speed 0", loop).onTrue(drivebase.changeSwerveSpeed(0)).onFalse(drivebase.changeSwerveSpeed(1));
     }
 
     private void changeDrivebaseDefaultCommand(Command defaultCommand){
