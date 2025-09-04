@@ -20,18 +20,19 @@ import lombok.Getter;
 
 import static frc.robot.Constants.*;
 
-public class Arm extends SubsystemBase  {
-    
+public class Arm extends SubsystemBase {
+
     @Entry(EntryType.Subscriber)
     private static double kG = 0.03, kV = 0;
-    
+
     private static final double MAX_VELOCITY = 2500, MAX_ACCELERATION = 4500;
-    
+
     private final double MIN_ANGLE = -35, MAX_ANGLE = 90;
 
-    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-160+4), TOLERANCE = Rotation2d.fromDegrees(0.1);
+    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-160 + 4), TOLERANCE = Rotation2d.fromDegrees(0.1);
 
-    @Getter @Entry(EntryType.Publisher)
+    @Getter
+    @Entry(EntryType.Publisher)
     private static Rotation2d targetAngle = Rotation2d.kZero;
 
     @Entry(EntryType.Publisher)
@@ -47,14 +48,14 @@ public class Arm extends SubsystemBase  {
 
     private final DetectUnpluggedEncoder detectEncoderUnplugged;
     private final Alert encoderUnpluggedAlert = new Alert("Arm encoder detected unplugged", AlertType.kError);
-    
+
     /**
      * The arm is mounted on the elevator and moves the wrist and intake to place and pick up coral.
      * Hardware: The arm has one Talon FX motor controller and an Absolute Analog Encoder
      * Controllers: Feedforward and Profiled PID Controller.
      */
     public Arm() {
-       Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(ARM_MOTOR_ID, NeutralModeValue.Brake));
+        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(ARM_MOTOR_ID, NeutralModeValue.Brake));
         // Motor motor = new FakeMotor();
         motorGroup = new MotorGroup<>(motor);
 
@@ -72,9 +73,11 @@ public class Arm extends SubsystemBase  {
     public void periodic() {
         feedforward = new ArmFeedforward(0, kG, kV, 0);
 
-        double pidOutput = profiledPIDController.calculate(getCurrentAngle().getDegrees(), getTargetAngle().getDegrees());
+        double pidOutput = profiledPIDController.calculate(getCurrentAngle().getDegrees(), getTargetAngle()
+                .getDegrees());
         final State state = profiledPIDController.getSetpoint();
-        double feedforwardOutput = feedforward.calculate(getCurrentAngle().getRadians(), Math.toRadians(state.velocity));
+        double feedforwardOutput = feedforward.calculate(getCurrentAngle().getRadians(), Math
+                .toRadians(state.velocity));
         double motorOutput = pidOutput + feedforwardOutput;
 
         currentAngle = getCurrentAngle();
@@ -86,6 +89,7 @@ public class Arm extends SubsystemBase  {
 
     /**
      * Gets if the arm is at its setpoint.
+     *
      * @return true if the arm is at its setpoint (with a tolerance of course).
      */
     public boolean atSetpoint() {
@@ -94,6 +98,7 @@ public class Arm extends SubsystemBase  {
 
     /**
      * Gets the current angle of the arm.
+     *
      * @return the rotation of the arm.
      */
     public Rotation2d getCurrentAngle() {
@@ -102,6 +107,7 @@ public class Arm extends SubsystemBase  {
 
     /**
      * Sets the target angle of the arm.
+     *
      * @param setpoint the rotation for the arm setpoint.
      */
     public void setTargetAngle(Rotation2d setpoint) {

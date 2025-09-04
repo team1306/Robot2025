@@ -66,22 +66,20 @@ public class SwerveSubsystem extends SubsystemBase {
     private static double WRIST_POSE_SHIFT = 1;
 
     private final PIDController autoHeadingController = new PIDController(3.5, 0, 0.1);
-    
+
     @Entry(EntryType.Sendable)
     @Key("Auto/Translation Controller")
-    private static ProfiledPIDController translationController =
-            new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(2, 1));
+    private static ProfiledPIDController translationController = new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(2, 1));
 
     @Entry(EntryType.Sendable)
     @Key("Auto/Heading Controller")
-    private static ProfiledPIDController headingController =
-            new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(50, 25));
+    private static ProfiledPIDController headingController = new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(50, 25));
 
     private final SwerveInputStream driveToReefPose;
     private final SwerveInputStream driveToCoralStationPose;
     private final IntSupplier wristMultSupplier;
     private final IntSupplier levelSupplier;
-    
+
     public SwerveSubsystem(IntSupplier wristMultSupplier, IntSupplier levelSupplier) {
         this.wristMultSupplier = wristMultSupplier;
         this.levelSupplier = levelSupplier;
@@ -128,7 +126,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     @SneakyThrows({NoSuchFieldException.class, IllegalAccessException.class})
-    public void replaceYAGSLIMU(){
+    public void replaceYAGSLIMU() {
         LimelightIMU imu = new LimelightIMU();
         swerveDrive.swerveDriveConfiguration.imu = imu;
         swerveDrive.imuReadingCache.updateSupplier(imu::getRotation3d);
@@ -144,25 +142,28 @@ public class SwerveSubsystem extends SubsystemBase {
     @Entry(EntryType.Sendable)
     private static Field2d shiftedPose = new Field2d();
 
-    private Pose2d getNearestReefLocation(){
-        if(reefEnabled && reefLastCachedLocation != null) return reefLastCachedLocation;
+    private Pose2d getNearestReefLocation() {
+        if (reefEnabled && reefLastCachedLocation != null) return reefLastCachedLocation;
         reefLastCachedLocation = getReefLocationOdometryMethod();
         shiftedPose.setRobotPose(reefLastCachedLocation);
         return reefLastCachedLocation;
     }
 
     private Pose2d shiftPoseRelativeToIntake(Pose2d fieldRelativePose) {
-        final Distance shift = Inches.of(WRIST_POSE_SHIFT).times(-wristMultSupplier.getAsInt()).times(FieldLocation.reefLocations.get(fieldRelativePose) ? -1 : 1);
-        final Distance forwardShift = Inches.of(switch(levelSupplier.getAsInt()){
+        final Distance shift = Inches.of(WRIST_POSE_SHIFT)
+                .times(-wristMultSupplier.getAsInt())
+                .times(FieldLocation.reefLocations.get(fieldRelativePose) ? -1 : 1);
+        final Distance forwardShift = Inches.of(switch (levelSupplier.getAsInt()) {
             case 3 -> 2;
             case 4 -> -1;
             default -> 0;
         });
-        Pose2d transformedPose = fieldRelativePose.transformBy(new Transform2d(new Translation2d(forwardShift.in(Meter), shift.in(Meter)), fieldRelativePose.getRotation()));
+        Pose2d transformedPose = fieldRelativePose.transformBy(new Transform2d(new Translation2d(forwardShift
+                .in(Meter), shift.in(Meter)), fieldRelativePose.getRotation()));
         return new Pose2d(transformedPose.getTranslation(), fieldRelativePose.getRotation());
     }
 
-    private Pose2d getReefLocationOdometryMethod(){
+    private Pose2d getReefLocationOdometryMethod() {
         Pose2d position = getPose().nearest(FieldLocation.reefLocations.keySet().stream().toList());
         position = shiftPoseRelativeToIntake(position);
         return position;
@@ -170,8 +171,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Command reefAutoAlign = null;
 
-    public Command getReefAutoAlignCommand(){
-        if(reefAutoAlign == null) reefAutoAlign = driveFieldOriented(driveToReefPose);
+    public Command getReefAutoAlignCommand() {
+        if (reefAutoAlign == null) reefAutoAlign = driveFieldOriented(driveToReefPose);
         return reefAutoAlign;
     }
 
@@ -180,8 +181,8 @@ public class SwerveSubsystem extends SubsystemBase {
     @Entry(EntryType.Sendable)
     private static Field2d coralStationField = new Field2d();
 
-    private Pose2d getNearestCoralStationLocation(){
-        if(coralStationEnabled && coralStationLastCachedLocation != null) return coralStationLastCachedLocation;
+    private Pose2d getNearestCoralStationLocation() {
+        if (coralStationEnabled && coralStationLastCachedLocation != null) return coralStationLastCachedLocation;
         coralStationLastCachedLocation = getPose().nearest(FieldLocation.coralStationLocations);
         coralStationField.setRobotPose(coralStationLastCachedLocation);
         return coralStationLastCachedLocation;
@@ -189,8 +190,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Command coralStationAutoAlign = null;
 
-    public Command getCoralStationAutoAlign(){
-        if(coralStationAutoAlign == null) coralStationAutoAlign = driveFieldOriented(driveToCoralStationPose);
+    public Command getCoralStationAutoAlign() {
+        if (coralStationAutoAlign == null) coralStationAutoAlign = driveFieldOriented(driveToCoralStationPose);
         return coralStationAutoAlign;
     }
 
@@ -200,11 +201,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
         // Generate the next speeds for the robot
         ChassisSpeeds speeds = new ChassisSpeeds(
-                sample.vx + autoXController.calculate(pose.getX(), sample.x),
-                sample.vy + autoYController.calculate(pose.getY(), sample.y),
-                sample.omega + autoHeadingController.calculate(pose.getRotation().getRadians(), sample.heading)
+                sample.vx + autoXController.calculate(pose.getX(), sample.x), sample.vy + autoYController.calculate(pose
+                        .getY(), sample.y), sample.omega + autoHeadingController.calculate(pose.getRotation()
+                                .getRadians(), sample.heading)
         );
-        
+
         // Apply the generated speeds
         driveFieldOriented(speeds);
     }
@@ -214,8 +215,8 @@ public class SwerveSubsystem extends SubsystemBase {
         reefEnabled = getReefAutoAlignCommand().isScheduled();
         coralStationEnabled = getCoralStationAutoAlign().isScheduled();
 
-        if(validateVelocity(driveToReefPose.get())) Dashboard.putValue("Auto/Reef Align Startup", true);
-        if(validateVelocity(driveToCoralStationPose.get())) Dashboard.putValue("Auto/Station Align Startup", true);
+        if (validateVelocity(driveToReefPose.get())) Dashboard.putValue("Auto/Reef Align Startup", true);
+        if (validateVelocity(driveToCoralStationPose.get())) Dashboard.putValue("Auto/Station Align Startup", true);
 
         Dashboard.putValue("Auto/TranslationError", translationController.getPositionError());
         Dashboard.putValue("Auto/HeadingError", headingController.getPositionError());
@@ -224,25 +225,28 @@ public class SwerveSubsystem extends SubsystemBase {
         addVisionMeasurement(LIMELIGHT_3_NAME);
     }
 
-    public void addVisionMeasurement(String limelightName){
-        LimelightHelpers.SetRobotOrientation(limelightName, swerveDrive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    public void addVisionMeasurement(String limelightName) {
+        LimelightHelpers.SetRobotOrientation(limelightName, swerveDrive.getPose()
+                .getRotation()
+                .getDegrees(), 0, 0, 0, 0, 0);
         PoseEstimate poseEstimateMT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
-        if(poseEstimateMT2 == null) return;
+        if (poseEstimateMT2 == null) return;
 
         Pose2d pose = new Pose2d(poseEstimateMT2.pose.getTranslation(), swerveDrive.getPose().getRotation());
-        if(poseEstimateMT2.tagCount >= 1) swerveDrive.addVisionMeasurement(pose, poseEstimateMT2.timestampSeconds);
-        
+        if (poseEstimateMT2.tagCount >= 1) swerveDrive.addVisionMeasurement(pose, poseEstimateMT2.timestampSeconds);
+
         //If the pose can be determined to be very likely accurate, use MT1 for gyro
-        if(LimelightHelpers.getTA(limelightName) < 0.6) return;
+        if (LimelightHelpers.getTA(limelightName) < 0.6) return;
 
         PoseEstimate poseEstimateMT1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
-        if(poseEstimateMT1 == null) return;
+        if (poseEstimateMT1 == null) return;
 
-        if(poseEstimateMT1.tagCount >= 1) swerveDrive.addVisionMeasurement(poseEstimateMT1.pose, poseEstimateMT1.timestampSeconds);
+        if (poseEstimateMT1.tagCount >= 1) swerveDrive
+                .addVisionMeasurement(poseEstimateMT1.pose, poseEstimateMT1.timestampSeconds);
     }
 
-    public Command setModuleAngleSetpoint(Rotation2d angle){
-        return new InstantCommand( () -> {
+    public Command setModuleAngleSetpoint(Rotation2d angle) {
+        return new InstantCommand(() -> {
             for (SwerveModule swerveModule : swerveDrive.getModules()) {
                 swerveModule.getAngleMotor().setReference(angle.getDegrees(), 0);
             }
@@ -261,21 +265,15 @@ public class SwerveSubsystem extends SubsystemBase {
         config = RobotConfig.fromGUISettings();
 
         AutoBuilder.configure(
-                this::getPose,
-                this::resetOdometry,
-                this::getRobotVelocity,
-                (speedsRobotRelative, moduleFeedForwards) -> {
+                this::getPose, this::resetOdometry, this::getRobotVelocity, (speedsRobotRelative, moduleFeedForwards) -> {
                     swerveDrive.setChassisSpeeds(speedsRobotRelative);
-                },
-                new PPHolonomicDriveController(
+                }, new PPHolonomicDriveController(
                         // Translation PID constants
                         new PIDConstants(autoXController.getP(), autoXController.getI(), autoXController.getD()),
                         // Rotation PID constants
-                        new PIDConstants(autoHeadingController.getP(), autoHeadingController.getI(), autoHeadingController.getD())
-                ),
-                config,
-                Utilities::isRedAlliance,
-                this);
+                        new PIDConstants(autoHeadingController.getP(), autoHeadingController
+                                .getI(), autoHeadingController.getD())
+                ), config, Utilities::isRedAlliance, this);
 
         //Preload PathPlanner Path finding
         // IF USING CUSTOM PATHFINDER ADD BEFORE THIS LINE
@@ -290,9 +288,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command sysIdDriveMotorCommand() {
         return SwerveDriveTest.generateSysIdCommand(
                 SwerveDriveTest.setDriveSysIdRoutine(
-                        new Config(),
-                        this, swerveDrive, 12, true),
-                3.0, 5.0, 3.0);
+                        new Config(), this, swerveDrive, 12, true), 3.0, 5.0, 3.0);
     }
 
     /**
@@ -303,9 +299,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command sysIdAngleMotorCommand() {
         return SwerveDriveTest.generateSysIdCommand(
                 SwerveDriveTest.setAngleSysIdRoutine(
-                        new Config(),
-                        this, swerveDrive),
-                3.0, 5.0, 3.0);
+                        new Config(), this, swerveDrive), 3.0, 5.0, 3.0);
     }
 
     /**
@@ -320,13 +314,17 @@ public class SwerveSubsystem extends SubsystemBase {
     /**
      * Returns a Command that drives the swerve drive to a specific distance at a given speed.
      *
-     * @param distanceInMeters       the distance to drive in meters
+     * @param distanceInMeters the distance to drive in meters
      * @param speedInMetersPerSecond the speed at which to drive in meters per second
+     *
      * @return a Command that drives the swerve drive to a specific distance at a given speed
      */
     public Command driveToDistanceCommand(double distanceInMeters, double speedInMetersPerSecond) {
-        return new InstantCommand(() -> resetOdometry(new Pose2d())).andThen(run(() -> drive(new ChassisSpeeds(speedInMetersPerSecond, 0, 0)))
-                .until(() -> swerveDrive.getPose().getTranslation().getDistance(new Translation2d()) > distanceInMeters));
+        return new InstantCommand(() -> resetOdometry(new Pose2d()))
+                .andThen(run(() -> drive(new ChassisSpeeds(speedInMetersPerSecond, 0, 0)))
+                        .until(() -> swerveDrive.getPose()
+                                .getTranslation()
+                                .getDistance(new Translation2d()) > distanceInMeters));
     }
 
     /**
@@ -340,7 +338,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private double swerveSpeed = 1;
 
-    public Command changeSwerveSpeed(double speed){
+    public Command changeSwerveSpeed(double speed) {
         return new InstantCommand(() -> this.swerveSpeed = speed);
     }
 
@@ -349,10 +347,10 @@ public class SwerveSubsystem extends SubsystemBase {
      *
      * @param velocity Velocity according to the field.
      */
-    public Command  driveFieldOriented(Supplier<ChassisSpeeds> velocity) {
+    public Command driveFieldOriented(Supplier<ChassisSpeeds> velocity) {
         return run(() -> drive(ChassisSpeeds.fromFieldRelativeSpeeds(velocity.get(), getHeading())));
     }
-    
+
     public boolean validateVelocity(ChassisSpeeds velocity) {
         return !velocity.equals(new ChassisSpeeds());
     }
@@ -386,7 +384,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /**
      * Resets odometry to the given pose. Gyro angle and module positions do not need to be reset when calling this
-     * method.  However, if either gyro angle or module position is reset, this must be called in order for odometry to
+     * method. However, if either gyro angle or module position is reset, this must be called in order for odometry to
      * keep working.
      *
      * @param initialHolonomicPose The pose to set the odometry to
@@ -536,7 +534,8 @@ public class SwerveSubsystem extends SubsystemBase {
         @Override
         public Rotation3d getRawRotation3d() {
             LimelightHelpers.IMUData data = LimelightHelpers.getIMUData(LIMELIGHT_4_NAME);
-            Rotation3d rawRotation = new Rotation3d(Math.toRadians(data.Roll), Math.toRadians(data.Pitch), Math.toRadians(data.Yaw)).times(inverted ? -1 : 1);
+            Rotation3d rawRotation = new Rotation3d(Math.toRadians(data.Roll), Math.toRadians(data.Pitch), Math
+                    .toRadians(data.Yaw)).times(inverted ? -1 : 1);
             Dashboard.putValue("LimelightIMU/Rotation Raw", rawRotation);
             return rawRotation;
         }

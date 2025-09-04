@@ -6,9 +6,9 @@ import frc.robot.subsystems.Elevator;
 import static edu.wpi.first.units.Units.Inches;
 
 public class ZeroElevatorRoutine extends Command {
-    
+
     private final Elevator elevator;
-    
+
     public ZeroElevatorRoutine(Elevator elevator) {
         this.elevator = elevator;
     }
@@ -17,14 +17,14 @@ public class ZeroElevatorRoutine extends Command {
     public void initialize() {
         Elevator.setTargetHeight(Inches.of(0));
     }
-    
+
     @Override
     public void execute() {
-        if(elevator.atSetpoint()){
+        if (elevator.atSetpoint()) {
             Elevator.setTargetHeight(Elevator.getTargetHeight().minus(Inches.of(1)));
         }
     }
-    
+
     @Override
     public void end(boolean interrupted) {
         Elevator.setTargetHeight(ElevatorSetpoints.STOW.getHeight());

@@ -12,7 +12,7 @@ public class DetectUnpluggedEncoder {
     private DoubleSupplier targetSupplier;
     private Timer timer = new Timer();
 
-    public DetectUnpluggedEncoder (DoubleSupplier encoderSupplier, DoubleSupplier targetSupplier) {
+    public DetectUnpluggedEncoder(DoubleSupplier encoderSupplier, DoubleSupplier targetSupplier) {
         this.encoderSupplier = encoderSupplier;
         this.targetSupplier = targetSupplier;
         timer.restart();
@@ -20,6 +20,7 @@ public class DetectUnpluggedEncoder {
 
     /**
      * Run each loop to detect if encoder is unplugged
+     *
      * @return true if encoder is unplugged
      */
     public boolean update() {
@@ -27,11 +28,11 @@ public class DetectUnpluggedEncoder {
             timer.restart();
             return false;
         }
-        
+
         if (timer.get() > timeThresholdSeconds) {
             return true;
         }
 
         return false;
-    }    
+    }
 }

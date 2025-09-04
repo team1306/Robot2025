@@ -17,7 +17,7 @@ public class RemoveAlgae extends SequentialCommandGroup {
         ElevatorSetpoint elevatorSetpoint = level == 2 ? ElevatorSetpoints.ALGAE_L2_REMOVE_END : ElevatorSetpoints.ALGAE_L3_REMOVE_END;
 
         ArmSetpoint armSetpoint = level == 2 ? ArmSetpoints.ALGAE_L2_REMOVE : ArmSetpoints.ALGAE_L3_REMOVE;
-        
+
         addCommands(new MoveToolingToSetpoint(elevator, arm, wrist, elevatorSetpoint, armSetpoint, WristSetpoints.HORIZONTAL, true));
     }
 }

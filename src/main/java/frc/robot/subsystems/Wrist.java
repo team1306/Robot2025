@@ -17,17 +17,18 @@ import frc.robot.util.MotorUtil;
 import lombok.Getter;
 import static frc.robot.Constants.*;
 
-public class Wrist extends SubsystemBase  {
+public class Wrist extends SubsystemBase {
     private final double MIN_ANGLE = -100, MAX_ANGLE = 100;
 
-    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-120+25);
-    
+    private final Rotation2d OFFSET = Rotation2d.fromDegrees(-120 + 25);
+
     @Entry(EntryType.Subscriber)
     private static double offsetRight = 0D;
 
     private final Rotation2d TOLERANCE = Rotation2d.fromDegrees(0);
 
-    @Getter @Entry(EntryType.Publisher)
+    @Getter
+    @Entry(EntryType.Publisher)
     private static Rotation2d targetAngle = Rotation2d.fromDegrees(0);
 
     @Entry(EntryType.Publisher)
@@ -49,14 +50,15 @@ public class Wrist extends SubsystemBase  {
      * Controllers: Normal PID Controller.
      */
     public Wrist() {
-       Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive));
+        Motor motor = new TalonFxMotor(MotorUtil
+                .initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive));
         // Motor motor = new FakeMotor();
 
         motorGroup = new MotorGroup<>(motor);
         encoder = new DutyCycleEncoder(WRIST_ENCODER_ID);
 
         pidController.setTolerance(TOLERANCE.getRadians());
-        
+
         setTargetAngle(Rotation2d.kZero);
 
         detectEncoderUnplugged = new DetectUnpluggedEncoder(encoder::get, () -> targetAngle.getDegrees());
@@ -66,7 +68,7 @@ public class Wrist extends SubsystemBase  {
     private static double motorOutput = 0;
 
     @Override
-    public void periodic() {        
+    public void periodic() {
         currentAngle = getCurrentAngle();
         double pidOutput = pidController.calculate(currentAngle.getRadians(), targetAngle.getRadians());
 
@@ -78,22 +80,28 @@ public class Wrist extends SubsystemBase  {
 
     /**
      * Gets the current angle of the wrist.
+     *
      * @return the rotation of the wrist.
      */
     public Rotation2d getCurrentAngle() {
-        return Rotation2d.fromRotations((encoder.get())).minus(OFFSET).unaryMinus().plus(Rotation2d.fromDegrees(offsetRight));
+        return Rotation2d.fromRotations((encoder.get()))
+                .minus(OFFSET)
+                .unaryMinus()
+                .plus(Rotation2d.fromDegrees(offsetRight));
     }
 
     /**
      * Gets if the arm is at its setpoint using the PID controller.
+     *
      * @return true if the arm is at its setpoint.
      */
     public boolean atSetpoint() {
-        return Math.abs(currentAngle.minus(targetAngle).getDegrees()) < TOLERANCE.getDegrees(); 
+        return Math.abs(currentAngle.minus(targetAngle).getDegrees()) < TOLERANCE.getDegrees();
     }
 
     /**
      * Sets the target angle of the wrist.
+     *
      * @param setpoint the rotation for the wrist setpoint.
      */
     public void setTargetAngle(Rotation2d setpoint) {

@@ -25,6 +25,7 @@ public enum ArmSetpoints implements ArmSetpoint {
 
     /**
      * pre configured setpoints for the arm
+     *
      * @param rotation the rotation for the setpoint
      */
     ArmSetpoints(Rotation2d rotation) {
