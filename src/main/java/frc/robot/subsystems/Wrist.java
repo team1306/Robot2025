@@ -39,7 +39,7 @@ public class Wrist extends SubsystemBase {
     private final DutyCycleEncoder encoder;
 
     @Entry(EntryType.Sendable)
-    private static PIDController pidController = new PIDController(0.4, 0, 0.0001);
+    private static PIDController pidController = new PIDController(0.27, 0, 0.0001);
 
     private final DetectUnpluggedEncoder detectEncoderUnplugged;
     private final Alert encoderUnpluggedAlert = new Alert("Arm encoder detected unplugged", AlertType.kError);
