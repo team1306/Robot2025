@@ -18,6 +18,7 @@ import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.auto.CustomWaitCommand;
 import frc.robot.commands.auto.autoAlign.ComboAutoAlign;
+import frc.robot.commands.auto.autoAlign.LocalAutoAlign;
 import frc.robot.commands.autos.*;
 import frc.robot.commands.climber.RunClimber;
 import frc.robot.commands.elevator.ElevatorSetpoints;
@@ -273,8 +274,8 @@ public class RobotContainer {
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
         );
 
-        controller1.rightStick(fullAutomaticEventLoop).whileTrue(new ComboAutoAlign(drivebase.getReefAutoAlignCommand(), ))
-        controller1.rightStick(fullAutomaticEventLoop).whileTrue(drivebase.getReefAutoAlignCommand());
+        controller1.rightStick(fullAutomaticEventLoop).whileTrue(new ComboAutoAlign(drivebase.getReefAutoAlignCommand(), new LocalAutoAlign(true, drivebase)));
+        controller1.leftStick(fullAutomaticEventLoop).whileTrue(new ComboAutoAlign(drivebase.getReefAutoAlignCommand(), new LocalAutoAlign(false, drivebase)));
 
         //slow mode
         controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.2)).onFalse(drivebase.changeSwerveSpeed(1));
@@ -314,9 +315,6 @@ public class RobotContainer {
     
     public void bindCommonControls(EventLoop loop){
         controller1.start(loop).onTrue(new InstantCommand(drivebase::zeroGyro).ignoringDisable(true));
-        controller1.leftStick(loop)
-            .onFalse(new InstantCommand(() -> changeDrivebaseDefaultCommand(driveFieldOrientedAngularVelocity)))
-            .onTrue(new InstantCommand(() -> changeDrivebaseDefaultCommand(driveRobotOrientedAngularVelocity)));
 
         controller2.start(loop).onTrue(new InstantCommand(elevator::zeroElevatorMotorPositions).ignoringDisable(true));
 
