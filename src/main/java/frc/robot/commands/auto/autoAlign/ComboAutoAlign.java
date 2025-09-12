@@ -14,11 +14,12 @@ public class ComboAutoAlign extends Command {
         6, 7, 8, 9, 10, 11 //red
     );
 
-    Command globalAutoAlign;
-    Command localAutoAlign;
+    final Command globalAutoAlign;
+    final Command localAutoAlign;
 
     public ComboAutoAlign(Command globalAutoAlign, Command localAutoAlign) {
-
+        this.globalAutoAlign = globalAutoAlign;
+        this.localAutoAlign = localAutoAlign;
     }
 
     @Override

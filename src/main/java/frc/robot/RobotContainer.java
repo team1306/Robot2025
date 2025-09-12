@@ -17,6 +17,7 @@ import frc.robot.commands.arm.ArmSetpoints;
 import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToSetpoint;
 import frc.robot.commands.auto.CustomWaitCommand;
+import frc.robot.commands.auto.autoAlign.ComboAutoAlign;
 import frc.robot.commands.autos.*;
 import frc.robot.commands.climber.RunClimber;
 import frc.robot.commands.elevator.ElevatorSetpoints;
@@ -272,6 +273,7 @@ public class RobotContainer {
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
         );
 
+        controller1.rightStick(fullAutomaticEventLoop).whileTrue(new ComboAutoAlign(drivebase.getReefAutoAlignCommand(), ))
         controller1.rightStick(fullAutomaticEventLoop).whileTrue(drivebase.getReefAutoAlignCommand());
 
         //slow mode
