@@ -55,8 +55,8 @@ public class Arm extends SubsystemBase {
      * Controllers: Feedforward and Profiled PID Controller.
      */
     public Arm() {
-        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(ARM_MOTOR_ID, NeutralModeValue.Brake));
-        // Motor motor = new FakeMotor();
+//        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(ARM_MOTOR_ID, NeutralModeValue.Brake));
+         Motor motor = new FakeMotor();
         motorGroup = new MotorGroup<>(motor);
 
         armEncoder = new DutyCycleEncoder(ARM_ENCODER_ID);
