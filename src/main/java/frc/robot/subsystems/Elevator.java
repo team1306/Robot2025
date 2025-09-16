@@ -14,6 +14,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.utils.FakeMotor;
 import frc.robot.subsystems.utils.Motor;
 import frc.robot.subsystems.utils.MotorGroup;
 import frc.robot.subsystems.utils.TalonFxMotor;
@@ -58,6 +59,9 @@ public class Elevator extends SubsystemBase {
     @UnitConversion("Inches")
     private static Distance currentHeight = Inches.of(0);
 
+    @Entry(EntryType.Subscriber)
+    private static double speedFactor = 1.0;
+
     private Distance offset = Inches.of(0);
 
     /**
@@ -66,10 +70,10 @@ public class Elevator extends SubsystemBase {
      * Controllers: Feedforward and ProfiledPIDController.
      */
     public Elevator() {
-        leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast));
-        rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast));
-        // leftMotor = new FakeMotor();
-        // rightMotor = new FakeMotor();
+//        leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast));
+//        rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast));
+        leftMotor = new FakeMotor();
+        rightMotor = new FakeMotor();
 
         leftMotor.setPosition(Rotations.of(0));
         rightMotor.setPosition(Rotations.of(0));
@@ -100,7 +104,7 @@ public class Elevator extends SubsystemBase {
         double feedforwardOutput = feedforward.calculate(pid.getSetpoint().velocity);
         double motorOutput = pidOutput + feedforwardOutput;
 
-        motorGroup.setSpeed(motorOutput);
+        motorGroup.setSpeed(motorOutput * speedFactor);
     }
 
     public boolean getLimitSwitch() {

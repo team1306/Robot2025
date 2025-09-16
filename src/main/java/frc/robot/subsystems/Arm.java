@@ -45,6 +45,9 @@ public class Arm extends SubsystemBase {
     private static ProfiledPIDController profiledPIDController = new ProfiledPIDController(0.02, 0, 0.0001, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private ArmFeedforward feedforward;
 
+    @Entry(EntryType.Subscriber)
+    private static double speedFactor = 1.0;
+
 
     private final DetectUnpluggedEncoder detectEncoderUnplugged;
     private final Alert encoderUnpluggedAlert = new Alert("Arm encoder detected unplugged", AlertType.kError);
@@ -55,8 +58,8 @@ public class Arm extends SubsystemBase {
      * Controllers: Feedforward and Profiled PID Controller.
      */
     public Arm() {
-        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(ARM_MOTOR_ID, NeutralModeValue.Brake));
-        // Motor motor = new FakeMotor();
+//        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(ARM_MOTOR_ID, NeutralModeValue.Brake));
+        Motor motor = new FakeMotor();
         motorGroup = new MotorGroup<>(motor);
 
         armEncoder = new DutyCycleEncoder(ARM_ENCODER_ID);
@@ -82,7 +85,7 @@ public class Arm extends SubsystemBase {
 
         currentAngle = getCurrentAngle();
 
-        motorGroup.setSpeed(motorOutput);
+        motorGroup.setSpeed(motorOutput * speedFactor);
 
         encoderUnpluggedAlert.set(detectEncoderUnplugged.update());
     }

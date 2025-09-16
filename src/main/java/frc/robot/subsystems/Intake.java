@@ -6,6 +6,7 @@ import badgerlog.entry.Entry;
 import badgerlog.entry.EntryType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.utils.FakeMotor;
 import frc.robot.subsystems.utils.Motor;
 import frc.robot.subsystems.utils.MotorGroup;
 import frc.robot.subsystems.utils.TalonFxMotor;
@@ -22,6 +23,9 @@ public class Intake extends SubsystemBase {
     @Entry(EntryType.Publisher)
     private static boolean sensorReading = false;
 
+    @Entry(EntryType.Subscriber)
+    private static double speedFactor = 1.0;
+
     private final MotorGroup<Motor> motorGroup;
     private final DigitalInput sensor;
 
@@ -31,8 +35,8 @@ public class Intake extends SubsystemBase {
      * Controllers: None
      */
     public Intake() {
-        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(INTAKE_MOTOR_ID, NeutralModeValue.Brake));
-//        Motor motor = new FakeMotor();
+        //Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(INTAKE_MOTOR_ID, NeutralModeValue.Brake));
+        Motor motor = new FakeMotor();
 
         motorGroup = new MotorGroup<>(motor);
         sensor = new DigitalInput(INTAKE_SENSOR_ID);
@@ -40,7 +44,7 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void periodic() {
-        motorGroup.setSpeed(targetSpeed);
+        motorGroup.setSpeed(targetSpeed * speedFactor);
         sensorReading = sensor.get();
     }
 

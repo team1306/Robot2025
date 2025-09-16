@@ -34,6 +34,9 @@ public class Wrist extends SubsystemBase {
     @Entry(EntryType.Publisher)
     public static Rotation2d currentAngle = Rotation2d.fromDegrees(0);
 
+    @Entry(EntryType.Subscriber)
+    public static double speedFactor = 1.0;
+
     private final MotorGroup<Motor> motorGroup;
 
     private final DutyCycleEncoder encoder;
@@ -50,9 +53,9 @@ public class Wrist extends SubsystemBase {
      * Controllers: Normal PID Controller.
      */
     public Wrist() {
-        Motor motor = new TalonFxMotor(MotorUtil
-                .initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive));
-        // Motor motor = new FakeMotor();
+//        Motor motor = new TalonFxMotor(MotorUtil
+//                .initTalonFX(WRIST_MOTOR_ID, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive));
+        Motor motor = new FakeMotor();
 
         motorGroup = new MotorGroup<>(motor);
         encoder = new DutyCycleEncoder(WRIST_ENCODER_ID);
@@ -73,7 +76,7 @@ public class Wrist extends SubsystemBase {
         double pidOutput = pidController.calculate(currentAngle.getRadians(), targetAngle.getRadians());
 
         motorOutput = pidOutput;
-        motorGroup.setSpeed(motorOutput);
+        motorGroup.setSpeed(motorOutput * speedFactor);
 
         encoderUnpluggedAlert.set(detectEncoderUnplugged.update());
     }

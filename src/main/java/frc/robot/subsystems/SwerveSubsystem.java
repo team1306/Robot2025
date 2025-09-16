@@ -339,7 +339,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private double swerveSpeed = 1;
 
     public Command changeSwerveSpeed(double speed) {
-        return new InstantCommand(() -> this.swerveSpeed = speed);
+        return new InstantCommand(() -> this.swerveSpeed = speed).ignoringDisable(true);
     }
 
     /**
