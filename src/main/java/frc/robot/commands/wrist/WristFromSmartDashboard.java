@@ -11,7 +11,7 @@ public class WristFromSmartDashboard extends Command {
 
     @Entry(EntryType.Subscriber)
     private static Rotation2d targetRotation = Rotation2d.kZero;
-    
+
     /**
      * Sets the wrist angle
      */
@@ -24,5 +24,5 @@ public class WristFromSmartDashboard extends Command {
     @Override
     public void execute() {
         wrist.setTargetAngle(targetRotation);
-    }   
+    }
 }

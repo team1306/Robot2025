@@ -32,18 +32,16 @@ public class Autos {
         autoFactory = new AutoFactory(
                 drivebase::getPose, // A function that returns the current robot pose
                 drivebase::resetOdometry, // A function that resets the current robot pose to the provided Pose2d
-                drivebase::followTrajectory, // The drive subsystem trajectory follower 
-                true, // If alliance flipping should be enabled 
+                drivebase::followTrajectory, // The drive subsystem trajectory follower
+                true, // If alliance flipping should be enabled
                 drivebase // The drive subsystem
         )
                 .bind("Stow", new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL, true)
                         .raceWith(new WaitCommand(2)))
-                .bind("Hover",
-                        new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L4, ArmSetpoints.HOVER_L4, WristSetpoints.VERTICAL_L)
-                                .raceWith(new WaitCommand(2)))
-                .bind("Score",
-                        new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L4, ArmSetpoints.CORAL_L4, WristSetpoints.VERTICAL_L)
-                                .raceWith(new WaitCommand(2)));
+                .bind("Hover", new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L4, ArmSetpoints.HOVER_L4, WristSetpoints.VERTICAL_L)
+                        .raceWith(new WaitCommand(2)))
+                .bind("Score", new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_L4, ArmSetpoints.CORAL_L4, WristSetpoints.VERTICAL_L)
+                        .raceWith(new WaitCommand(2)));
     }
 
     public AutoRoutine get1CoralL4DriveRoutine(String name) {
@@ -54,8 +52,7 @@ public class Autos {
 
         routine.active().onTrue(
                 Commands.sequence(
-                        coralPath.resetOdometry(),
-                        coralPath.cmd()
+                        coralPath.resetOdometry(), coralPath.cmd()
                 ));
 
         return routine;
@@ -73,8 +70,7 @@ public class Autos {
 
         routine.active().onTrue(
                 Commands.sequence(
-                        coral1.resetOdometry(),
-                        coral1.cmd()
+                        coral1.resetOdometry(), coral1.cmd()
                 )
         );
 
@@ -107,8 +103,7 @@ public class Autos {
 
         routine.active().onTrue(
                 Commands.sequence(
-                        coral1.resetOdometry(),
-                        coral1.cmd()
+                        coral1.resetOdometry(), coral1.cmd()
                 )
         );
 

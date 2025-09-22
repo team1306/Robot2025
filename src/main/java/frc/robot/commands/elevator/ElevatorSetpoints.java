@@ -13,7 +13,7 @@ public enum ElevatorSetpoints implements ElevatorSetpoint {
 
     CORAL_HOVER_L2(Inches.of(10)),
     CORAL_HOVER_L3(Inches.of(25)),
-    
+
     CORAL_STATION(Inches.of(8)),
     BUMPER_CORAL_STATION(Inches.of(4)),
     GROUND_CORAL(Inches.of(3)),
@@ -23,13 +23,14 @@ public enum ElevatorSetpoints implements ElevatorSetpoint {
 
     ALGAE_L2_REMOVE_END(Inches.of(24)),
     ALGAE_L3_REMOVE_END(Inches.of(32)),
-    
+
     STOW(Inches.of(0));
 
     private final Distance height;
 
     /**
      * pre configured setpoints for the elevator
+     *
      * @param height distance value
      */
     ElevatorSetpoints(Distance height) {

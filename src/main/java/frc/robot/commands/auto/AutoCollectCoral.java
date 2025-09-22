@@ -13,13 +13,12 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Wrist;
 
-public class AutoCollectCoral extends SequentialCommandGroup{
-    public AutoCollectCoral(SwerveSubsystem swerveDrive, Elevator elevator, Wrist wrist, Arm arm, Intake intake){
+public class AutoCollectCoral extends SequentialCommandGroup {
+    public AutoCollectCoral(SwerveSubsystem swerveDrive, Elevator elevator, Wrist wrist, Arm arm, Intake intake) {
         addCommands(
-            new MoveToolingToSetpoint(
-                elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
-                .raceWith(new WaitCommand(2)),
-            new RunIntake(intake, () -> 1).raceWith(new WaitCommand(2))
+                new MoveToolingToSetpoint(
+                        elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
+                        .raceWith(new WaitCommand(2)), new RunIntake(intake, () -> 1).raceWith(new WaitCommand(2))
         );
     }
 }

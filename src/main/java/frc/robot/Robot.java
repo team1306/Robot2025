@@ -11,10 +11,12 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.autos.FieldLocation;
+import frc.robot.subsystems.Vision;
 
 public class Robot extends TimedRobot {
     private RobotContainer robotContainer;
     private final Timer gcTimer = new Timer();
+    private final Vision vision = new Vision("fitnessgram pacer test");
 
     @Override
     public void robotInit() {
@@ -39,12 +41,21 @@ public class Robot extends TimedRobot {
         // robotContainer.setAllianceLed();
         robotContainer.setSeizureMode();
         // robotContainer.setRainbow();
-        new WaitCommand(2).andThen(new InstantCommand(robotContainer::resetTargetPositions)).ignoringDisable(true).schedule();
+        new WaitCommand(2).andThen(new InstantCommand(robotContainer::resetTargetPositions))
+                .ignoringDisable(true)
+                .schedule();
     }
-    
+
+    @Override
+    public void simulationPeriodic() {
+        vision.simulationPeriodic();
+
+        var debugField = vision.getSimDebugField();
+    }
+
     @Override
     public void disabledPeriodic() {
-    
+
     }
 
     @Override

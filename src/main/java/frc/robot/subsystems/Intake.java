@@ -46,6 +46,7 @@ public class Intake extends SubsystemBase {
 
     /**
      * Sets the target speed of the intake.
+     *
      * @param targetSpeed the speed for the intake setpoint (-1 - 1).
      */
     public void setTargetSpeed(double targetSpeed) {
@@ -54,6 +55,7 @@ public class Intake extends SubsystemBase {
 
     /**
      * Gets the reading from the beam-break sensor on the intake.
+     *
      * @return true if the sensor detects an object in the intake
      */
     public boolean getSensorReading() {

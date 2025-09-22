@@ -21,32 +21,34 @@ public class MoveToolingToSetpoint extends ParallelCommandGroup {
     public MoveToolingToSetpoint(Elevator elevator, Arm arm, Wrist wrist, ElevatorSetpoint elevatorSetpoint, ArmSetpoint armSetpoint, WristSetpoint wristSetpoint, boolean overrideSafetyMode, boolean endWhenFinished) {
         if (overrideSafetyMode)
             addCommands(
-                new MoveElevatorToSetpoint(elevator, elevatorSetpoint, endWhenFinished),
-                new MoveArmToSetpoint(arm, armSetpoint, endWhenFinished),
-                new MoveWristToSetpoint(wrist, wristSetpoint, endWhenFinished)
+                    new MoveElevatorToSetpoint(elevator, elevatorSetpoint, endWhenFinished), new MoveArmToSetpoint(arm, armSetpoint, endWhenFinished), new MoveWristToSetpoint(wrist, wristSetpoint, endWhenFinished)
             );
-        else 
+        else
             addCommands(
-                new MoveElevatorToSetpoint(elevator, elevatorSetpoint, endWhenFinished),
-                new StartEventCommand(
-                    new MoveArmToSetpoint(arm, armSetpoint, endWhenFinished),
-                    () -> !(Math.abs(wrist.getCurrentAngle().getDegrees()) > 30 && armSetpoint.getAngle().getDegrees() > 70) //go unless wrist is too rotated for how high the arm is trying to go
-                ),
-                new StartEventCommand( //only move wrist when arm is between threshold degrees/elevator is above threshold
-                    new MoveWristToSetpoint(wrist, wristSetpoint, endWhenFinished),
-                    () -> elevator.getCurrentHeight().in(Inches) > 10 || arm.getCurrentAngle().getDegrees() > -40,
-                    () -> arm.getCurrentAngle().getDegrees() < 80
-                )
+                    new MoveElevatorToSetpoint(elevator, elevatorSetpoint, endWhenFinished), new StartEventCommand(
+                            new MoveArmToSetpoint(arm, armSetpoint, endWhenFinished), () -> !(Math.abs(wrist
+                                    .getCurrentAngle()
+                                    .getDegrees()) > 30 && armSetpoint.getAngle().getDegrees() > 70) //go unless wrist is too rotated for how high the arm is trying to go
+                    ), new StartEventCommand( //only move wrist when arm is between threshold degrees/elevator is above threshold
+                            new MoveWristToSetpoint(wrist, wristSetpoint, endWhenFinished), () -> elevator
+                                    .getCurrentHeight()
+                                    .in(Inches) > 10 || arm.getCurrentAngle().getDegrees() > -40, () -> arm
+                                            .getCurrentAngle()
+                                            .getDegrees() < 80
+                    )
             );
     }
+
     /**
      * Move elevator, arm, and wrist to setpoints in a parallel command group
      */
     public MoveToolingToSetpoint(Elevator elevator, Arm arm, Wrist wrist, ElevatorSetpoint elevatorSetpoint, ArmSetpoint armSetpoint, WristSetpoint wristSetpoint) {
-        this(elevator, arm, wrist, elevatorSetpoint, armSetpoint, wristSetpoint, RobotContainer.isOverrideSafeMode(), false);
+        this(elevator, arm, wrist, elevatorSetpoint, armSetpoint, wristSetpoint, RobotContainer
+                .isOverrideSafeMode(), false);
     }
 
     public MoveToolingToSetpoint(Elevator elevator, Arm arm, Wrist wrist, ElevatorSetpoint elevatorSetpoint, ArmSetpoint armSetpoint, WristSetpoint wristSetpoint, boolean endWhenFinished) {
-        this(elevator, arm, wrist, elevatorSetpoint, armSetpoint, wristSetpoint, RobotContainer.isOverrideSafeMode(), endWhenFinished);
+        this(elevator, arm, wrist, elevatorSetpoint, armSetpoint, wristSetpoint, RobotContainer
+                .isOverrideSafeMode(), endWhenFinished);
     }
 }

@@ -29,7 +29,7 @@ public class LEDSubsystem extends SubsystemBase {
         leds.fill(color);
     }
 
-    public void applyPattern(LEDPattern pattern){
+    public void applyPattern(LEDPattern pattern) {
         leds.applyPattern(pattern);
     }
 }

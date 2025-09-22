@@ -5,11 +5,11 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class CustomWaitCommand extends Command{
+public class CustomWaitCommand extends Command {
     private final DoubleSupplier duration;
     protected Timer m_timer = new Timer();
 
-    public CustomWaitCommand(DoubleSupplier timeSupplier){
+    public CustomWaitCommand(DoubleSupplier timeSupplier) {
         this.duration = timeSupplier;
     }
 

@@ -5,13 +5,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Wrist;
 
 public class MoveWristToSetpoint extends Command {
-    
+
     private final Wrist wrist;
     private final Rotation2d targetRotation;
     private final boolean finishWhenDone;
 
     /**
      * Sets the wrist angle
+     *
      * @param wristSetpoint setpoint for the wrist to go to
      */
     public MoveWristToSetpoint(Wrist wrist, WristSetpoint wristSetpoint, boolean finishWhenDone) {
