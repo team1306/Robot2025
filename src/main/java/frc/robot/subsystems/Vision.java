@@ -14,6 +14,9 @@ import frc.robot.Robot;
 
 import static frc.robot.Constants.cameraOffset;
 
+import java.util.Optional;
+
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -36,6 +39,8 @@ public class Vision extends SubsystemBase {
     private PhotonCameraSim cameraSim;
     private VisionSystemSim visionSim;
 
+    private Pose3d bestTarget = new Pose3d();
+
     private Pose2d robotposesim = new Pose2d();
 
     public Vision(String cameraName) {
@@ -48,18 +53,19 @@ public class Vision extends SubsystemBase {
             // Create the vision system simulation which handles cameras and targets on the field.
             visionSim = new VisionSystemSim("main");
             visionSim.addAprilTags(aprilTagFieldLayout);
+            //big circle
             TargetModel targetModel = new TargetModel(1);
             Pose3d targetPose = new Pose3d(16, 4, 2, new Rotation3d(0, 0, Math.PI));
-            // The given target model at the given pose
             VisionTargetSim visionTarget = new VisionTargetSim(targetPose, targetModel);
 
             // Add this vision target to the vision system simulation to make it visible
             visionSim.addVisionTargets(visionTarget);
             SimCameraProperties cameraProp = new SimCameraProperties();
-            cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(90));
+
+            cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(100));
             cameraProp.setCalibError(0.35, 0.10);
-            cameraProp.setFPS(15);
-            cameraProp.setAvgLatencyMs(50);
+            cameraProp.setFPS(60);
+            cameraProp.setAvgLatencyMs(10);
             cameraProp.setLatencyStdDevMs(15);
 
             cameraSim = new PhotonCameraSim(camera, cameraProp);
@@ -75,28 +81,56 @@ public class Vision extends SubsystemBase {
         PhotonPipelineResult result = camera.getLatestResult();
         if (result.hasTargets()) {
             PhotonTrackedTarget target = result.getBestTarget();
-            Pose3d pose = new Pose3d(target.getBestCameraToTarget().toMatrix()); // transform 3d to pose 3d because photon vision -__-
+            Pose3d pose = new Pose3d(target.getBestCameraToTarget().toMatrix()); // pose 3d
 
             return pose;
         } else {
-            return null;
+            return new Pose3d();
+        }
+    }
+
+    @Override
+    public void periodic() {
+        Optional<EstimatedRobotPose> visionEst = Optional.empty();
+        for (PhotonPipelineResult change : camera.getAllUnreadResults()) {
+            visionEst = photonEstimator.update(change);
+
+
+            if (Robot.isSimulation()) {
+                visionEst.ifPresentOrElse(
+                        est -> getSimDebugField()
+                                .getObject("VisionEstimation")
+                                .setPose(est.estimatedPose.toPose2d()), () -> {
+                                    getSimDebugField().getObject("VisionEstimation").setPoses();
+                                });
+            }
+
+            visionEst.ifPresent(
+                    est -> {
+                        Pose3d oink = est.estimatedPose;
+                        Dashboard.putValue("Copoius amounts of uranium", oink);
+                    });
         }
     }
 
     @Override
     public void simulationPeriodic() {
 
-        visionSim.update(robotposesim); // i cant think of a good way to get the robot pose here
-        Dashboard.putValue("oink", getObjectPose());
+        visionSim.update(robotposesim);
+        bestTarget = getObjectPose();
+
     }
+
 
     public void updateRobotPose(Pose2d pose) {
         robotposesim = pose;
+        photonEstimator.getReferencePose();
     }
 
     public Field2d getSimDebugField() {
         if (!Robot.isSimulation()) return null;
         return visionSim.getDebugField();
     }
+
 
 }

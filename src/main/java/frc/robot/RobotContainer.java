@@ -7,6 +7,7 @@ package frc.robot;
 import badgerlog.entry.handlers.Key;
 import choreo.auto.AutoChooser;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -109,6 +110,7 @@ public class RobotContainer {
 
         //Autos
         Autos autos = new Autos(drivebase, arm, elevator, intake, wrist);
+
         autoChooser.addRoutine("Left 2 H", () -> autos.get1CoralL4DriveRoutine("Score Left 2 H"));
         autoChooser.addRoutine("Mid B", () -> autos.get1CoralL4DriveRoutine("Score Mid B"));
         autoChooser.addRoutine("Right 2 C", () -> autos.get1CoralL4DriveRoutine("Score Right 2 C"));
@@ -427,6 +429,10 @@ public class RobotContainer {
      */
     private double getSpeedMultipler() {
         return ((1 - (controller1.getLeftTriggerAxis() * 0.8)));
+    }
+
+    public Pose2d getPose() {
+        return drivebase.getPose();
     }
 
 }

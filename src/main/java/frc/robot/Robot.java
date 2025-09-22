@@ -49,6 +49,7 @@ public class Robot extends TimedRobot {
     @Override
     public void simulationPeriodic() {
         vision.simulationPeriodic();
+        vision.updateRobotPose(robotContainer.getPose());
 
         var debugField = vision.getSimDebugField();
     }
