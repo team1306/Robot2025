@@ -2,36 +2,47 @@ package frc.robot.commands.auto.autoAlign;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
+import java.util.Arrays;
+import java.util.List;
+import frc.robot.Constants;
+import frc.robot.util.LimelightHelpers;
+
 public class ComboAutoAlign extends Command {
 
-    private final Runnable globalAutoAlign;
-    private final Runnable localAutoAlign;
+    List<Integer> validTags = Arrays.asList(
+        17, 18, 19, 20, 21, 22, //blue
+        6, 7, 8, 9, 10, 11 //red
+    );
 
-    private Runnable currentAutoAlign;
+    final Command globalAutoAlign;
+    final Command localAutoAlign;
 
-    public ComboAutoAlign(Runnable globalAutoAlign, Runnable localAutoAlign) {
+    public ComboAutoAlign(Command globalAutoAlign, Command localAutoAlign) {
         this.globalAutoAlign = globalAutoAlign;
         this.localAutoAlign = localAutoAlign;
     }
 
     @Override
-    public void initialize() {}
+    public void initialize() {
+    }
 
     @Override
     public void execute() {
-        if (true) { //TODO: change to use LL info
-            currentAutoAlign = globalAutoAlign;
-        } else {
-            currentAutoAlign = localAutoAlign;
-        }
+        boolean targetVisible = LimelightHelpers.getTV(Constants.LIMELIGHT_4_NAME);
+        double tagId = LimelightHelpers.getFiducialID(Constants.LIMELIGHT_4_NAME);
 
-        currentAutoAlign.run();
+        if(targetVisible && validTags.contains((int)tagId)) { //can see valid april tag
+            globalAutoAlign.cancel();
+            localAutoAlign.schedule();
+        } else {
+            localAutoAlign.cancel();
+            globalAutoAlign.schedule();
+        }
     }
 
     @Override
     public boolean isFinished() {return true;}
 
     @Override
-    public void end(boolean interrupted) {
-    }
+    public void end(boolean interrupted) {}
 }
