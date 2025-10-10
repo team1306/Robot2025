@@ -36,6 +36,7 @@ import swervelib.SwerveInputStream;
 
 import java.util.HashMap;
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 import badgerlog.Dashboard;
 import badgerlog.entry.Entry;
@@ -49,7 +50,7 @@ public class RobotContainer {
     private final CommandXboxController controller2 = new CommandXboxController(1);
 
     private final Wrist wrist = new Wrist();
-    private final SwerveSubsystem drivebase = new SwerveSubsystem(() -> wristLeft ? 1 : -1, () -> selectedLevel);
+    private final SwerveSubsystem drivebase = new SwerveSubsystem(() -> 1, () -> selectedLevel);
     private final Arm arm = new Arm();
     private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
@@ -78,38 +79,25 @@ public class RobotContainer {
     @Key("Auto/Auto Wait Time")
     private static double autoWaitTime = 0;
 
+    @Entry(EntryType.Subscriber)
+    @Key("Outreach/Slowmode Speed")
+    private static double swerveSlowSpeed;
+
+    @Entry(EntryType.Publisher)
+    @Key("Outreach/OutreachEnabled")
+    private static boolean outreachEnabled = true;
+
     public RobotContainer() {
-        // UsbCamera camera = CameraServer.startAutomaticCapture();
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
 
-        //Autos
-        Autos autos = new Autos(drivebase, arm, elevator, intake, wrist);
-        autoChooser.addRoutine("Left 2 H", () -> autos.get1CoralL4DriveRoutine("Score Left 2 H"));
-        autoChooser.addRoutine("Mid B", () -> autos.get1CoralL4DriveRoutine("Score Mid B"));
-        autoChooser.addRoutine("Right 2 C", () -> autos.get1CoralL4DriveRoutine("Score Right 2 C"));
-
-        autoChooser.addRoutine("2 Coral: Left 2", () -> autos.get2CoralDriveRoutine("Score Left 2 G", "Left 2 Intermediate Pickup", "Score Pickup I"));
-        autoChooser.addRoutine("UNTESTED - 2 Coral: Right 2", () -> autos.get2CoralDriveRoutine("Score Right 2 D", "Right 2 Intermediate Pickup", "Score Pickup F"));
-        autoChooser.addRoutine("3 Coral Left 2", () -> autos.get3CoralDriveRoutine("3 - Blue 2 G Pickup", "3 - I Score", "3 - I Pickup", "3 - J Score"));
         //Controller Chooser
-        bindAlternative();
         bindAutomatic();
-        bindManual();
-        bindSetpoint();
         bindOneController();
-        changeEventLoop(alternativeEventLoop);
 
         controllerModeChooser.setDefaultOption("Full Auto", fullAutomaticEventLoop);
-        controllerModeChooser.addOption("Setpoints", setpointEventLoop);
-        controllerModeChooser.addOption("Manual", fullManualEventLoop);
         controllerModeChooser.addOption("One Controller", oneControllerEventLoop);
 
-        controllerModeChooser.addOption("Alternative", alternativeEventLoop);
         controllerModeChooser.onChange(this::changeEventLoop);
-
-    //    arm.setDefaultCommand(new ArmFromSmartDashboard(arm));
-//        wrist.setDefaultCommand(new WristFromSmartDashboard(wrist));
-//       elevator.setDefaultCommand(new ElevatorFromSmartDashboard(elevator));
     }
 
     public void zeroTargetPositions(){
@@ -124,17 +112,8 @@ public class RobotContainer {
         arm.setTargetAngle(ArmSetpoints.STOW.getAngle());
     }
     
-    private final EventLoop fullManualEventLoop = new EventLoop();
     private final EventLoop fullAutomaticEventLoop = new EventLoop();
-    private final EventLoop setpointEventLoop = new EventLoop();
-    private final EventLoop alternativeEventLoop = new EventLoop();
     private final EventLoop oneControllerEventLoop = new EventLoop();
-
-    public void bindAlternative(){
-        bindCommonControls(alternativeEventLoop);
-        controller1.a().whileTrue(new RunIntake(intake, () -> -1));
-        controller1.b().whileTrue(new RunIntake(intake, () -> 1));
-    }
 
     public void bindOneController() {
         bindCommonControls(oneControllerEventLoop);
@@ -170,7 +149,12 @@ public class RobotContainer {
 
         controller1.rightTrigger(0.5, oneControllerEventLoop).onTrue(scoreWrapper);        
         controller1.leftBumper(oneControllerEventLoop).onTrue(new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.STOW, ArmSetpoints.STOW, WristSetpoints.HORIZONTAL));
-        
+
+        //slow mode
+        controller1.leftTrigger(0.5, fullAutomaticEventLoop)
+                .onTrue(new InstantCommand(() -> drivebase.changeSwerveSpeed(swerveSlowSpeed).schedule()).ignoringDisable(true))
+                .onFalse(drivebase.changeSwerveSpeed(1));
+
         controller1.y(oneControllerEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL)
         );
@@ -183,44 +167,8 @@ public class RobotContainer {
         controller1.b(oneControllerEventLoop).whileTrue(new RunIntake(intake, () -> -1));
     }
     
-    public void bindManual(){
-        bindCommonControls(fullManualEventLoop);
-
-        controller1.pov(0, 0, fullManualEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.HORIZONTAL));
-        controller1.pov(0, 90, fullManualEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL_R));
-        controller1.pov(0, 270, fullManualEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL_L));
-
-        controller2.back(fullManualEventLoop).toggleOnTrue(new ManualArmControl(arm, controller2::getRightY));
-        controller2.y(fullManualEventLoop).toggleOnTrue(new ManualElevatorControl(elevator, controller2::getLeftY));
-        controller2.x(fullManualEventLoop).toggleOnTrue(new ManualWristControl(wrist, controller2::getLeftX));
-    }
-
-    public void bindSetpoint(){
-        bindCommonControls(setpointEventLoop);
-        
-        controller1.pov(0, 0, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L4));
-        controller1.pov(0, 90, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L3));
-        controller1.pov(0, 180, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L2));
-        controller1.pov(0, 270, setpointEventLoop).onTrue(new MoveElevatorToSetpoint(elevator, ElevatorSetpoints.CORAL_L1));
-
-        controller1.a(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> 1));
-        controller1.b(setpointEventLoop).toggleOnTrue(new RunIntake(intake, () -> -1));
-
-        controller2.pov(0, 0, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L4));
-        controller2.pov(0, 90, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L3));
-        controller2.pov(0, 180, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L2));
-        controller2.pov(0, 270, setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.CORAL_L1));
-        
-        controller2.back(setpointEventLoop).onTrue(new MoveArmToSetpoint(arm, ArmSetpoints.STOW));
-        
-        controller2.rightTrigger(0.5, setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL_R));
-        controller2.leftTrigger(0.5, setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.VERTICAL_L));
-        controller2.leftBumper(setpointEventLoop).onTrue(new MoveWristToSetpoint(wrist, WristSetpoints.HORIZONTAL));
-    }
-    
     private static int selectedLevel = 1;
-    private static boolean wristLeft = true;
-    
+
     //Make sure to implement correctly (use a supplier in an init method)
     @Getter
     private static final boolean overrideSafeMode = false;
@@ -263,22 +211,19 @@ public class RobotContainer {
         controller1.a(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.GROUND_CORAL, ArmSetpoints.GROUND_CORAL, WristSetpoints.HORIZONTAL)
         );
-
-        controller1.b(fullAutomaticEventLoop).whileTrue(
-            drivebase.getCoralStationAutoAlign()
-        );
         
         controller1.x(fullAutomaticEventLoop).onTrue(
                 new MoveToolingToSetpoint(elevator, arm, wrist, ElevatorSetpoints.CORAL_STATION, ArmSetpoints.CORAL_STATION, WristSetpoints.HORIZONTAL)
         );
 
-        controller1.rightStick(fullAutomaticEventLoop).whileTrue(drivebase.getReefAutoAlignCommand());
-
         //slow mode
-        controller1.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(drivebase.changeSwerveSpeed(0.2)).onFalse(drivebase.changeSwerveSpeed(1));
+        controller1.leftTrigger(0.5, fullAutomaticEventLoop)
+                .onTrue(new InstantCommand(() -> drivebase.changeSwerveSpeed(swerveSlowSpeed).schedule()).ignoringDisable(true))
+                .onFalse(drivebase.changeSwerveSpeed(1));
 
-        controller2.leftTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = false));
-        controller2.rightTrigger(0.5, fullAutomaticEventLoop).onTrue(new InstantCommand(() -> wristLeft = true));
+        controller2.leftTrigger(0.9, fullAutomaticEventLoop)
+                .onTrue(drivebase.setSwerveLocked(false))
+                .onFalse(drivebase.setSwerveLocked(true));
 
         controller2.leftStick(fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 6));
         controller2.rightStick(fullAutomaticEventLoop).onTrue(new InstantCommand(() -> selectedLevel = 5));
@@ -299,9 +244,9 @@ public class RobotContainer {
 
     private LevelSelectorKey getLevelSelectorKey(){
         return switch (selectedLevel) {
-            case 2 -> wristLeft ? LevelSelectorKey.CORAL_L2_L : LevelSelectorKey.CORAL_L2_R;
-            case 3 -> wristLeft ? LevelSelectorKey.CORAL_L3_L : LevelSelectorKey.CORAL_L3_R;
-            case 4 -> wristLeft ? LevelSelectorKey.CORAL_L4_L : LevelSelectorKey.CORAL_L4_R;
+            case 2 -> LevelSelectorKey.CORAL_L2_L;
+            case 3 -> LevelSelectorKey.CORAL_L3_L;
+            case 4 -> LevelSelectorKey.CORAL_L4_L;
             case 5 -> LevelSelectorKey.ALGAE_REMOVE_L2;
             case 6 -> LevelSelectorKey.ALGAE_REMOVE_L3;
             default -> LevelSelectorKey.CORAL_L1;
@@ -310,7 +255,7 @@ public class RobotContainer {
 
     public static Runnable autoRunnable = null;
     
-    public void bindCommonControls(EventLoop loop){
+    public void bindCommonControls(EventLoop loop) {
         controller1.start(loop).onTrue(new InstantCommand(drivebase::zeroGyro).ignoringDisable(true));
         controller1.leftStick(loop)
             .onFalse(new InstantCommand(() -> changeDrivebaseDefaultCommand(driveFieldOrientedAngularVelocity)))
@@ -326,8 +271,12 @@ public class RobotContainer {
             .and(() -> autoRunnable != null)
             .onTrue(new InstantCommand(() -> autoRunnable.run()).ignoringDisable(true));
         
-        Dashboard.getNetworkTablesButton("Speed Down", loop).onTrue(drivebase.changeSwerveSpeed(0.1)).onFalse(drivebase.changeSwerveSpeed(1));
-        Dashboard.getNetworkTablesButton("Speed 0", loop).onTrue(drivebase.changeSwerveSpeed(0)).onFalse(drivebase.changeSwerveSpeed(1));
+        Dashboard.getNetworkTablesButton("Speed Down", loop)
+                .onTrue(new InstantCommand(() -> drivebase.changeSwerveSpeed(swerveSlowSpeed).schedule()).ignoringDisable(true))
+                .onFalse(drivebase.changeSwerveSpeed(1));
+        Dashboard.getNetworkTablesButton("Lock Swerve", loop)
+                .onTrue(drivebase.setSwerveLocked(true))
+                .onFalse(drivebase.setSwerveLocked(false));
     }
 
     private void changeDrivebaseDefaultCommand(Command defaultCommand){

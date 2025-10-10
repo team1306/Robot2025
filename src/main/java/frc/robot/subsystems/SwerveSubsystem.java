@@ -336,10 +336,14 @@ public class SwerveSubsystem extends SubsystemBase {
         drive(ChassisSpeeds.fromFieldRelativeSpeeds(velocity, getHeading()));
     }
 
+    private boolean isLocked = false;
     private double swerveSpeed = 1;
 
     public Command changeSwerveSpeed(double speed) {
         return new InstantCommand(() -> this.swerveSpeed = speed).ignoringDisable(true);
+    }
+    public Command setSwerveLocked(boolean locked) {
+        return new InstantCommand(() -> this.isLocked = locked).ignoringDisable(true);
     }
 
     /**
@@ -361,7 +365,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param velocity Robot oriented {@link ChassisSpeeds}
      */
     public void drive(ChassisSpeeds velocity) {
-        swerveDrive.drive(velocity.times(swerveSpeed));
+        swerveDrive.drive(velocity.times(isLocked ? 0 : swerveSpeed));
     }
 
     /**
