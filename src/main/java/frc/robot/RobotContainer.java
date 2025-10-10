@@ -87,6 +87,10 @@ public class RobotContainer {
     @Key("Outreach/OutreachEnabled")
     private static boolean outreachEnabled = true;
 
+    @Entry(EntryType.Subscriber)
+    @Key("Outreach/GuestP1")
+    private static boolean guestP1Enabled = false;
+
     public RobotContainer() {
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
 
@@ -220,6 +224,10 @@ public class RobotContainer {
         controller1.leftTrigger(0.5, fullAutomaticEventLoop)
                 .onTrue(new InstantCommand(() -> drivebase.changeSwerveSpeed(swerveSlowSpeed).schedule()).ignoringDisable(true))
                 .onFalse(drivebase.changeSwerveSpeed(1));
+
+        controller2.rightTrigger(1, fullAutomaticEventLoop)
+                .onTrue(new InstantCommand(() -> {if(guestP1Enabled) drivebase.setSwerveLocked(true);}).ignoringDisable(true))
+                .onFalse(new InstantCommand(() -> {if(guestP1Enabled) drivebase.setSwerveLocked(false);}).ignoringDisable(true));
 
         controller2.leftTrigger(0.9, fullAutomaticEventLoop)
                 .onTrue(drivebase.setSwerveLocked(false))
