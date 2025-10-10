@@ -78,6 +78,10 @@ public class RobotContainer {
     @Key("Auto/Auto Wait Time")
     private static double autoWaitTime = 0;
 
+    @Entry(EntryType.Publisher)
+    @Key("Outreach/OutreachEnabled")
+    private static boolean outreachEnabled = false;
+
     public RobotContainer() {
         // UsbCamera camera = CameraServer.startAutomaticCapture();
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
