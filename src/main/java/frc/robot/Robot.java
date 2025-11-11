@@ -16,7 +16,7 @@ import frc.robot.subsystems.Vision;
 public class Robot extends TimedRobot {
     private RobotContainer robotContainer;
     private final Timer gcTimer = new Timer();
-    private final Vision vision = new Vision("fitnessgram pacer test");
+    private final Vision vision = new Vision("camera1");
 
     @Override
     public void robotInit() {
