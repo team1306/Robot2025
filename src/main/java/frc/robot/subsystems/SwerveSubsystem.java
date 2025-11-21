@@ -15,11 +15,14 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import badgerlog.Dashboard;
 import badgerlog.entry.Entry;
 import badgerlog.entry.EntryType;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Distance;
@@ -31,7 +34,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.commands.autos.FieldLocation;
 import frc.robot.util.LimelightHelpers;
-import frc.robot.util.LimelightHelpers.PoseEstimate;
 import frc.robot.util.Utilities;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -52,7 +54,6 @@ import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.*;
-import static frc.robot.Constants.LIMELIGHT_3_NAME;
 import static frc.robot.Constants.LIMELIGHT_4_NAME;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -225,30 +226,15 @@ public class SwerveSubsystem extends SubsystemBase {
         Dashboard.putValue("Auto/TranslationError", translationController.getPositionError());
         Dashboard.putValue("Auto/HeadingError", headingController.getPositionError());
 
-        addVisionMeasurement(LIMELIGHT_4_NAME);
-        addVisionMeasurement(LIMELIGHT_3_NAME);
 
         changeSwerveSpeed(speedFromSmartDashboard);
     }
 
-    public void addVisionMeasurement(String limelightName) {
-        LimelightHelpers.SetRobotOrientation(limelightName, swerveDrive.getPose()
-                .getRotation()
-                .getDegrees(), 0, 0, 0, 0, 0);
-        PoseEstimate poseEstimateMT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
-        if (poseEstimateMT2 == null) return;
 
-        Pose2d pose = new Pose2d(poseEstimateMT2.pose.getTranslation(), swerveDrive.getPose().getRotation());
-        if (poseEstimateMT2.tagCount >= 1) swerveDrive.addVisionMeasurement(pose, poseEstimateMT2.timestampSeconds);
+    public void addVisionMeasurement(
+                                     Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
+        swerveDrive.addVisionMeasurement(visionMeasurement, timestampSeconds);
 
-        //If the pose can be determined to be very likely accurate, use MT1 for gyro
-        if (LimelightHelpers.getTA(limelightName) < 0.6) return;
-
-        PoseEstimate poseEstimateMT1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
-        if (poseEstimateMT1 == null) return;
-
-        if (poseEstimateMT1.tagCount >= 1) swerveDrive
-                .addVisionMeasurement(poseEstimateMT1.pose, poseEstimateMT1.timestampSeconds);
     }
 
     public Command setModuleAngleSetpoint(Rotation2d angle) {

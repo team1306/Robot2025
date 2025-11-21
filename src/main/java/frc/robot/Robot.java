@@ -11,12 +11,10 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.autos.FieldLocation;
-import frc.robot.subsystems.Vision;
 
 public class Robot extends TimedRobot {
     private RobotContainer robotContainer;
     private final Timer gcTimer = new Timer();
-    private final Vision vision = new Vision("camera1");
 
     @Override
     public void robotInit() {
@@ -48,10 +46,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void simulationPeriodic() {
-        vision.simulationPeriodic();
-        vision.updateRobotPose(robotContainer.getPose());
 
-        var debugField = vision.getSimDebugField();
     }
 
     @Override

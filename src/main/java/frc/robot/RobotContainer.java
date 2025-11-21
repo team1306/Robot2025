@@ -9,6 +9,8 @@ import choreo.auto.AutoChooser;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -55,7 +57,8 @@ public class RobotContainer {
     private final Intake intake = new Intake();
     private final Climber climber = new Climber();
     private final LEDSubsystem ledStrip = new LEDSubsystem(Constants.LED_PORT, 0, Constants.LED_COUNT);
-
+    private final Vision vision1 = new Vision(drivebase::addVisionMeasurement, "camera1", new Transform3d(0.176558, -0.253981, 0.416598, new Rotation3d(0, 0, 0.0349066)));
+    private final Vision vision2 = new Vision(drivebase::addVisionMeasurement, "camera2", new Transform3d(0.176558, 0.253981, 0.416598, new Rotation3d(0, 0, -0.0349066)));
     @Entry(EntryType.Subscriber)
     @Key("Slew Settings/X-Y Slew Limiter")
     private static double xyBoundRateLimit = 3;
