@@ -70,10 +70,10 @@ public class Elevator extends SubsystemBase {
      * Controllers: Feedforward and ProfiledPIDController.
      */
     public Elevator() {
-//        leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast));
-//        rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast));
-        leftMotor = new FakeMotor();
-        rightMotor = new FakeMotor();
+        leftMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_LEFT_MOTOR_ID, NeutralModeValue.Coast));
+        rightMotor = new TalonFxMotor(MotorUtil.initTalonFX(Constants.ELEVATOR_RIGHT_MOTOR_ID, NeutralModeValue.Coast));
+        // leftMotor = new FakeMotor();
+        // rightMotor = new FakeMotor();
 
         leftMotor.setPosition(Rotations.of(0));
         rightMotor.setPosition(Rotations.of(0));

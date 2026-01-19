@@ -35,8 +35,8 @@ public class Intake extends SubsystemBase {
      * Controllers: None
      */
     public Intake() {
-//        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(INTAKE_MOTOR_ID, NeutralModeValue.Brake));
-        Motor motor = new FakeMotor();
+        Motor motor = new TalonFxMotor(MotorUtil.initTalonFX(INTAKE_MOTOR_ID, NeutralModeValue.Brake));
+        // Motor motor = new FakeMotor();
 
         motorGroup = new MotorGroup<>(motor);
         sensor = new DigitalInput(INTAKE_SENSOR_ID);
